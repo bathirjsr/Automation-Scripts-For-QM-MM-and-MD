@@ -1,0 +1,15 @@
+#Input for QMMM Modelling
+parsefile=                              #Parse_amber.tcl File path
+system=                                 #System(Filename of the parameter)
+parm=                                   #Parameter File path
+frame=                                  #Frame Number
+trajin=                                 #Non-Autoimaged Trajectory File
+resname="FE1 OY1 SC1 GU1 HD1 HD2"     #RC Residues
+substrate=M3L                           #Substrate Residue
+numberofres=1-552                       #Residue range
+basis=def2-SVP                          #basis
+charge=0                                #Charge of the system
+unp=4                                   #Unpaired electrons in Iron center
+nodes=20                                #Number of processors
+tleapinput=                             #tleap input file path used for building the MD files
+

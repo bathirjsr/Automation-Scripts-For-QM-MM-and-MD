@@ -1,0 +1,140 @@
+# adenine - Amber example with polarisation turned off
+# hybrid with electrostaic embedding
+global sys_name_id
+set control_input_settings [ open SUMMARY.txt  a]
+puts $control_input_settings "Summary of scan."
+source parse_amber.tcl
+source active.dat
+set sys_name_id scan
+set res [ pdb_to_res "${sys_name_id}_0.pdb" ]
+set myresidues  [ inlist function=combine residues= $res sets= {FE1450 OY1451 HD1247 HD2319 AG1452 AP1249 WAT3522 WAT4473 M2L461} target=QM ]
+set prmtop scan.prmtop
+# for the time being we have to calculate an energy to be able to call list_amber_atom_charges
+energy energy=e coords=scan_0.c theory=dl_poly  : [ list \
+					    amber_prmtop_file=$prmtop \
+					    scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+					    mxexcl=2000  \
+					    mxlist=40000 \
+					    cutoff=1000 \
+					    use_pairlist = no \
+					    save_dl_poly_files = yes \
+   					    exact_srf=yes \
+					    list_option=none ]
+
+set atom_charges [ list_amber_atom_charges ]
+set qm_atoms {7198-7214 3926-3936 5074-5084 3962-3967 16601-16603 19454-19456 7374-7386 }
+
+#-------------------------------------------------------------
+# optimize geometry
+
+set A 7200
+set B 7204
+
+##################################
+#scan parameters                 #
+##################################
+set stepnum 40
+
+set initdist [interatomic_distance coords= scan_0.c i=$A j=$B unit=angstrom ]
+
+set incr -0.1
+
+for {set i 0} { $i < $stepnum} {incr i} {
+
+set stepper [expr ($initdist + $incr*$i)*1.89036 ]
+
+set atomA [ get_atom_entry atom_number=$A coords= scan_$i.c]
+set atomB [ get_atom_entry atom_number=$B coords= scan_$i.c]
+set symbol [ lindex $atomB 0]
+
+set xa [ lindex $atomA 1]
+set xb [ lindex $atomB 1]
+set ya [ lindex $atomA 2]
+set yb [ lindex $atomB 2]
+set za [ lindex $atomA 3]
+set zb [ lindex $atomB 3]
+
+set xx [ expr $xb - $xa ]
+set yy [ expr $yb - $ya ]
+set zz [ expr $zb - $za ]
+
+set length [ expr sqrt($xx*$xx + $yy*$yy + $zz*$zz) ]
+
+set xxx [ expr $xx / $length ]
+set yyy [ expr $yy / $length ]
+set zzz [ expr $zz / $length ]
+
+#displace atom along bond vector
+set newx [ expr $xa + $xxx * $stepper ]
+set newy [ expr $ya + $yyy * $stepper ]
+set newz [ expr $za + $zzz * $stepper ]
+set newat [subst {$symbol $newx $newy $newz}]
+replace_atom_entry coords=scan_$i.c atom_number=$B atom_entry= $newat
+
+#-------------------------------------------------------------
+# optimize geometry with distance A-B fixed
+dl-find maxcycle=900 coords=scan_${i}.c active_atoms= $active residues= $myresidues list_option=full result=scan_[expr ($i+1)].c \
+            coordinates= hdlc \
+             optimiser= lbfgs \
+             tolerance= 0.0009 \
+             tolerance_e= 0.00001 \
+constraints= {{bond 7200 7204}}  \
+theory=hybrid : [ list \
+      coupling= shift \
+      qm_region= $qm_atoms \
+      atom_charges= $atom_charges \
+      qm_theory= turbomole : [list   \
+                       read_control= yes \
+                       scratchdir=/data/shobhit \
+                       hamiltonian= b3-lyp \
+                       scftype= uhf  ]  \
+      mm_theory= dl_poly  : [ list \
+        amber_prmtop_file= $prmtop \
+        exact_srf=yes \
+    use_pairlist=no \
+mxlist=40000 \
+cutoff=1000 \
+mxexcl=2000  \
+debug_memory=no \
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+                conn= scan_0.c \
+                save_dl_poly_files = yes \
+         list_option=none ]]
+
+####
+# save structure and orbitals of this step
+exec cp scan_[expr ($i+1)].c scan_[expr ($i+1)].c_save
+exec gzip  scan_[expr ($i+1)].c_save
+exec cp alpha alpha_[expr ($i+1)]
+exec cp beta beta_[expr ($i+1)]
+exec gzip alpha_[expr ($i+1)]
+exec gzip beta_[expr ($i+1)]
+read_pdb  file= scan_0.pdb  coords=dummy.coords
+write_pdb file= scan_[expr ($i+1)].pdb coords=scan_[expr ($i+1)].c
+exec gzip scan_[expr ($i+1)].pdb
+
+
+# write summary to file
+puts $control_input_settings "======================================"
+puts $control_input_settings "structure [expr ($i+1)]"
+
+set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
+puts $control_input_settings [format "Energy:%14.6f" $energy]
+
+   set R1 [interatomic_distance coords= scan_[expr ($i+1)].c i=7200 j=7204 unit=angstrom ]
+   puts $control_input_settings [format "Distance R1(A-B):%4.3f" $R1]
+
+flush $control_input_settings
+
+#---------------------------------------------------------------------------
+
+}
+
+
+# cleanup
+catch {delete_object hybrid.turbomole.coords}
+catch {file delete dummy.coords}
+flush $control_input_settings
+close $control_input_settings
+
+exit

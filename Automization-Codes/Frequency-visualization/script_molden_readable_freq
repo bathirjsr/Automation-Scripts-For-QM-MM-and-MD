@@ -1,0 +1,13 @@
+#!/bin/csh
+
+echo "[Molden Format]" > freq.molden
+echo "[Title]" >> freq.molden
+echo "Chemshell job" >> freq.molden
+echo "[Atoms] AU" >> freq.molden
+cat fr-coord1 >> freq.molden
+echo "[FREQ]" >> freq.molden
+cat frq >> freq.molden
+echo "[FR-COORD]" >> freq.molden
+cat fr-coord2 >> freq.molden
+echo "[FR-NORM-COORD]" >> freq.molden
+cat fr-disp >> freq.molden

@@ -1,0 +1,25 @@
+For a project:
+Modify the atomselect command for QM selection and myresidues in the QMMM.sh script & the directory for the parse_amber.tcl file
+
+Syntax
+Step 0 QM-MM Model building at 6-md folder
+./QMMM.sh -i input.in -s 0
+
+Step 1 RC-OPT
+./QMMM.sh -i input.in -s 1
+For Frequency -s 1f
+For Single point -s 1s
+
+Step 2 Scan
+./QMMM.sh -i input.in -s 2 -a <atomnumber1> -b <atomnumber2>
+
+Step 3 TS-Opt
+./QMMM.sh -i input.in -s 3 -t <transition state number>
+For Frequency -s 3f
+For Single point -s 3s
+
+Step 4 PD-Opt
+./QMMM.sh -i input.in -s 4 -p <Product state number>
+For Frequency -s 4f
+For Single point -s 4s
+

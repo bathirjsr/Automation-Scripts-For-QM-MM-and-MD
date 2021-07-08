@@ -1,0 +1,26 @@
+#! /usr/bin/gawk -f
+
+/block=coordinates/, /block=connectivity/ {
+ if (! ($0 ~ /block/)) {
+    icount+=1
+    if ($1 == "c") atno=6;
+    if ($1 == "n") atno=7;
+    if ($1 == "o") atno=8;
+    if ($1 == "h") atno=1;
+    if ($1 == "s") atno=16;
+    if ($1 == "fe") atno=26;
+    print $1,icount,atno,$2,$3,$4 > "fr-coord1"
+    print $1,$2,$3,$4 > "fr-coord2"
+}
+}
+/vibrational_frequency/ { nmode+=1 ; next }
+ nmode >= 1 {
+ if (! ($1 ~ /[A-Z]/)) {
+   print $1 > "frq"
+}
+}
+
+/normal_coordinates/ { disp+=1 ; print ("vibration", disp) > "fr-disp" ; next }
+disp >=1 {
+   print $2,$3,$4 >> "fr-disp"
+}

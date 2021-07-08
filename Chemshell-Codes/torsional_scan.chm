@@ -1,0 +1,115 @@
+# adenine - Amber example with polarisation turned off
+# hybrid with electrostaic embedding
+global sys_name_id
+set control_input_settings [ open SUMMARY.txt  a]
+puts $control_input_settings "Summary of scan."
+source parse_amber.tcl
+source active.dat
+set sys_name_id scan
+set res [ pdb_to_res "${sys_name_id}_0.pdb" ]
+set myresidues  [ inlist function=combine residues= $res sets= { ENZY450 ENZY451 ENZY247 ENZY319 ENZY452 ENZY249 ENZY461 SOLV2661 SOLV4456} target=fatone ]
+set prmtop scan.prmtop
+# for the time being we have to calculate an energy to be able to call list_amber_atom_charges
+# define QM/MM settings:
+energy energy=e coords=scan_0.c theory=dl_poly  : [ list \
+					    amber_prmtop_file=$prmtop \
+					    scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+					    mxexcl=2000  \
+					    mxlist=40000 \
+					    cutoff=1000 \
+					    use_pairlist = no \
+					    save_dl_poly_files = yes \
+   					    exact_srf=yes \
+					    list_option=none ]
+
+set atom_charges [ list_amber_atom_charges ]
+set qm_atoms {7189-7202 7362-7374 5065-5075 3917-3927 3953-3958 14006-14008 19391-19393}
+#-------------------------------------------------------------
+
+#################################
+#specification of atoms for scan#
+#################################
+set A 991
+set B 1001
+set C 1003
+set D 1007
+
+# step number
+set stepnum 20
+
+# stepsize in degree
+set incr 1
+
+# initial torsion
+set t0 [dihedral coords=scan_0.c i=$A j=$B k=$C l=$D]
+
+for {set i 0} { $i < $stepnum} {incr i} {
+set m [expr ($t0 + $incr * $i) ]
+#-------------------------------------------------------------
+
+# optimize geometry with distance A-B fixed
+dl-find maxcycle=900 coords= scan_${i}.c  \
+        result= scan_[expr ($i+1)].c \
+                tolerance= 0.00099 \
+                residues= $myresidues \
+ restraints= [ list [ list torsions $A $B $C $D $m 3.0 ] ] \
+        active_atoms= $active \
+        theory= hybrid : [ list \
+      coupling= shift \
+      qm_region= $qm_atoms \
+      atom_charges= $atom_charges \
+      qm_theory= turbomole : [list   \
+                       read_control= yes \
+                       scratchdir=/home/shobhitc \
+                       hamiltonian= b3lyp \
+                       scftype= uhf  ]  \
+      mm_theory= dl_poly  : [ list \
+        amber_prmtop_file= $prmtop \
+        exact_srf=yes \
+    use_pairlist=no \
+mxlist=40000 \
+cutoff=1000 \
+mxexcl=2000  \
+debug_memory=no \
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+                conn= scan_0.c \
+                save_dl_poly_files = yes \
+         list_option=none ]]
+
+
+# save structure and orbitals of this step
+exec cp scan_[expr ($i+1)].c scan_[expr ($i+1)].c_save
+exec gzip  scan_[expr ($i+1)].c_save
+exec cp alpha alpha_[expr ($i+1)]
+exec cp beta beta_[expr ($i+1)]
+exec gzip alpha_[expr ($i+1)]
+exec gzip beta_[expr ($i+1)]
+read_pdb  file= scan_0.pdb  coords=dummy.coords
+write_pdb file= scan_[expr ($i+1)].pdb coords=scan_[expr ($i+1)].c
+exec gzip scan_[expr ($i+1)].pdb
+
+
+# write summary to file
+puts $control_input_settings "======================================"
+puts $control_input_settings "structure [expr ($i+1)]"
+
+set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
+puts $control_input_settings [format "Energy:%14.6f" $energy]
+
+   set D1 [dihedral coords=scan_[expr ($i+1)].c i=$A j=$B  k=$C l=$D]
+   puts $control_input_settings [format "Dihedral D1(A-B-C-D):%4.1f" $D1]
+
+flush $control_input_settings
+
+#---------------------------------------------------------------------------
+
+}
+
+
+# cleanup
+catch {delete_object hybrid.turbomole.coords}
+catch {file delete dummy.coords}
+flush $control_input_settings
+close $control_input_settings
+
+exit

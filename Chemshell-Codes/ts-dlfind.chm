@@ -1,0 +1,57 @@
+# adenine - Amber example with polarisation turned off
+# hybrid with electrostaic embedding
+
+global sys_name_id
+source parse_amber.tcl
+source active.dat
+set sys_name_id ts
+set res [ pdb_to_res "${sys_name_id}.pdb" ]
+set prmtop ts.prmtop
+# set inpcrd
+# load_amber_coords inpcrd=$inpcrd prmtop=$prmtop coords=dummy.c
+# for the time being we have to calculate an energy to be able to call list_amber_atom_charges
+energy energy=e coords=ts.c theory=dl_poly  : [ list \
+					    amber_prmtop_file=$prmtop \
+					    scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+					    save_dl_poly_files = yes \
+   					    exact_srf=yes ]
+
+set atom_charges [ list_amber_atom_charges ]
+
+set qm_atoms {5369-5385 2943-2948 4111-4121 2912-2922 5386-5412}
+
+##change: add "basis= {def2-SVP all}"
+set qmflags { hamiltonian=b3-lyp scftype= uhf basis= {def2-SVP all} read_control= yes }
+set qm_theory turbomole
+
+matrix dl-find.energy new volatile
+
+dl-find coords=${sys_name_id}.c active_atoms= $active \
+        result=${sys_name_id}.opt.c coordinates=hdlc residues= $res \
+		optimiser=lbfgs tolerance=0.00135 trustradius=const \
+		dimer=true delta=0.01 \
+	    maxcycle=1000 maxene=300 \
+		dump= 50 list_option=full \
+		tsrelative=true \
+		maxstep=0.5 \
+        theory=hybrid : [ list \
+        coupling= shift \
+        qm_region= $qm_atoms \
+        atom_charges= $atom_charges \
+        qm_theory= turbomole : $qmflags  \
+        mm_theory= dl_poly  : [ list \
+        amber_prmtop_file= $prmtop \
+        exact_srf=yes \
+        conn= ts.c \
+    use_pairlist=no \
+mxlist=70000 \
+mxexcl=2000  \
+cutoff=1000 \
+debug_memory=no \
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+                save_dl_poly_files = yes \
+         list_option=none ]]
+read_pdb  file= ${sys_name_id}.pdb  coords=hybrid.dl_poly.coords
+write_pdb file= ${sys_name_id}.opt.pdb coords= ${sys_name_id}.opt.c
+write_xyz file= ${sys_name_id}.QMregion.opt.xyz coords=hybrid.${qm_theory}.coords
+ exit

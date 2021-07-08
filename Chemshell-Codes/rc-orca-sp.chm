@@ -1,0 +1,69 @@
+# adenine - Amber example with polarisation turned off
+# hybrid with electrostaic embedding
+global sys_name_id
+source parse_amber.tcl
+source orca-chemsh.tcl
+source active.dat
+set sys_name_id rc 
+set res [ pdb_to_res "${sys_name_id}.pdb" ]
+set myresidues  [ inlist function=combine residues= $res sets= {HD1119 HD2123 HD3129 GLU120 CO1369 WAT4305 WAT7526} target=fatone ]
+set prmtop rc.prmtop
+#set inpcrd snap-9998.rst         
+#load_amber_coords inpcrd=$inpcrd prmtop=$prmtop coords=rc.c
+# for the time being we have to calculate an energy to be able to call list_amber_atom_charges
+energy energy=e coords=rc.c theory=dl_poly  : [ list \
+					    amber_prmtop_file=$prmtop \
+					    scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+					    mxexcl=2000  \
+					    mxlist=40000 \
+					    cutoff=1000 \
+					    use_pairlist = no \
+					    save_dl_poly_files = yes \
+   					    exact_srf=yes \
+					    list_option=none ]
+
+set atom_charges [ list_amber_atom_charges ]
+set qm_atoms { 1829-1834 1837-1841 1846-1854 1887-1892 1895-1899 1971-1976 1979-1983 5812 18636-18638 28299-28301 }
+# ORCA settings for simple input line
+set orcasimpleinput " ! B3LYP def2-TZVP "
+# ORCA block settings are specified here.
+set orcablocks "
+%scf 
+MaxIter 999
+end
+%pal
+nprocs 1
+end
+%EPRNMR
+GTENSOR TRUE
+end
+"
+
+# optimize geometry with distance A-B fixed
+energy coords= ${sys_name_id}.c  energy= ${sys_name_id}.e \
+theory=hybrid : [ list \
+      coupling= shift \
+      qm_region= $qm_atoms \
+      atom_charges= $atom_charges \
+      qm_theory= orca : [list   \
+                      executable=/usr/local/orca_4_2_1_linux_x86-64_openmpi314/orca \
+                       orcasimpleinput= $orcasimpleinput \
+                       orcablocks= $orcablocks \
+                       charge=1 \
+                       mult=4 ] \
+      mm_theory= dl_poly  : [ list \
+        amber_prmtop_file= $prmtop \
+        exact_srf=yes \
+    use_pairlist=no \
+mxlist=40000 \
+cutoff=1000 \
+mxexcl=2000  \
+debug_memory=no \
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+                conn= rc.c \
+                save_dl_poly_files = yes \
+         list_option=none ]]
+
+####
+ exit
+
