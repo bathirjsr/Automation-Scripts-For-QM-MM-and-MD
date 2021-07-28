@@ -1,4 +1,4 @@
-#!/bin/csh
+#! /bin/bash
 
 echo "[Molden Format]" > freq.molden
 echo "[Title]" >> freq.molden
