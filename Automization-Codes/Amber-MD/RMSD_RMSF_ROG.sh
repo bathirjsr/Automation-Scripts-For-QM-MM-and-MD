@@ -1,26 +1,29 @@
+#! /bin/bash
 while getopts p:r:f:t: flag
 do
     case "${flag}" in
         p) parm=${OPTARG};;
         r) resid=${OPTARG};;
         f) ref=${OPTARG};;
-	t) traj=${OPTARG};;
+	    t) traj=${OPTARG};;
+        *) echo "usage: $0 [-p] [-r] [-f] [-t] " >&2
+       exit 1 ;;
 esac
 done
 
 trajname=$(basename -- "$traj")
-trajext="${trajname##*.}"
+#trajext="${trajname##*.}"
 trajname="${trajname%.*}"
 
 parmname=$(basename -- "$parm")
-parmext="${parmname##*.}"
+#parmext="${parmname##*.}"
 parmfile="${parmname%_solv*}"
 
 residinp=$(basename -- "$resid")
 residlast="${residinp##-*.}"
-residfirst="${residinp%-*}"
+#residfirst="${residinp%-*}"
 
-cat > RMSD.in << EOF
+mpirun -np 96 cpptraj.MPI -i << EOF
 parm ${parm}
 trajin ${traj}
 autoimage
@@ -33,7 +36,7 @@ surf :${resid}@CA,ZN,FE,O1 out SURF_${parmfile}.dat
 run
 EOF
 
-mpirun -np 96 cpptraj.MPI -i RMSD.in
+#mpirun -np 96 cpptraj.MPI -i RMSD.in
 
 rmsd=RMSD_${parmfile}.dat
 rmsf=RMSF_${parmfile}.dat
