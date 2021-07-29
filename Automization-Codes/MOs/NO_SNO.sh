@@ -44,6 +44,8 @@ EOF
   cp RC_NO.chk RC_SNO.chk
   sed -i 's/RC_NO/RC_SNO/g;s/NaturalOrbitals/SpinNatural/g' RC_SNO.com
   nohup g16 < RC_SNO.com > RC_SNO.log
+grep 'Eigenvalues' RC_NO.log | awk '{print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > NO_Occupancy.dat
+  grep 'Eigenvalues' RC_SNO.log | awk '{print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > SNO_Occupancy.dat
   cd ../SP/ || exit
   eiger -a > MO_"${dirnumber}".txt
   cd ../../../
@@ -76,6 +78,8 @@ EOF
   cp TS_NO.chk TS_SNO.chk
   sed -i 's/TS_NO/TS_SNO/g;s/NaturalOrbitals/SpinNatural/g' TS_SNO.com
   nohup g16 < TS_SNO.com > TS_SNO.log
+  grep 'Eigenvalues' TS_NO.log | awk '{print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > NO_Occupancy.dat
+  grep 'Eigenvalues' TS_SNO.log | awk '{print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > SNO_Occupancy.dat
   cd ../SP/ || exit
   eiger -a > MO_"${dirnumber}".txt
   cd ../../../
@@ -108,6 +112,8 @@ EOF
   cp PD_NO.chk PD_SNO.chk
   sed -i 's/PD_NO/PD_SNO/g;s/NaturalOrbitals/SpinNatural/g' PD_SNO.com
   nohup g16 < PD_SNO.com > PD_SNO.log
+  grep 'Eigenvalues' PD_NO.log | awk '{print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > NO_Occupancy.dat
+  grep 'Eigenvalues' PD_SNO.log | awk '{print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > SNO_Occupancy.dat
   cd ../SP/ || exit
   eiger -a > MO_"${dirnumber}".txt
   cd ../../../
