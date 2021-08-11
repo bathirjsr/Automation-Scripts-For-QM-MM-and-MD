@@ -96,9 +96,11 @@ EOF
     cd ../../
    
     cd ../Analysis || exit
-    a=$(sed '$d' QM.pdb | awk 'END{print $2}')
+	a=$(sed '$d' QM.pdb | awk 'END{print $2}')
     b=$(t2x coord_"${dirnumber}"_${step} | awk 'NR==1')
     sum=$(( b - a ))
+	echo "${dirnumber}" "${step}" > CoordData_"${dirnumber}"_${step}
+	t2x coord_"${dirnumber}"_${step} | tail -n ${b} >> CoordData_"${dirnumber}"_${step}	
     t2x coord_"${dirnumber}"_${step}| head -n -${sum} > qm_without_link.xyz
     t2x coord_"${dirnumber}"_${step}| tail -n ${sum} > qm_link.xyz
     awk '{ print $0, NR }' qm_link.xyz > qm_link_nr.xyz
