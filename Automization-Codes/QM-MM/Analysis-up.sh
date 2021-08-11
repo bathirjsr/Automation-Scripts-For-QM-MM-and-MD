@@ -186,7 +186,7 @@ EOF
 					echo "${at}"
 					rm tmp_"${l}"
 					rm tmp1_"${l}"					
-					if [ ! -z "$link" ]; then
+					if [ -n "$link" ]; then
  					ch="${x} ${link}""h" 
 					fi
 				done
