@@ -193,6 +193,7 @@ EOF
 					fi
 				done
 			echo ${ch}
+			
 			echo ${ch} > Residues_"${dirnumber}"_${step}_${j}.txt
 			tot=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt Charge_"${dirnumber}"_${step}.txt)
 			echo ${j} "${tot}" >> "${dirnumber}"_${step}.txt
