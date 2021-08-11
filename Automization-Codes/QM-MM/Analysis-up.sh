@@ -4,6 +4,7 @@ if [[ ! -e ../Analysis ]]; then
 elif [[ ! -d ../Analysis ]]; then
     echo "Analysis already exists but is not a directory" 1>&2
 fi
+rm ../Analysis/Energy.txt
 cd ../MD/6-md/ || exit
 cat > QM.tcl <<ENDOFFILE
 mol load pdb rc.pdb
@@ -28,6 +29,51 @@ do
   dirnumber="${dirname##*Frame}"
   echo "${dirnumber}"
   echo "$i" "${dirs[i]}"
+  RC=$(grep 'Final converged energy' "${dirs[i]}"/1-RC_Opt/RC_dlfind.log|awk '{printf "%30f", $NF}') 
+  RC_SP=$(grep 'Energy (     hybrid):' "${dirs[i]}"/1-RC_Opt/SP/RC_SP.log|awk '{printf "%30f", $(NF-1)}')
+  RC_ZPE=$(grep 'total ZPE' "${dirs[i]}"/1-RC_Opt/Frequency/RC_Freq.log|awk '{printf "%30f", $(NF-1)}'| awk '{printf "%30f", $1/(1000*4.184*627.5095)}')
+  RC_B2_ZPE=$(awk -v t="$RC_SP" -v r="$RC_ZPE" 'BEGIN{printf "%30f", (t + r)}')
+  TS=$(grep 'Final converged energy' "${dirs[i]}"/3-TS_Opt/TS_Opt.log|awk '{printf "%30f", $NF}')
+  TS_SP=$(grep 'Energy (     hybrid):' "${dirs[i]}"/3-TS_Opt/SP/TS_SP.log|awk '{printf "%30f", $(NF-1)}')
+  TS_ZPE=$(grep 'total ZPE' "${dirs[i]}"/3-TS_Opt/Frequency/TS_Freq.log|awk '{printf "%30f", $(NF-1)}'| awk '{printf "%30f", $1/(1000*4.184*627.5095)}')
+  TS_B2_ZPE=$(awk -v t="$TS_SP" -v r="$TS_ZPE" 'BEGIN{printf "%30f", (t + r)}')
+  PD=$(grep 'Final converged energy' "${dirs[i]}"/4-PD_Opt/PD_Opt.log|awk '{printf "%30f", $NF}')
+  PD_SP=$(grep 'Energy (     hybrid):' "${dirs[i]}"/4-PD_Opt/SP/PD_SP.log|awk '{printf "%30f", $(NF-1)}')
+  PD_ZPE=$(grep 'total ZPE' "${dirs[i]}"/4-PD_Opt/Frequency/PD_Freq.log|awk '{printf "%30f", $(NF-1)}'| awk '{printf "%30f", $1/(1000*4.184*627.5095)}')
+  PD_B2_ZPE=$(awk -v p="$PD_SP" -v r="$PD_ZPE" 'BEGIN{printf "%30f", (p + r)}')
+  TSHAT=$(awk -v t="$TS" -v r="$RC" 'BEGIN{printf "%30f", (t - r)*627.5095}')
+  TSHAT_ZPE=$(awk -v t="$TS_B2_ZPE" -v r="$RC_B2_ZPE" 'BEGIN{printf "%30f", (t - r)*627.5095}')
+  PDHAT=$(awk -v p="$PD" -v r="$RC" 'BEGIN{printf "%30f", (p - r)*627.5095}')
+  PDHAT_ZPE=$(awk -v p="$PD_B2_ZPE" -v r="$RC_B2_ZPE" 'BEGIN{printf "%30f", (p - r)*627.5095}')
+  cd ../Analysis || exit
+cat > Whole_Energy_"${dirnumber}".txt << EOF
+RC		${RC}		
+RC_SP		${RC_SP}
+RC_ZPE		${RC_ZPE}
+RC_B2_ZPE	${RC_B2_ZPE}
+TS		${TS}
+TS_SP		${TS_SP}
+TS_ZPE		${TS_ZPE}
+TS_B2_ZPE	${TS_B2_ZPE}
+PD		${PD}
+PD_SP		${PD_SP}
+PD_ZPE		${PD_ZPE}
+PD_B2_ZPE	${PD_B2_ZPE}
+EOF
+  cat > Energy_"${dirnumber}".txt << EOF
+Frame_Number		${dirnumber}         
+RC			${RC}        
+RC-B2+ZPE		${RC_B2_ZPE}        
+TS			${TS}        
+TS-B2+ZPE		${TS_B2_ZPE}        
+PD			${PD}        
+PD-B2+ZPE		${PD_B2_ZPE}        
+HAT                     ${TSHAT}Kcal/mol
+HAT_ZPE                 ${TSHAT_ZPE}Kcal/mol
+PD_Energy		${PDHAT}Kcal/mol
+PD_Energy_ZPE		${PDHAT_ZPE}Kcal/mol
+EOF
+  cd ../QMMM || exit
   for step in 1-RC_Opt 2-Scan 3-TS_Opt 4-PD_Opt
   do
    if [ "${step}" = "2-Scan" ]; then
@@ -90,34 +136,42 @@ BEGIN{sum = 0}
 if (NR != FNR) 
 for (x in res)
 	if (\$1 == res[x]){sum += \$2} }
-END{print sum}
+END{printf "%30f", sum}
 EOF
 	awk -f calcdist.awk qm_link_nr.xyz qm_without_link_nr.xyz | sort -n -k3 | head -n 6 | awk '{$1+=61}1' | tail -n 4   > link_"${dirnumber}"_${step}.txt
-	rm "${dirnumber}"_${step}.txt	
 	grep -A 65 "atom      charge" population_"${dirnumber}"_${step}.txt | sed '1d' | awk '{print $1,$2}' > Charge_"${dirnumber}"_${step}.txt
-	grep -A 10 "Unpaired electrons" population_"${dirnumber}"_${step}.txt > UNP_"${dirnumber}"_${step}.txt
-
+	grep -A 20 "Unpaired electrons" population_"${dirnumber}"_${step}.txt > UNP_"${dirnumber}"_${step}.txt
+        sed '1,3d' UNP_"${dirnumber}"_${step}.txt | awk '{print $1,$2}' > spin_"${dirnumber}"_${step}.txt
 		for j in FE1 OY1 SC1 GU1 HD1 HD2 M3L
 		do	
 			if [ "${j}" = "FE1" ]; then
 			res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')	
 			tot=$(awk -v i="${res}" '$1==i {print $2}' Charge_"${dirnumber}"_${step}.txt)
 			echo ${j} "${tot}" > "${dirnumber}"_${step}.txt
+			spin=$(awk -v i="${res}" '$1==i {printf "%20f", $2}' spin_"${dirnumber}"_${step}.txt)
+			echo ${j} "${spin}" > Spin_Density_"${dirnumber}"_${step}.txt
+
 			elif [ "${j}" = "OY1" ]; then
 			res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')	
 			tot=$(awk -v i="${res}" '$1==i {print $2}' Charge_"${dirnumber}"_${step}.txt)
 			echo ${j} "${tot}" >> "${dirnumber}"_${step}.txt
+			spin=$(awk -v i="${res}" '$1==i {printf "%20f", $2}' spin_"${dirnumber}"_${step}.txt)
+			echo ${j} "${spin}" >> Spin_Density_"${dirnumber}"_${step}.txt
+
 			elif [ "${j}" = "SC1" ]; then
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
-			echo "${x}" > Residues_"${dirnumber}"_${step}_${j}.txt
+			echo ${x} > Residues_"${dirnumber}"_${step}_${j}.txt
 			tot=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt Charge_"${dirnumber}"_${step}.txt)
-			echo ${j} "${tot}" >> "${dirnumber}"_${step}.txt			
+			echo ${j} "${tot}" >> "${dirnumber}"_${step}.txt
+			spin=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt spin_"${dirnumber}"_${step}.txt)
+			echo ${j} "${spin}" >> Spin_Density_"${dirnumber}"_${step}.txt
+			
 			else
-			rm Residues_"${dirnumber}"_${j}.txt
+			#rm Residues_"${dirnumber}"_${j}.txt
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
-			echo "${x}"
+			echo ${x}
 			z=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2}')		
-			echo "${z}"
+			echo ${z}
 			for l in ${z}	
 				do	
 cat > tmp_"${l}" << EOF
@@ -132,18 +186,22 @@ EOF
 					echo "${at}"
 					rm tmp_"${l}"
 					rm tmp1_"${l}"					
-					if [ -n "$link" ]; then
+					if [ ! -z "$link" ]; then
  					ch="${x} ${link}""h" 
 					fi
 				done
-			echo "${ch}"
-			echo "${ch}" > Residues_"${dirnumber}"_${step}_${j}.txt
+			echo ${ch}
+			echo ${ch} > Residues_"${dirnumber}"_${step}_${j}.txt
 			tot=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt Charge_"${dirnumber}"_${step}.txt)
 			echo ${j} "${tot}" >> "${dirnumber}"_${step}.txt
+			spin=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt spin_"${dirnumber}"_${step}.txt)
+			echo ${j} "${spin}" >> Spin_Density_"${dirnumber}"_${step}.txt
 			fi
  		done
 	cd ../QMMM || exit
 	fi	
     done
 done
-
+cd ../Analysis || exit
+paste Energy_* | awk '{printf ("%15-s\t%10s\t%10s\t%10s\t%10s\t%10s\n", $1,$2,$4,$6,$8,$10)}' > Energy.txt
+cd ../QMMM || exit
