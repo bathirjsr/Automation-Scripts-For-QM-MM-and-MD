@@ -378,8 +378,20 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 if [ "$(grep -c "Energy evaluation failed" RC_dlfind.log)" -ge 1 ]; then
         echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
         sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+        omit=$(pidof chemsh.x)
+	string="${omit//${IFS:0:1}/,}"
         tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_dlfind.chm >& RC_dlfind.log &"
-        echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+	sleep 5
+	if [ -z "$string" ]
+	then
+	calc=$(pidof chemsh.x)
+	else
+	calc=$(pidof -o ${string} chemsh.x)    
+	fi
+	sleep 5
+	while ps -p "${calc}" > /dev/null;do sleep 1;done;
+	echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 else
         echo "RC Completed"
         echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
