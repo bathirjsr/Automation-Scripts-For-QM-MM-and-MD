@@ -24,6 +24,8 @@ do
 	b) B=${OPTARG};;
 	t) transition=${OPTARG};;
 	p) product=${OPTARG};;	
+    *) echo "usage: $0 [-i] [-s] [-a] [-b] [-t] [-p]" >&2
+       exit 1 ;;
 esac
 done
 
@@ -70,14 +72,14 @@ Steps of QMMM Calculations (Execution Folder given in Brackets)
 "
 exit
 fi
-source ${inp}
+source "${inp}"
 user=$USER
 host=$(hostname)
 if [ "$step" = "0" ]; then
-cp $parsefile .
-gedit parse_amber.tcl $tleapinput							#Check for correct path of parse_amber.tcl
+cp "$parsefile" .
+gedit parse_amber.tcl "$tleapinput"							#Check for correct path of parse_amber.tcl
 echo "Did you check parse_amber.tcl and made sure atoms are grouped correctly as such in tleap input?"
-read parse_amber
+read -r parse_amber
 if [ "$parse_amber" = "yes" ]; then
 echo "Modelling proceeds"
 else
@@ -85,7 +87,7 @@ exit
 fi
 
 #CREATING INPUT FILES FOR CPPTRAJ FOR PREPARING RC COMPLEX FILES
-cat > Frame_${frame}.in << ENDOFFILE
+cat > Frame_"${frame}".in << ENDOFFILE
 parm ${parm}
 trajin ${trajin} ${frame} ${frame}
 autoimage
@@ -93,8 +95,8 @@ trajout ${frame}.pdb
 run
 exit
 ENDOFFILE
-cat Frame_${frame}.in
-cat > Water_strip_${frame}.in <<ENDOFFILE
+cat Frame_"${frame}".in
+cat > Water_strip_"${frame}".in <<ENDOFFILE
 parm ${parm}
 trajin ${frame}.pdb
 reference ${frame}.pdb
@@ -104,8 +106,8 @@ trajout stripped12.${system}.pdb
 run
 exit
 ENDOFFILE
-cat Water_strip_${frame}.in
-cat > ReactionComplex_${frame}.in <<ENDOFFILE
+cat Water_strip_"${frame}".in
+cat > ReactionComplex_"${frame}".in <<ENDOFFILE
 parm stripped12.${system}.prmtop
 trajin stripped12.${system}.pdb
 trajout rc.pdb
@@ -113,42 +115,42 @@ trajout rc.rst restart
 run
 exit
 ENDOFFILE
-cat ReactionComplex_${frame}.in
+cat ReactionComplex_"${frame}".in
 
 #CREATING RC COMPLEX FILES
-nohup cpptraj -i Frame_${frame}.in > Frame_${frame}.out &
+nohup cpptraj -i Frame_"${frame}".in > Frame_"${frame}".out &
 process=$!
 while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Error" Frame_${frame}.out)" -ge 1 ]; then
+if [ "$(grep -c "Error" Frame_"${frame}".out)" -ge 1 ]; then
                 echo "Cpptraj Error"
                 exit
         else
                 echo "Generated Frame PDB"
         fi
-nohup cpptraj -i Water_strip_${frame}.in > Water_strip_${frame}.out &
+nohup cpptraj -i Water_strip_"${frame}".in > Water_strip_"${frame}".out &
 process=$!
 while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Error" Water_strip_${frame}.out)" -ge 1 ]; then
+if [ "$(grep -c "Error" Water_strip_"${frame}".out)" -ge 1 ]; then
                 echo "Cpptraj Error"
                 exit
         else
                 echo "Generated WaterStripped PDB and prmtop"
         fi
-nohup cpptraj -i ReactionComplex_${frame}.in > ReactionComplex_${frame}.out &
+nohup cpptraj -i ReactionComplex_"${frame}".in > ReactionComplex_"${frame}".out &
 process=$!
 while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Error" ReactionComplex_${frame}.out)" -ge 1 ]; then
+if [ "$(grep -c "Error" ReactionComplex_"${frame}".out)" -ge 1 ]; then
                 echo "Cpptraj Error"
                 exit
         else
                 echo "Generated RC files for RC_OPT"
         fi
-cp stripped12.${system}.prmtop rc.prmtop
+cp stripped12."${system}".prmtop rc.prmtop
 sed -i "9s/1/0/" rc.prmtop
 
 #MAKING QMMM MODEL
 echo "Creating QMMM Model"
-cat > QM_MM_${frame}.tcl <<ENDOFFILE
+cat > QM_MM_"${frame}".tcl <<ENDOFFILE
 mol load pdb rc.pdb
 atomselect top "same residue as (within 8 of (resname $resname $substrate))"
 atomselect0 num
@@ -191,28 +193,28 @@ echo "Using rc.pdb"
 echo "Using Residues:${resname}"
 echo "Using Substrate:${substrate}"
 
-vmd -dispdev text -e QM_MM_${frame}.tcl
+vmd -dispdev text -e QM_MM_"${frame}".tcl
 
-vmd QM_${frame}.pdb
+vmd QM_"${frame}".pdb
 echo "Does QM Model looks correct?"
-read decision_QM
+read -r decision_QM
 if [ "$decision_QM" = "yes" ]; then
 echo "QM Modelling Success"
 else
 exit
 fi
 
-vmd MM_${frame}.pdb
+vmd MM_"${frame}".pdb
 echo "Does MM Model looks correct?"
-read decision_MM
+read -r decision_MM
 if [ "$decision_MM" = "yes" ]; then
 echo "MM Modelling Success"
 else
 exit
 fi
 
-chmod +x qm_mm_${frame}.sh
-./qm_mm_${frame}.sh
+chmod +x qm_mm_"${frame}".sh
+./qm_mm_"${frame}".sh
 
 cat > addone-awk <<ENDOFFILE
 
@@ -227,12 +229,12 @@ printf( "%d " , a )
 }
 
 ENDOFFILE
-awk -f addone-awk mm_${frame}.txt > MM_${frame}.dat
-sed -i '1s/^/set active {/' MM_${frame}.dat
-echo "}" >> MM_${frame}.dat
-awk -f addone-awk qm_${frame}.txt > QM_${frame}.dat
-sed -i '1s/^/set qm_atoms {/' QM_${frame}.dat
-echo "}" >> QM_${frame}.dat
+awk -f addone-awk mm_"${frame}".txt > MM_"${frame}".dat
+sed -i '1s/^/set active {/' MM_"${frame}".dat
+echo "}" >> MM_"${frame}".dat
+awk -f addone-awk qm_"${frame}".txt > QM_"${frame}".dat
+sed -i '1s/^/set qm_atoms {/' QM_"${frame}".dat
+echo "}" >> QM_"${frame}".dat
 
 #MAKING DIRECTORIES
 if [[ ! -e ../../QMMM ]]; then
@@ -241,28 +243,28 @@ elif [[ ! -d ../../QMMM ]]; then
     echo "QMMM already exists but is not a directory" 1>&2
 fi
 
-if [[ ! -e ../../QMMM/Frame${frame} ]]; then
-    mkdir ../../QMMM/Frame${frame}
-elif [[ ! -d ../../QMMM/Frame${frame} ]]; then
+if [[ ! -e ../../QMMM/Frame"${frame}" ]]; then
+    mkdir ../../QMMM/Frame"${frame}"
+elif [[ ! -d ../../QMMM/Frame"${frame}" ]]; then
     echo "QMMM already exists but is not a directory" 1>&2
 fi
 
-if [[ ! -e ../../QMMM/Frame${frame}/1-RC_Opt ]]; then
-    mkdir ../../QMMM/Frame${frame}/1-RC_Opt
-elif [[ ! -d ../../QMMM/Frame${frame}/1-RC_Opt ]]; then
+if [[ ! -e ../../QMMM/Frame"${frame}"/1-RC_Opt ]]; then
+    mkdir ../../QMMM/Frame"${frame}"/1-RC_Opt
+elif [[ ! -d ../../QMMM/Frame"${frame}"/1-RC_Opt ]]; then
     echo "1-RC_Opt already exists but is not a directory" 1>&2
 fi
 
 #COPYING FILES TO THE RC_Opt DIRECTORIES
-cp rc.pdb ../../QMMM/Frame${frame}/1-RC_Opt/.
-cp rc.rst ../../QMMM/Frame${frame}/1-RC_Opt/.
-cp rc.prmtop ../../QMMM/Frame${frame}/1-RC_Opt/.
-cp QM_${frame}.dat ../../QMMM/Frame${frame}/1-RC_Opt/QM.dat
-cp MM_${frame}.dat ../../QMMM/Frame${frame}/1-RC_Opt/MM.dat
-cp myresidues_${frame}.dat ../../QMMM/Frame${frame}/1-RC_Opt/myresidues.dat
-cp parse_amber.tcl ../../QMMM/Frame${frame}/1-RC_Opt/.
-cp input.in ../../QMMM/Frame${frame}/1-RC_Opt/.
-cd ../../QMMM/Frame${frame}/1-RC_Opt
+cp rc.pdb ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+cp rc.rst ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+cp rc.prmtop ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+cp QM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/QM.dat
+cp MM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/MM.dat
+cp myresidues_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/myresidues.dat
+cp parse_amber.tcl ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+cp input.in ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+cd ../../QMMM/Frame"${frame}"/1-RC_Opt || exit
 
 cat > RC_dlfind.chm <<ENDOFFILE
 # adenine - Amber example with polarisation turned off
@@ -371,7 +373,7 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
@@ -387,14 +389,14 @@ if [ "$(grep -c "Energy evaluation failed" RC_dlfind.log)" -ge 1 ]; then
 	then
 	calc=$(pidof chemsh.x)
 	else
-	calc=$(pidof -o ${string} chemsh.x)    
+	calc=$(pidof -o "${string}" chemsh.x)    
 	fi
 	sleep 5
 	while ps -p "${calc}" > /dev/null;do sleep 1;done;
-	echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 else
         echo "RC Completed"
-        echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 fi
 
 elif [ "$step" = "1f" ]; then
@@ -413,7 +415,7 @@ cp myresidues.dat Frequency/.
 cp rc.prmtop Frequency/.
 cp input.in Frequency/.
 
-cd Frequency/
+cd Frequency/ || exit || exit
 sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RC_Freq.chm <<ENDOFFILE
@@ -476,11 +478,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "1s" ]; then
 jobname="RC-Single Point Energy"
@@ -495,7 +497,7 @@ cp myresidues.dat SP/.
 cp rc.prmtop SP/.
 cp input.in SP/.
 
-cd SP/
+cd SP/ || exit
 sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RC_SP.chm <<ENDOFFILE
@@ -595,11 +597,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "2" ]; then
 jobname="Scan Calculation"
@@ -621,7 +623,7 @@ cp MM.dat ../2-Scan/.
 cp myresidues.dat ../2-Scan/.
 cp input.in ../2-Scan/.
 
-cd ../2-Scan/
+cd ../2-Scan/ || exit
 sed -i "1s/rc.pdb/scan_0.pdb/" myresidues.dat
 sed -i "2s/target=QM/target=fatone/" myresidues.dat
 cp rc.opt.c scan_0.c
@@ -749,12 +751,12 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "3" ]; then
 jobname="TS-Optimization"
@@ -764,12 +766,12 @@ elif [[ ! -d ../3-TS_Opt ]]; then
     echo "3-TS_Opt already exists but is not a directory" 1>&2
 fi
 
-cp scan_${transition}.c ../3-TS_Opt/.
-cp scan_${transition}.pdb.gz ../3-TS_Opt/.
-cp scan_${transition}.pdb ../3-TS_Opt/.
+cp scan_"${transition}".c ../3-TS_Opt/.
+cp scan_"${transition}".pdb.gz ../3-TS_Opt/.
+cp scan_"${transition}".pdb ../3-TS_Opt/.
 cp scan.prmtop ../3-TS_Opt/.
-cp alpha_${transition}.gz ../3-TS_Opt/.
-cp beta_${transition}.gz ../3-TS_Opt/.
+cp alpha_"${transition}".gz ../3-TS_Opt/.
+cp beta_"${transition}".gz ../3-TS_Opt/.
 #cp control ../3-TS_Opt/.
 cp parse_amber.tcl ../3-TS_Opt/.
 cp QM.dat ../3-TS_Opt/.
@@ -777,14 +779,14 @@ cp MM.dat ../3-TS_Opt/.
 cp myresidues.dat ../3-TS_Opt/.
 cp input.in ../3-TS_Opt/.
 
-cd ../3-TS_Opt/
+cd ../3-TS_Opt/ || exit
 sed -i "1s/scan_0.pdb/ts.pdb/" myresidues.dat
 sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip *.gz
-cp alpha_${transition} alpha
-cp beta_${transition} beta
-cp scan_${transition}.c ts.c
-cp scan_${transition}.pdb ts.pdb
+gunzip ./*.gz
+cp alpha_"${transition}" alpha
+cp beta_"${transition}" beta
+cp scan_"${transition}".c ts.c
+cp scan_"${transition}".pdb ts.pdb
 cp scan.prmtop ts.prmtop
 job=$(pwd)
 cat > TS_Opt.chm <<ENDOFFILE
@@ -890,11 +892,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
 
 elif [ "$step" = "3f" ]; then
 jobname="TS-Frequency"
@@ -912,7 +914,7 @@ cp myresidues.dat Frequency/.
 cp ts.prmtop Frequency/.
 cp input.in Frequency/.
 
-cd Frequency/
+cd Frequency/ || exit
 sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > TS_Freq.chm <<ENDOFFILE
@@ -976,11 +978,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "3s" ]; then
 jobname="TS-Single Point Energy"
@@ -995,7 +997,7 @@ cp myresidues.dat SP/.
 cp ts.prmtop SP/.
 cp input.in SP/.
 
-cd SP/
+cd SP/ || exit
 sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > TS_SP.chm <<ENDOFFILE
@@ -1094,11 +1096,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 
 elif [ "$step" = "4" ]; then
@@ -1110,14 +1112,14 @@ elif [[ ! -d ../4-PD_Opt ]]; then
 fi
 
 echo "Starting PD Optimization"
-cp scan_${product}.c ../4-PD_Opt/.
-cp scan_${product}.pdb.gz ../4-PD_Opt/.
-cp scan_${product}.pdb ../4-PD_Opt/.
+cp scan_"${product}".c ../4-PD_Opt/.
+cp scan_"${product}".pdb.gz ../4-PD_Opt/.
+cp scan_"${product}".pdb ../4-PD_Opt/.
 cp scan.prmtop ../4-PD_Opt/.
-cp alpha_${product}.gz ../4-PD_Opt/.
-cp alpha_${product} ../4-PD_Opt/.
-cp beta_${product}.gz ../4-PD_Opt/.
-cp beta_${product} ../4-PD_Opt/.
+cp alpha_"${product}".gz ../4-PD_Opt/.
+cp alpha_"${product}" ../4-PD_Opt/.
+cp beta_"${product}".gz ../4-PD_Opt/.
+cp beta_"${product}" ../4-PD_Opt/.
 cp control ../4-PD_Opt/.
 cp parse_amber.tcl ../4-PD_Opt/.
 cp QM.dat ../4-PD_Opt/.
@@ -1125,14 +1127,14 @@ cp MM.dat ../4-PD_Opt/.
 cp myresidues.dat ../4-PD_Opt/.
 cp input.in ../4-PD_Opt/.
 
-cd ../4-PD_Opt/
+cd ../4-PD_Opt/ || exit
 sed -i "1s/scan_0.pdb/pd.pdb/" myresidues.dat
 sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip *.gz
-cp alpha_${product} alpha
-cp beta_${product} beta
-cp scan_${product}.c pd.c
-cp scan_${product}.pdb pd.pdb
+gunzip ./*.gz
+cp alpha_"${product}" alpha
+cp beta_"${product}" beta
+cp scan_"${product}".c pd.c
+cp scan_"${product}".pdb pd.pdb
 cp scan.prmtop pd.prmtop
 job=$(pwd)
 cat > PD_Opt.chm <<ENDOFFILE
@@ -1203,11 +1205,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "4f" ]; then
 jobname="PD-Frequency"
@@ -1225,7 +1227,7 @@ cp myresidues.dat Frequency/.
 cp pd.prmtop Frequency/.
 cp input.in Frequency/.
 
-cd Frequency/
+cd Frequency/ || exit
 sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > PD_Freq.chm <<ENDOFFILE
@@ -1288,11 +1290,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "4s" ]; then
 jobname="PD-Single Point Energy"
@@ -1307,7 +1309,7 @@ cp myresidues.dat SP/.
 cp pd.prmtop SP/.
 cp input.in SP/.
 
-cd SP/
+cd SP/ || exit
 sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > PD_SP.chm <<ENDOFFILE
@@ -1409,11 +1411,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 
 ###############################################################################################################################################################
@@ -1448,7 +1450,7 @@ cp MM.dat ../Rebound/.
 cp myresidues.dat ../Rebound/.
 cp input.in ../Rebound/.
 
-cd ../Rebound/
+cd ../Rebound/ || exit
 sed -i "1s/pd.pdb/rebound_0.pdb/" myresidues.dat
 sed -i "2s/target=QM/target=fatone/" myresidues.dat
 cp pd.opt.c rebound_0.c
@@ -1572,11 +1574,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 
 elif [ "$step" = "RB_TS" ]; then
@@ -1587,12 +1589,12 @@ elif [[ ! -d RB_TS ]]; then
     echo "RB_TS already exists but is not a directory" 1>&2
 fi
 
-cp rebound_${transition}.c RB_TS/.
-cp rebound_${transition}.pdb.gz RB_TS/.
-cp rebound_${transition}.pdb RB_TS/.
+cp rebound_"${transition}".c RB_TS/.
+cp rebound_"${transition}".pdb.gz RB_TS/.
+cp rebound_"${transition}".pdb RB_TS/.
 cp rebound.prmtop RB_TS/.
-cp alpha_${transition}.gz RB_TS/.
-cp beta_${transition}.gz RB_TS/.
+cp alpha_"${transition}".gz RB_TS/.
+cp beta_"${transition}".gz RB_TS/.
 #cp control RB_TS/.
 cp parse_amber.tcl RB_TS/.
 cp QM.dat RB_TS/.
@@ -1600,14 +1602,14 @@ cp MM.dat RB_TS/.
 cp myresidues.dat RB_TS/.
 cp input.in RB_TS/.
 
-cd RB_TS/
+cd RB_TS/ || exit
 sed -i "1s/rebound_0.pdb/rb_ts.pdb/" myresidues.dat
 sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip *.gz
-cp alpha_${transition} alpha
-cp beta_${transition} beta
-cp rebound_${transition}.c rb_ts.c
-cp rebound_${transition}.pdb rb_ts.pdb
+gunzip ./*.gz
+cp alpha_"${transition}" alpha
+cp beta_"${transition}" beta
+cp rebound_"${transition}".c rb_ts.c
+cp rebound_"${transition}".pdb rb_ts.pdb
 cp rebound.prmtop rb_ts.prmtop
 job=$(pwd)
 cat > RB_TS_Opt.chm <<ENDOFFILE
@@ -1713,11 +1715,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
 
 elif [ "$step" = "RB_TS_Freq" ]; then
 jobname="RB_TS-Frequency"
@@ -1735,7 +1737,7 @@ cp myresidues.dat Frequency/.
 cp rb_ts.prmtop Frequency/.
 cp input.in Frequency/.
 
-cd Frequency/
+cd Frequency/ || exit
 sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_TS_Freq.chm <<ENDOFFILE
@@ -1799,11 +1801,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_TS_SP" ]; then
 jobname="RB_TS-Single Point Energy"
@@ -1818,7 +1820,7 @@ cp myresidues.dat SP/.
 cp rb_ts.prmtop SP/.
 cp input.in SP/.
 
-cd SP/
+cd SP/ || exit
 sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_TS_SP.chm <<ENDOFFILE
@@ -1917,11 +1919,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 
 elif [ "$step" = "RB_PD" ]; then
@@ -1933,14 +1935,14 @@ elif [[ ! -d RB_PD ]]; then
 fi
 
 echo "Starting PD Optimization"
-cp rebound_${product}.c RB_PD/.
-cp rebound_${product}.pdb.gz RB_PD/.
-cp rebound_${product}.pdb RB_PD/.
+cp rebound_"${product}".c RB_PD/.
+cp rebound_"${product}".pdb.gz RB_PD/.
+cp rebound_"${product}".pdb RB_PD/.
 cp rebound.prmtop RB_PD/.
-cp alpha_${product}.gz RB_PD/.
-cp alpha_${product} RB_PD/.
-cp beta_${product}.gz RB_PD/.
-cp beta_${product} RB_PD/.
+cp alpha_"${product}".gz RB_PD/.
+cp alpha_"${product}" RB_PD/.
+cp beta_"${product}".gz RB_PD/.
+cp beta_"${product}" RB_PD/.
 cp control RB_PD/.
 cp parse_amber.tcl RB_PD/.
 cp QM.dat RB_PD/.
@@ -1948,14 +1950,14 @@ cp MM.dat RB_PD/.
 cp myresidues.dat RB_PD/.
 cp input.in RB_PD/.
 
-cd RB_PD/
+cd RB_PD/ || exit
 sed -i "1s/rebound_0.pdb/rb_pd.pdb/" myresidues.dat
 sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip *.gz
-cp alpha_${product} alpha
-cp beta_${product} beta
-cp rebound_${product}.c rb_pd.c
-cp rebound_${product}.pdb rb_pd.pdb
+gunzip ./*.gz
+cp alpha_"${product}" alpha
+cp beta_"${product}" beta
+cp rebound_"${product}".c rb_pd.c
+cp rebound_"${product}".pdb rb_pd.pdb
 cp rebound.prmtop rb_pd.prmtop
 job=$(pwd)
 cat > RB_PD_Opt.chm <<ENDOFFILE
@@ -2022,11 +2024,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_PD_Freq" ]; then
 jobname="RB_PD-Frequency"
@@ -2044,7 +2046,7 @@ cp myresidues.dat Frequency/.
 cp rb_pd.prmtop Frequency/.
 cp input.in Frequency/.
 
-cd Frequency/
+cd Frequency/ || exit
 sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_PD_Freq.chm <<ENDOFFILE
@@ -2107,11 +2109,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_PD_SP" ]; then
 jobname="RB_PD-Single Point Energy"
@@ -2126,7 +2128,7 @@ cp myresidues.dat SP/.
 cp rb_pd.prmtop SP/.
 cp input.in SP/.
 
-cd SP/
+cd SP/ || exit
 sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_PD_SP.chm <<ENDOFFILE
@@ -2228,11 +2230,11 @@ if [ -z "$string" ]
 then
 calc=$(pidof chemsh.x)
 else
-calc=$(pidof -o ${string} chemsh.x)    
+calc=$(pidof -o "${string}" chemsh.x)    
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on `date` for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 
 
