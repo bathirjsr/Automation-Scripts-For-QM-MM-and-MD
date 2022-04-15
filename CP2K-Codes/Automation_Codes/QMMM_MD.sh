@@ -344,7 +344,8 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
 EOF
 
 nohup mpirun -n "${nproc}" cp2k.popt -o QMMM_MD_SP_"${System}".out QMMM_MD_SP_"${System}".inp &
-elif [ "${Run_type}" = "MD" ]; then
+
+elif [ "${Run_Type}" = "MD" ]; then
 
 cat > QMMM_MD_"${System}".inp <<EOF
 &GLOBAL
@@ -498,7 +499,7 @@ cat > QMMM_MD_"${System}".inp <<EOF
                 &FORCEFIELD 
                         VDW_SCALE14 0.5
                         EI_SCALE14 0.8333333
-                        PARM_FILE_NAME PHF8_ES_1000.prmtop
+                        PARM_FILE_NAME ${prmtop}
                         PARMTYPE AMBER
                         SHIFT_CUTOFF .FALSE.
                         &SPLINE
@@ -672,9 +673,9 @@ cat > QMMM_MD_"${System}".inp <<EOF
         &END
 &END MOTION
 
-&EXT_RESTART ON
-  RESTART_FILE_NAME ${System}.restart
-&END EXT_RESTART
+#!&EXT_RESTART ON
+#!  RESTART_FILE_NAME ${System}_MD.restart
+#!&END EXT_RESTART
 
 EOF
 
