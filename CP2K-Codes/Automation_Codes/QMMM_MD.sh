@@ -231,7 +231,7 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
     &END POISSON
     &PRINT
       &E_DENSITY_CUBE MEDIUM
-      &END E_DENSITY_CUBE${System
+      &END E_DENSITY_CUBE
       &MO_CUBES
 	NLUMO -1
 	NHOMO -1
@@ -244,7 +244,7 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
       &MO
 	FILENAME MO
 	OCCUPATION_NUMBERS .TRUE.
-      &END MO${System
+      &END MO
     &END PRINT
   &END DFT
 
@@ -346,7 +346,7 @@ EOF
 nohup mpirun -n "${nproc}" cp2k.popt -o QMMM_MD_SP_"${System}".out QMMM_MD_SP_"${System}".inp &
 elif [ "${Run_type}" = "MD" ]; then
 
-cat > QMMM-MD_"${System}".inp <<EOF
+cat > QMMM_MD_"${System}".inp <<EOF
 &GLOBAL
         PROJECT ${System}_MD
         RUN_TYPE MD
@@ -679,4 +679,5 @@ cat > QMMM-MD_"${System}".inp <<EOF
 EOF
 
 nohup mpirun -n "${nproc}" cp2k.popt -o QMMM_MD_"${System}".out QMMM_MD_"${System}".inp &
+
 fi
