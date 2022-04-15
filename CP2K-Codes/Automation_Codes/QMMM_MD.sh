@@ -119,7 +119,7 @@ z_abs=$(< "${pdb}" awk 'NR==1{printf "%.0f\n", $4}')
 
 if [ "${Run_Type}" = "SP" ]; then
 
-cat > QMMM_MD_SP_ "${System}".inp <<EOF
+cat > QMMM_MD_SP_"${System}".inp <<EOF
 
 &GLOBAL
   PROJECT_NAME  ${System}_RC_SP
