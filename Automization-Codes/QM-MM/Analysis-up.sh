@@ -100,7 +100,7 @@ EOF
     b=$(t2x coord_"${dirnumber}"_${step} | awk 'NR==1')
     sum=$(( b - a ))
 	echo "${dirnumber}" "${step}" > CoordData_"${dirnumber}"_${step}
-	t2x coord_"${dirnumber}"_${step} | tail -n ${b} >> CoordData_"${dirnumber}"_${step}	
+	t2x coord_"${dirnumber}"_${step} | tail -n "${b}" >> CoordData_"${dirnumber}"_${step}	
     t2x coord_"${dirnumber}"_${step}| head -n -${sum} > qm_without_link.xyz
     t2x coord_"${dirnumber}"_${step}| tail -n ${sum} > qm_link.xyz
     awk '{ print $0, NR }' qm_link.xyz > qm_link_nr.xyz
@@ -162,7 +162,7 @@ EOF
 
 			elif [ "${j}" = "SC1" ]; then
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
-			echo ${x} > Residues_"${dirnumber}"_${step}_${j}.txt
+			echo "${x}" > Residues_"${dirnumber}"_${step}_${j}.txt
 			tot=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt Charge_"${dirnumber}"_${step}.txt)
 			echo ${j} "${tot}" >> "${dirnumber}"_${step}.txt
 			spin=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt spin_"${dirnumber}"_${step}.txt)
@@ -171,9 +171,9 @@ EOF
 			else
 			#rm Residues_"${dirnumber}"_${j}.txt
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
-			echo ${x}
+			echo "${x}"
 			z=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2}')		
-			echo ${z}
+			echo "${z}"
 			for l in ${z}	
 				do	
 cat > tmp_"${l}" << EOF
@@ -192,9 +192,9 @@ EOF
  					ch="${x} ${link}""h" 
 					fi
 				done
-			echo ${ch}
+			echo "${ch}"
 			
-			echo ${ch} > Residues_"${dirnumber}"_${step}_${j}.txt
+			echo "${ch}" > Residues_"${dirnumber}"_${step}_${j}.txt
 			tot=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt Charge_"${dirnumber}"_${step}.txt)
 			echo ${j} "${tot}" >> "${dirnumber}"_${step}.txt
 			spin=$(awk -f sum.awk Residues_"${dirnumber}"_${step}_${j}.txt spin_"${dirnumber}"_${step}.txt)
