@@ -17,20 +17,20 @@ chmname=$(basename -- "$chm")
 chmext="${chmname##*.}"
 chmfile="${chmname%.*}"
 
-if [ $step = "Gauss" ];
+if [ "$step" = "Gauss" ];
 then
 job=$(pwd)
 host=$(hostname)
 jobname="Gaussian-${chmfile}"
 
 echo "$jobname at ${job} JOB started" | mail -s "Job Started ${jobname}" simahjsr@gmail.com
-g16 < ${chmfile}.com > ${chmfile}.log
+g16 < "${chmfile}".com > "${chmfile}".log
 
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${jobname} at ${job} " | mail -s "Job Completed ${jobname}" simahjsr@gmail.com
 
 
-elif [ $step = "1" ];
+elif [ "$step" = "1" ];
 then
 source "${inp}"
 job=$(pwd)
@@ -56,7 +56,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "1s" ];
+elif [ "$step" = "1s" ];
 then 
 job=$(pwd)
 host=$(hostname)
@@ -81,7 +81,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "1f" ];
+elif [ "$step" = "1f" ];
 then
 job=$(pwd)
 host=$(hostname)
@@ -106,7 +106,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "2" ];
+elif [ "$step" = "2" ];
 then
 job=$(pwd)
 host=$(hostname)
@@ -131,7 +131,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "3" ];
+elif [ "$step" = "3" ];
 then
 job=$(pwd)
 host=$(hostname)
@@ -156,7 +156,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "3s" ];
+elif [ "$step" = "3s" ];
 then
 job=$(pwd)
 host=$(hostname)
@@ -181,7 +181,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "3f" ];
+elif [ "$step" = "3f" ];
 then
 job=$(pwd)
 host=$(hostname)
@@ -206,7 +206,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "4" ];
+elif [ "$step" = "4" ];
 then
 job=$(pwd)
 host=$(hostname)
@@ -231,7 +231,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "4s" ];
+elif [ "$step" = "4s" ];
 then
 job=$(pwd)
 host=$(hostname)
@@ -256,7 +256,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
-elif [ $step = "4f" ];
+elif [ "$step" = "4f" ];
 then
 job=$(pwd)
 host=$(hostname)
