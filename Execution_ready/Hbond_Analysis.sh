@@ -14,7 +14,7 @@ done
 residinp=$(basename -- "${substrate}")
 residlast="${residinp##*-}"
 residfirst="${residinp%-*}"
-current_time=$(date "+%Y.%m.%d-%H.%M.%S")
+#current_time=$(date "+%Y.%m.%d-%H.%M.%S")
 cat > Hbond_analysis_sub.dat <<EOF
 
 EOF
