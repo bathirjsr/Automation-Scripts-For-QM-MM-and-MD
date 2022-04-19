@@ -1,10 +1,11 @@
 #! /bin/bash
-while getopts t:a:d:r:s: flag
+while getopts a:d:c:o:r:s: flag
 do
     case "${flag}" in
-    t) type=${OPTARG};;
 	a) acceptor=${OPTARG};;
 	d) donor=${OPTARG};;
+	c) acceptor1=${OPTARG};;
+	o) donor1=${OPTARG};;
 	r) residues=${OPTARG};;
 	s) substrate=${OPTARG};;	
     *) echo "usage: $0 [-a acceptor filename] [-d donor filename] [-r residues(ID or name) ] [-s substrate residue range] " >&2
@@ -21,15 +22,15 @@ EOF
 cat > Hbond_analysis.dat <<EOF
 
 EOF
-if [ "${type}" = "0" ]; then
+
  for i in $(seq "${residfirst}" 1 "${residlast}");
  do
- awk -v i="${i}" '$1 ~ i {print $0}' "${acceptor}" | sort -n >> Hbond_analysis_sub.dat
- awk -v i="${i}" '$2 ~ i {print $0}' "${donor}" | sort -n >> Hbond_analysis_sub.dat
+ awk -v i="${i}" '$1 ~ i {print $0}' "${acceptor1}" | sort -n >> Hbond_analysis_sub.dat
+ awk -v i="${i}" '$2 ~ i {print $0}' "${donor1}" | sort -n >> Hbond_analysis_sub.dat
  done
 
 list=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis_sub.dat )
-list_arr=(${list})
+mapfile -t list_arr <<< "$list"
 for i in $list
 do
 	row2=$( awk -v r="$i" '$1==r{print $0}' Hbond_analysis_sub.dat | awk '{ a[$2]++ } END { for (b in a) { print b } }' )
@@ -51,7 +52,6 @@ done
 rm hbond_sum_sub.dat
 
 
-elif [ "${type}" = "1" ]; then
  for i in ${residues};
  do
  awk -v i="${i}" '$1 ~ i  {print $0}' "${acceptor}" | sort -n >> Hbond_analysis.dat
@@ -59,7 +59,7 @@ elif [ "${type}" = "1" ]; then
  done
 
 list=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis_sub.dat )
-list_arr=(${list})
+mapfile -t list_arr <<< "$list"
 for i in $list
 do
 	row2=$( awk -v r="$i" '$1==r{print $0}' Hbond_analysis.dat | awk '{ a[$2]++ } END { for (b in a) { print b } }' )
@@ -79,4 +79,4 @@ done
 
 < hbond_sum.dat sort -n > Hbond_Sum.dat
 rm hbond_sum.dat
-fi
+
