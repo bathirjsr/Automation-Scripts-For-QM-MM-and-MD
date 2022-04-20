@@ -32,9 +32,9 @@ function ReactionEnergy() {
 	echo "Step Energy"
 	cat min.dat	
 	echo "Choose the RC (from Minimas):"
-	read -r rc
+	read -re rc
 	echo "Choose the PD (from Minimas):"
-	read -r pd
+	read -re pd
 	r_act=$(awk -v r="${rc}" -v p="${pd}" 'NR==r {rc=$(NF)};NR==p {pd=$(NF)};END {printf "%5.12f", (pd-rc)}' PES.dat)
     echo ""
 	echo "Reaction Energy for Minima=${ts}(PD) is: " "${r_act}"
@@ -43,7 +43,7 @@ function ReactionEnergy() {
 
 function Plot() {
 	echo "Give the filename for Potential Energy Surface Plot?  Note: Will be saved as .eps file"
-	read -r plot
+	read -re plot
 	gnuplot << EOF
 set encoding iso_8859_1
 set term post enhanced eps solid color lw 2.0 "Arial" 24
@@ -77,6 +77,7 @@ fi
 ##
 green='\e[32m'
 blue='\e[34m'
+red='\e[41m'
 clear='\e[0m'
 
 ##
@@ -106,7 +107,7 @@ $(ColorBlue 'Choose an option:') "
 	        2) ReactionEnergy ; menu ;;
 	        3) Plot ; menu ;;
 		0) Exit ;;
-		*) echo -e "$red""Wrong option.""$clear"; WrongCommand;;
+		*) echo -e "$red""Wrong option.""$clear";;
         esac
 }
 echo -ne "$(ColorGreen 'Last Energy:')" "$lastenergy"
