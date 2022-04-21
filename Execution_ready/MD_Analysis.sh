@@ -11,7 +11,7 @@
 #     *) echo "usage: $0 [-a acceptor filename] [-d donor filename] [-r residues(ID or name) ] [-s substrate residue range] " >&2
 #        exit 1 ;;
 # esac
-# done
+# 
 mkdir -p Analysis
 cd Analysis || exit
 
