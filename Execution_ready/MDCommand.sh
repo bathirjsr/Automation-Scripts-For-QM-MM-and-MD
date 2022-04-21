@@ -1,6 +1,6 @@
 #!/bin/sh
 # nohup ./MDCommand.sh -g <GPU ID> -p <parameter file> -c <input coordinate> -n <Number of CPU processors> -x <Number of GPU processors> -r <Residues restraining> > MDCommand.log &
-while getopts g:p:c:n:x:r: flag
+while getopts g:p:c:n:x:r:s:m: flag
 do
     case "${flag}" in
         g) CUDA=${OPTARG};;
@@ -11,17 +11,19 @@ do
 	    r) residues=${OPTARG};;
 	    s) step=${OPTARG};;
 	    m) resmask=${OPTARG};;
+        *) echo "usage: $0 [-g] [-p] [-c] [-n] [-x] [-r] [-s] [-m]" >&2
+       exit 1 ;;
 esac
 done
-if [ "${step}" = "restrained"]; then
-if [[ ! -e Restrained ]]; then
+if [ "${step}" = "restrained" ]; then
+if [ ! -e Restrained ]; then
 	    mkdir Restrained
-	elif [[ ! -d Restrained ]]; then
+	elif [ ! -d Restrained ]; then
 	    echo "Restrained already exists but is not a directory" 1>&2
 	fi
-cd Restrained
-cp ../${prmtop} .
-cp ../${coords} .
+cd Restrained || exit
+cp ../"${prmtop}" .
+cp ../"${coords}" .
 cat > 1-min.in << ENDOFFILE
 initial minimisation solvent
  &cntrl
@@ -145,94 +147,91 @@ echo "Using GPU ID:${CUDA}"
 echo "Using Parameter file:${prmtop}"
 echo "Using Coords:${coords}"
 echo "Restraining Residues:${residues}"
-echo "Started MD on `date` "
+echo "Started MD on $(date) "
 do_parallel="nohup mpirun -n ${nprocs} $AMBERHOME/bin/sander.MPI"
 do_gpu="nohup mpirun -n ${ngpu} $AMBERHOME/bin/pmemd.cuda.MPI"
 
 MDINPUTS=(1-min 2-min 3-heat 4-density 5-Res_run 6-equil 7-md)
 
-for input in ${MDINPUTS[@]}; 
+for input in "${MDINPUTS[@]}"; 
 do
-if [ "$input" = "1-min" ]
+if [ "${input}" = "1-min" ]
 then 
 
-	if [[ ! -e $input ]]; then
-	    mkdir $input
-	elif [[ ! -d $input ]]; then
-	    echo "$input already exists but is not a directory" 1>&2
+	if [[ ! -e "${input}" ]]; then
+	    mkdir "${input}"
+	elif [[ ! -d "${input}" ]]; then
+	    echo "${input} already exists but is not a directory" 1>&2
 	fi
 
-	cp ${input}.in ${input}/.
-	echo "Command Executed: $do_parallel -input file ${input}/${input}.in -output file ${input}/${input}.out -parameter file $prmtop -coordinate file $coords -restart file ${input}/${input}.rst -x(output trajectory) ${input}/${input}.nc -ref(Reference) $coords -info file ${input}/${input}.mdinfo-O&"
-	$do_parallel -i ${input}/${input}.in -o ${input}/${input}.out -p $prmtop -c $coords -r ${input}/${input}.rst -x ${input}/${input}.nc -ref $coords -inf ${input}/${input}.mdinfo -O&
-	echo "First minimization started on `date`"
-	coords=$input
+	cp "${input}".in "${input}"/.
+	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}" -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}" -inf "${input}"/"${input}".mdinfo -O&
+	echo "First minimization started on $(date)"
+	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;	
 
-elif [ "$input" = "2-min" ] 
+elif [ "${input}" = "2-min" ] 
 then
 
 	if [ "$(grep -c "Total time" 1-min/1-min.out)" -ge 1 ]; then
 		coords=1-min
-		echo "First minimization completed on `date`"
+		echo "First minimization completed on $(date)"
 	else
-		echo "First minimization terminated in `date`"
+		echo "First minimization terminated in $(date)"
 		exit
 	fi
 
-	if [[ ! -e $input ]]; then
-	    mkdir $input
-	elif [[ ! -d $input ]]; then
-	    echo "$input already exists but is not a directory" 1>&2
+	if [[ ! -e "${input}" ]]; then
+	    mkdir "${input}"
+	elif [[ ! -d "${input}" ]]; then
+	    echo "${input} already exists but is not a directory" 1>&2
 	fi
 
-	cp ${input}.in ${input}/.
-	echo "Command Executed: $do_parallel -input file ${input}/${input}.in -output file ${input}/${input}.out -parameter file $prmtop -coordinate file ${coords}/${coords}.rst -restart ${input}/${input}.rst -x(output trajectory) ${input}/${input}.nc -ref(Reference) ${coords}/${coords}.rst -info file ${input}/${input}.mdinfo -O&"	 
-	$do_parallel -i ${input}/${input}.in -o ${input}/${input}.out -p $prmtop -c ${coords}/${coords}.rst -r ${input}/${input}.rst -x ${input}/${input}.nc -ref ${coords}/${coords}.rst -inf ${input}/${input}.mdinfo -O&
-	echo "Second minimization started on `date`"
-	coords=$input
+	cp "${input}".in "${input}"/.
+	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}"/"${coords}".rst -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}"/"${coords}".rst -inf "${input}"/"${input}".mdinfo -O&
+	echo "Second minimization started on $(date) "
+	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;
 	
 
 	if [ "$(grep -c "Total time" 2-min/2-min.out)" -ge 1 ]; then
-		min=$coords
-		echo "Second minimization completed on `date`"
+		min="${coords}"
+		echo "Second minimization completed on $(date)"
 	else
-		echo "Second minimization terminated on `date`"
+		echo "Second minimization terminated on $(date)"
 		exit
 	fi
 
 else
 
-	if [[ ! -e $input ]]; then
-		mkdir $input
-	elif [[ ! -d $input ]]; then
-		echo "$input already exists but is not a directory" 1>&2
+	if [[ ! -e "${input}" ]]; then
+		mkdir "${input}"
+	elif [[ ! -d "${input}" ]]; then
+		echo "${input} already exists but is not a directory" 1>&2
 	fi   
 
-	cp ${input}.in ${input}/.
-	export CUDA_VISIBLE_DEVICES=$CUDA
-	echo "Command Executed: $do_gpu -input file ${input}/${input}.in -output file ${input}/${input}.out -parameter file $prmtop -coordinate file ${min}/${min}.rst -restart file ${input}/${input}.rst -x(output trajectory) ${input}/${input}.nc -ref(Reference) ${min}/${min}.rst -info file ${input}/${input}.mdinfo -O&"	
-	$do_gpu -i ${input}/${input}.in -o ${input}/${input}.out -p $prmtop -c ${min}/${min}.rst -r ${input}/${input}.rst -x ${input}/${input}.nc -ref ${min}/${min}.rst -inf ${input}/${input}.mdinfo -O&
-	echo "${input} calculation started on `date`"
-	min=$input
+	cp "${input}".in "${input}"/.
+	export CUDA_VISIBLE_DEVICES="${CUDA}"
+	$do_gpu -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${min}"/"${min}".rst -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${min}"/"${min}".rst -inf "${input}"/"${input}".mdinfo -O&
+	echo "${input} calculation started on $(date)"
+	min="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;
 	
 
-	if [ "$(grep -c "Master Total wall time:" ${input}/${input}.out)" -ge 1 ]; then
-		echo "${input} calculation completed on `date`"	
+	if [ "$(grep -c "Master Total wall time:" "${input}"/"${input}".out)" -ge 1 ]; then
+		echo "${input} calculation completed on $(date)"	
 		echo "Calculation proceed"
 	else
-		echo "${input} calculation terminated on `date`"
+		echo "${input} calculation terminated on $(date)"
 		exit
 	fi
 
 fi
 done
-echo "Finished MD on `date` "
+echo "Finished MD on $(date) "
 
 else
 cat > 1-min.in << ENDOFFILE
@@ -340,7 +339,7 @@ echo "Using GPU ID:${CUDA}"
 echo "Using Parameter file:${prmtop}"
 echo "Using Coords:${coords}"
 echo "Restraining Residues:${residues}"
-echo "Started MD on `date` "
+echo "Started MD on $(date) "
 do_parallel="nohup mpirun -n ${nprocs} $AMBERHOME/bin/sander.MPI"
 do_gpu="nohup mpirun -n ${ngpu} $AMBERHOME/bin/pmemd.cuda.MPI"
 MDINPUTS=(1-min 2-min 3-heat 4-density 5-equil 6-md)
@@ -350,81 +349,78 @@ do
 if [ "$input" = "1-min" ]
 then 
 
-	if [[ ! -e $input ]]; then
-	    mkdir $input
-	elif [[ ! -d $input ]]; then
-	    echo "$input already exists but is not a directory" 1>&2
+	if [[ ! -e "${input}" ]]; then
+	    mkdir "${input}"
+	elif [[ ! -d "${input}" ]]; then
+	    echo "${input} already exists but is not a directory" 1>&2
 	fi
 
-	cp ${input}.in ${input}/.
-	echo "Command Executed: $do_parallel -input file ${input}/${input}.in -output file ${input}/${input}.out -parameter file $prmtop -coordinate file $coords -restart file ${input}/${input}.rst -x(output trajectory) ${input}/${input}.nc -ref(Reference) $coords -info file ${input}/${input}.mdinfo-O&"
-	$do_parallel -i ${input}/${input}.in -o ${input}/${input}.out -p $prmtop -c $coords -r ${input}/${input}.rst -x ${input}/${input}.nc -ref $coords -inf ${input}/${input}.mdinfo -O&
-	echo "First minimization started on `date`"
-	coords=$input
+	cp "${input}".in "${input}"/.
+	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}" -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}" -inf "${input}"/"${input}".mdinfo -O&
+	echo "First minimization started on $(date)"
+	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;	
 
-elif [ "$input" = "2-min" ] 
+elif [ "${input}" = "2-min" ] 
 then
 
 	if [ "$(grep -c "Total time" 1-min/1-min.out)" -ge 1 ]; then
 		coords=1-min
-		echo "First minimization completed on `date`"
+		echo "First minimization completed on $(date)"
 	else
-		echo "First minimization terminated in `date`"
+		echo "First minimization terminated in $(date)"
 		exit
 	fi
 
-	if [[ ! -e $input ]]; then
-	    mkdir $input
-	elif [[ ! -d $input ]]; then
-	    echo "$input already exists but is not a directory" 1>&2
+	if [[ ! -e "${input}" ]]; then
+	    mkdir "${input}"
+	elif [[ ! -d "${input}" ]]; then
+	    echo "${input} already exists but is not a directory" 1>&2
 	fi
 
-	cp ${input}.in ${input}/.
-	echo "Command Executed: $do_parallel -input file ${input}/${input}.in -output file ${input}/${input}.out -parameter file $prmtop -coordinate file ${coords}/${coords}.rst -restart ${input}/${input}.rst -x(output trajectory) ${input}/${input}.nc -ref(Reference) ${coords}/${coords}.rst -info file ${input}/${input}.mdinfo -O&"	 
-	$do_parallel -i ${input}/${input}.in -o ${input}/${input}.out -p $prmtop -c ${coords}/${coords}.rst -r ${input}/${input}.rst -x ${input}/${input}.nc -ref ${coords}/${coords}.rst -inf ${input}/${input}.mdinfo -O&
-	echo "Second minimization started on `date`"
-	coords=$input
+	cp "${input}".in "${input}"/.
+	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}"/"${coords}".rst -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}"/"${coords}".rst -inf "${input}"/"${input}".mdinfo -O&
+	echo "Second minimization started on $(date)"
+	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;
 	
 
 	if [ "$(grep -c "Total time" 2-min/2-min.out)" -ge 1 ]; then
-		min=$coords
-		echo "Second minimization completed on `date`"
+		min="${coords}"
+		echo "Second minimization completed on $(date)"
 	else
-		echo "Second minimization terminated on `date`"
+		echo "Second minimization terminated on $(date)"
 		exit
 	fi
 
 else
 
-	if [[ ! -e $input ]]; then
-		mkdir $input
-	elif [[ ! -d $input ]]; then
-		echo "$input already exists but is not a directory" 1>&2
+	if [[ ! -e "${input}" ]]; then
+		mkdir "${input}"
+	elif [[ ! -d "${input}" ]]; then
+		echo "${input} already exists but is not a directory" 1>&2
 	fi   
 
-	cp ${input}.in ${input}/.
-	export CUDA_VISIBLE_DEVICES=$CUDA
-	echo "Command Executed: $do_gpu -input file ${input}/${input}.in -output file ${input}/${input}.out -parameter file $prmtop -coordinate file ${min}/${min}.rst -restart file ${input}/${input}.rst -x(output trajectory) ${input}/${input}.nc -ref(Reference) ${min}/${min}.rst -info file ${input}/${input}.mdinfo -O&"	
-	$do_gpu -i ${input}/${input}.in -o ${input}/${input}.out -p $prmtop -c ${min}/${min}.rst -r ${input}/${input}.rst -x ${input}/${input}.nc -ref ${min}/${min}.rst -inf ${input}/${input}.mdinfo -O&
-	echo "${input} calculation started on `date`"
-	min=$input
+	cp "${input}".in "${input}"/.
+	export CUDA_VISIBLE_DEVICES="${CUDA}"
+	$do_gpu -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${min}"/"${min}".rst -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${min}"/"${min}".rst -inf "${input}"/"${input}".mdinfo -O&
+	echo "${input} calculation started on $(date)"
+	min="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;
 	
 
-	if [ "$(grep -c "Master Total wall time:" ${input}/${input}.out)" -ge 1 ]; then
-		echo "${input} calculation completed on `date`"	
+	if [ "$(grep -c "Master Total wall time:" "${input}"/"${input}".out)" -ge 1 ]; then
+		echo "${input} calculation completed on $(date)"	
 		echo "Calculation proceed"
 	else
-		echo "${input} calculation terminated on `date`"
+		echo "${input} calculation terminated on $(date)"
 		exit
 	fi
 
 fi
 done
-echo "Finished MD on `date` "
+echo "Finished MD on $(date) "
 fi
