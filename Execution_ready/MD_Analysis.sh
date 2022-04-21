@@ -138,7 +138,6 @@ for k in "${list1_arr[@]:1}"
 rm hbond_sum.dat
 rm ./*@*.dat
 echo "Hbond_Sum.dat and Hbond_Substrate_Sum.dat Files will be created"
-
 }
 
 function RMS {
