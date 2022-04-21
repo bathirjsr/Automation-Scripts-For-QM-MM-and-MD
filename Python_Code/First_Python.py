@@ -7,8 +7,6 @@ a,d,c,o,r,s = input("acceptor,donor,sub_acceptor,sub_donor,residues(name or ID),
 # user entered the name 'harssh'
 print(a)
 print(d)
-print(c)
-print(o)
-print(r)
+
 print(s)
 
