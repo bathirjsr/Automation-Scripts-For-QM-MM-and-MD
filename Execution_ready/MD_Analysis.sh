@@ -20,7 +20,8 @@ echo "Analysis folder is created"
 echo "Now in $(pwd)"
 
 function Hbond {
-date >> Hbond.log
+cat Hbond.log
+
 read -re -p "Parameter File: " parm 
 echo "parm=""$parm" >> Hbond.log
 read -re -p "Trajectory File: " traj 
@@ -30,11 +31,21 @@ echo "active=""$active" >> Hbond.log
 read -re -p "Substrate Residues (Eg. 536-552): " substrate 
 echo "substrate=""$substrate" >> Hbond.log
 
+{ date
+echo "parm=""$parm"
+echo "traj=""$traj"
+echo "active=""$active"
+echo "substrate=""$substrate"
+} >> Hbond.log
 parmname=$(basename -- "$parm")
 parmfile="${parmname%_*}"
 
 trajname=$(basename -- "$traj")
 trajfile="${trajname%.*}"
+
+residinp=$(basename -- "${substrate}")
+residlast="${residinp##*-}"
+residfirst="${residinp%-*}"
 
 cat > Hbond_"${parmfile}".in << EOF 
 parm ${parm}
@@ -47,8 +58,19 @@ hbond hbond_${parmfile}1_sub acceptormask :${substrate} out hbond_${parmfile}_su
 hbond All out All.hbvtime.dat solventdonor :WAT solventacceptor :WAT@O avgout All.UU.avg.dat solvout All.UV.avg.dat bridgeout All.bridge.avg.dat
 run
 EOF
-nohup mpirun -n 96 cpptraj.MPI -i Hbond_"${parmfile}".in > Hbond_"${parmfile}".out &
+
+omit=$(pidof cpptraj.MPI)
+string="${omit//${IFS:0:1}/,}"
+
+#nohup mpirun -n 96 cpptraj.MPI -i Hbond_"${parmfile}".in > Hbond_"${parmfile}".out &
+sleep 5
+if [ -z "$string" ]
+then
 calc=$(pidof cpptraj.MPI | awk '{print $1}')
+else
+calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
+fi
+sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
 
 cat > Hbond_analysis_sub.dat <<EOF
@@ -60,8 +82,8 @@ EOF
 
  for i in $(seq "${residfirst}" 1 "${residlast}");
  do
- awk -v i="${i}" '$1 ~ i {print $0}' hbond_"${parmfile}"_acceptor.dat | sort -n >> Hbond_analysis_sub.dat
- awk -v i="${i}" '$2 ~ i {print $0}' hbond_"${parmfile}"_donor.dat | sort -n >> Hbond_analysis_sub.dat
+ awk -v i="${i}" '$1 ~ i {print $0}' hbond_avg_"${parmfile}"_sub_acceptor.dat | sort -n >> Hbond_analysis_sub.dat
+ awk -v i="${i}" '$2 ~ i {print $0}' hbond_avg_"${parmfile}"_sub_donor.dat | sort -n >> Hbond_analysis_sub.dat
  done
 
 list=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis_sub.dat )
@@ -72,67 +94,74 @@ do
 	for j in $row2
 	do
 		r2r="${j%@*}"
-		awk -v r="$i" -v r2="$r2r" '$1 == r && $2 ~ r2 {sum += $5} END{print r,r2,sum}' Hbond_analysis_sub.dat > "${i}"_"${j}"_sub.dat
+		awk -v r="$i" -v r2="$r2r" '$1 == r && $2 ~ r2 {sum += $5} END{print r,r2,sum}' Hbond_analysis_sub.dat > "${i}"_"${r2r}"_sub.dat
 	done
 done
 
-cat "${list_arr[0]}"*_sub.dat > hbond_sum_sub.dat
+cat "${list_arr[0]}"_*_sub.dat > hbond_sum_sub.dat
 
 for k in "${list_arr[@]:1}"
 do
-	cat "${k}"*_sub.dat >> hbond_sum_sub.dat
+	cat "${k}"_*_sub.dat >> hbond_sum_sub.dat
 done
 
 < hbond_sum_sub.dat sort -n > Hbond_Substrate_Sum.dat
 rm hbond_sum_sub.dat
+rm ./*@*.dat
 
-
- for i in ${active};
+for i in ${active};
  do
- awk -v i="${i}" '$1 ~ i  {print $0}' hbond_"${parmfile}"_sub_acceptor.dat | sort -n >> Hbond_analysis.dat
- awk -v i="${i}" '$2 ~ i  {print $0}' hbond_"${parmfile}"_sub_donor.dat | sort -n >> Hbond_analysis.dat
+ 	awk -v i="${i}" '$1 ~ i  {print $0}' hbond_avg_"${parmfile}"_acceptor.dat | sort -n >> Hbond_analysis.dat
+ 	awk -v i="${i}" '$2 ~ i  {print $0}' hbond_avg_"${parmfile}"_donor.dat | sort -n >> Hbond_analysis.dat
  done
 
-list=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis_sub.dat )
-mapfile -t list_arr <<< "$list"
-for i in $list
-do
-	row2=$( awk -v r="$i" '$1==r{print $0}' Hbond_analysis.dat | awk '{ a[$2]++ } END { for (b in a) { print b } }' )
-	for j in $row2
+list1=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis_sub.dat )
+mapfile -t list1_arr <<< "$list1"
+for i in $list1
 	do
-		r2r="${j%@*}"
-		awk -v r="$i" -v r2="$r2r" '$1 == r && $2 ~ r2 {sum += $5} END{print r,r2,sum}' Hbond_analysis.dat > "${i}"_"${j}".dat
+	row2=$( awk -v r="$i" '$1==r{print $0}' Hbond_analysis.dat | awk '{ a[$2]++ } END { for (b in a) { print b } }' )
+		for j in $row2
+			do
+			r2r="${j%@*}"
+			awk -v r="$i" -v r2="$r2r" '$1 == r && $2 ~ r2 {sum += $5} END{print r,r2,sum}' Hbond_analysis.dat > "${i}"_"${j}".dat
+			done
 	done
-done
 
-cat "${list_arr[0]}"_*.dat > hbond_sum.dat
+cat "${list1_arr[0]}"_*.dat > hbond_sum.dat
 
-for k in "${list_arr[@]:1}"
-do
-	cat "${k}"_*.dat >> hbond_sum.dat
-done
+for k in "${list1_arr[@]:1}"
+	do
+		cat "${k}"_*.dat >> hbond_sum.dat
+	done
 
 < hbond_sum.dat sort -n > Hbond_Sum.dat
 rm hbond_sum.dat
+rm ./*@*.dat
 echo "Hbond_Sum.dat and Hbond_Substrate_Sum.dat Files will be created"
 
 }
 
 function RMS {
+cat RMS.log
+
 read -re -p "Parameter File: " parm
 read -re -p "Trajectory File: " traj
 read -re -p "Reference File: " reference
 read -re -p "Protein Residues (Eg. 1-552): " residues
 
+{ date
+	echo "parm=""$parm"
+	echo "traj=""$traj"
+	echo "reference=""$reference"
+	echo "residues=""$residues"
+} >> RMS.log
 parmname=$(basename -- "$parm")
 parmfile="${parmname%_*}"
 
 trajname=$(basename -- "$traj")
 trajfile="${trajname%.*}"
 
-residinp=$(basename -- "${substrate}")
-residlast="${residinp##*-}"
-residfirst="${residinp%-*}"
+
 
 cat > RMS_"${parmfile}".in << EOF
 parm ${parm}
@@ -146,8 +175,17 @@ radgyr :${residues}@CA,ZN,FE,O1 out ROG_${parmfile}.dat time 0.02
 surf :${residues}@CA,ZN,FE,O1 out SURF_${parmfile}.dat time 0.02
 run
 EOF
+omit=$(pidof cpptraj.MPI)
+string="${omit//${IFS:0:1}/,}"
 nohup mpirun -n 96 cpptraj.MPI -i RMS_"${parmfile}".in > RMS_"${parmfile}".out &
+sleep 5
+if [ -z "$string" ]
+then
 calc=$(pidof cpptraj.MPI | awk '{print $1}')
+else
+calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
+fi
+sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
 
 rmsd=RMSD_${parmfile}.dat
