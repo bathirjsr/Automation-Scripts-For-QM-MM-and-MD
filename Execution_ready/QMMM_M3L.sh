@@ -415,7 +415,7 @@ cp myresidues.dat Frequency/.
 cp rc.prmtop Frequency/.
 cp input.in Frequency/.
 
-cd Frequency/ || exit || exit
+cd Frequency/ || exit
 sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RC_Freq.chm <<ENDOFFILE
