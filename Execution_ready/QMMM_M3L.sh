@@ -1149,42 +1149,42 @@ set prmtop pd.prmtop
 #set inpcrd pd.rst
 #load_amber_coords inpcrd=\$inpcrd prmtop=\$prmtop coords=rc.c
 # # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
-energy energy=e coords=pd.c theory=dl_poly  : [ list \
-					    amber_prmtop_file=\$prmtop \
-					    scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
-					    mxexcl=2000  \
-					    mxlist=40000 \
-					    cutoff=1000 \
-					    use_pairlist = no \
-					    save_dl_poly_files = yes \
-   					    exact_srf=yes \
+energy energy=e coords=pd.c theory=dl_poly  : [ list \\
+					    amber_prmtop_file=\$prmtop \\
+					    scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \\
+					    mxexcl=2000  \\
+					    mxlist=40000 \\
+					    cutoff=1000 \\
+					    use_pairlist = no \\
+					    save_dl_poly_files = yes \\
+   					    exact_srf=yes \\
 					    list_option=none ]
 
 set atom_charges [ list_amber_atom_charges ]
 #set qm_atoms {5369-5385 2943-2948 4111-4121 2912-2922 5386-5412}
 
 # optimize geometry with distance A-B fixed
-dl-find coords=pd.c maxcycle=999 active_atoms= \$active residues= \$myresidues list_option=full result=\${sys_name_id}.opt.c \
-theory=hybrid : [ list \
-      coupling= shift \
-      qm_region= \$qm_atoms \
-      atom_charges= \$atom_charges \
-      qm_theory= turbomole : [list   \
-                       read_control= yes \
-                       scratchdir=/data/$user/temp \
-                       hamiltonian= b3-lyp \
-                       scftype= uhf  ]  \
-      mm_theory= dl_poly  : [ list \
-        amber_prmtop_file= \$prmtop \
-        exact_srf=yes \
-    use_pairlist=no \
-mxlist=40000 \
-cutoff=1000 \
-mxexcl=2000  \
-debug_memory=no \
-scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
-                conn= pd.c \
-                save_dl_poly_files = yes \
+dl-find coords=pd.c maxcycle=999 active_atoms= \$active residues= \$myresidues list_option=full result=\${sys_name_id}.opt.c \\
+theory=hybrid : [ list \\
+      coupling= shift \\
+      qm_region= \$qm_atoms \\
+      atom_charges= \$atom_charges \\
+      qm_theory= turbomole : [list   \\
+                       read_control= yes \\
+                       scratchdir=/data/$user/temp \\
+                       hamiltonian= b3-lyp \\
+                       scftype= uhf  ]  \\
+      mm_theory= dl_poly  : [ list \\
+        amber_prmtop_file= \$prmtop \\
+        exact_srf=yes \\
+    use_pairlist=no \\
+mxlist=40000 \\
+cutoff=1000 \\
+mxexcl=2000  \\
+debug_memory=no \\
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \\
+                conn= pd.c \\
+                save_dl_poly_files = yes \\
          list_option=none ]]
 
 ####
