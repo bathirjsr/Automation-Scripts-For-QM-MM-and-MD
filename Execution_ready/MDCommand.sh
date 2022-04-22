@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # nohup ./MDCommand.sh -g <GPU ID> -p <parameter file> -c <input coordinate> -n <Number of CPU processors> -x <Number of GPU processors> -r <Residues restraining> > MDCommand.log &
 while getopts g:p:c:n:x:r:s:m: flag
 do
@@ -151,7 +151,7 @@ echo "Started MD on $(date) "
 do_parallel="nohup mpirun -n ${nprocs} $AMBERHOME/bin/sander.MPI"
 do_gpu="nohup mpirun -n ${ngpu} $AMBERHOME/bin/pmemd.cuda.MPI"
 
-MDINPUTS=(1-min 2-min 3-heat 4-density 5-Res_run 6-equil 7-md)
+MDINPUTS=( 1-min 2-min 3-heat 4-density 5-Res_run 6-equil 7-md )
 
 for input in "${MDINPUTS[@]}"; 
 do
@@ -344,7 +344,7 @@ do_parallel="nohup mpirun -n ${nprocs} $AMBERHOME/bin/sander.MPI"
 do_gpu="nohup mpirun -n ${ngpu} $AMBERHOME/bin/pmemd.cuda.MPI"
 MDINPUTS=(1-min 2-min 3-heat 4-density 5-equil 6-md)
 
-for input in ${MDINPUTS[@]}; 
+for input in "${MDINPUTS[@]}"; 
 do
 if [ "$input" = "1-min" ]
 then 
