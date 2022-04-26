@@ -47,32 +47,56 @@ do
   PDHAT_ZPE=$(awk -v p="$PD_B2_ZPE" -v r="$RC_B2_ZPE" 'BEGIN{printf "%30f", (p - r)*627.5095}')
   cd ../Analysis || exit
 cat > Whole_Energy_"${dirnumber}".txt << EOF
-RC		${RC}		
+RC			${RC}		
 RC_SP		${RC_SP}
 RC_ZPE		${RC_ZPE}
 RC_B2_ZPE	${RC_B2_ZPE}
-TS		${TS}
+TS			${TS}
 TS_SP		${TS_SP}
 TS_ZPE		${TS_ZPE}
 TS_B2_ZPE	${TS_B2_ZPE}
-PD		${PD}
+PD			${PD}
 PD_SP		${PD_SP}
 PD_ZPE		${PD_ZPE}
 PD_B2_ZPE	${PD_B2_ZPE}
 EOF
   cat > Energy_"${dirnumber}".txt << EOF
-Frame_Number		${dirnumber}         
-RC			${RC}        
+Frame_Number	${dirnumber}         
+RC				${RC}        
 RC-B2+ZPE		${RC_B2_ZPE}        
-TS			${TS}        
+TS				${TS}        
 TS-B2+ZPE		${TS_B2_ZPE}        
-PD			${PD}        
+PD				${PD}        
 PD-B2+ZPE		${PD_B2_ZPE}        
-HAT                     ${TSHAT}Kcal/mol
-HAT_ZPE                 ${TSHAT_ZPE}Kcal/mol
+HAT				${TSHAT}Kcal/mol
+HAT_ZPE         ${TSHAT_ZPE}Kcal/mol
 PD_Energy		${PDHAT}Kcal/mol
-PD_Energy_ZPE		${PDHAT_ZPE}Kcal/mol
+PD_Energy_ZPE	{PDHAT_ZPE}Kcal/mol
 EOF
+cat > Reaction_"${dirnumber}".txt << EOF
+1 0  RC
+1.5 0
+
+2.5  ${TSHAT_ZPE} TS
+3  ${TSHAT_ZPE}
+
+4 ${PDHAT_ZPE} PD
+4.5 ${PDHAT_ZPE}
+EOF
+
+gnuplot << EOF
+set encoding iso_8859_1
+set term post enhanced eps solid color lw 2.0 "Arial" 24
+set output "Reaction_"${dirnumber}".eps"
+set xrange [0.5:5]
+set ylabel "Energy (kcal/mol)" rotate by 90
+set arrow from 1.5,0 to 2.5,${TSHAT_ZPE} nohead lc rgb 'red' lt 2
+set arrow from 3,${TSHAT_ZPE} to 4,${PDHAT_ZPE} nohead lc rgb 'red' lt 2
+unset xtics
+unset key
+plot 'Reaction_"${dirnumber}".txt' using 1:2 with lines lw 5 lc rgb 'blue', '' using 1:2:3 with labels offset 1,1 
+EOF
+
   cd ../QMMM || exit
   for step in 1-RC_Opt 2-Scan 3-TS_Opt 4-PD_Opt
   do
