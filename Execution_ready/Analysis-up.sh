@@ -74,11 +74,11 @@ PD_Energy		${PDHAT}Kcal/mol
 PD_Energy_ZPE	{PDHAT_ZPE}Kcal/mol
 EOF
 	cat > Reaction_"${dirnumber}".txt << EOF
-1 0  RC
+1	0  RC
 1.5 0
 
-2.5  ${TSHAT_ZPE} TS
-3  ${TSHAT_ZPE}
+2.5 ${TSHAT_ZPE} TS
+3 ${TSHAT_ZPE}
 
 4 ${PDHAT_ZPE} PD
 4.5 ${PDHAT_ZPE}
@@ -86,15 +86,15 @@ EOF
 
 	gnuplot << EOF
 set encoding iso_8859_1
-set term post enhanced eps solid color lw 2.0 "Arial" 24
-set output "Reaction_"${dirnumber}".eps"
+set term post enhanced eps solid color lw 2.0 \"Arial\" 24
+set output \"Reaction_${dirnumber}.eps\"
 set xrange [0.5:5]
-set ylabel "Energy (kcal/mol)" rotate by 90
+set ylabel \"Energy (kcal/mol)\" rotate by 90
 set arrow from 1.5,0 to 2.5,${TSHAT_ZPE} nohead lc rgb 'red' lt 2
 set arrow from 3,${TSHAT_ZPE} to 4,${PDHAT_ZPE} nohead lc rgb 'red' lt 2
 unset xtics
 unset key
-plot 'Reaction_"${dirnumber}".txt' using 1:2 with lines lw 5 lc rgb 'blue', '' using 1:2:3 with labels offset 1,1 
+plot \'Reaction_${dirnumber}.txt\' using 1:2 with lines lw 5 lc rgb \'blue\', \'\' using 1:2:3 with labels offset 1,1 
 EOF
 
   cd ../QMMM || exit

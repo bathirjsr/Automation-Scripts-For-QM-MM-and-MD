@@ -13,7 +13,7 @@ set key right top
 set xrange [0:466]
 #set title "EDA"
 set output "EDA.eps";
-plot "gnu.dat" u (\$1):(\$2) with impulses t "T74A"
+plot "gnu.dat" u (\$1):(\$2) with impulses t "T74A" 
 ENDOFFILE
 
 
