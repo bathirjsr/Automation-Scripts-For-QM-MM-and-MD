@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 # nohup ./MDCommand.sh -g <GPU ID> -p <parameter file> -c <input coordinate> -n <Number of CPU processors> -x <Number of GPU processors> -r <Residues restraining> > MDCommand.log &
 while getopts g:p:c:n:x:r:s:m: flag
 do
