@@ -24,16 +24,16 @@ cat Hbond.log
 
 parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
 #read -re -p "Parameter File: " parm 
-echo "parm=""$parm" >> Hbond.log
+#echo "parm=""$parm" >> Hbond.log
 traj=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
 #read -re -p "Trajectory File: " traj 
-echo "traj=""$traj" >> Hbond.log
+#echo "traj=""$traj" >> Hbond.log
 active=$(zenity --entry --title="Active Site Residues (Eg. HD1,OY1 or their resid)")
 #read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
-echo "active=""$active" >> Hbond.log
+#echo "active=""$active" >> Hbond.log
 substrate=$(zenity --entry --title="Substrate Residues (Eg. 536-552)")
 #read -re -p "Substrate Residues (Eg. 536-552): " substrate 
-echo "substrate=""$substrate" >> Hbond.log
+#echo "substrate=""$substrate" >> Hbond.log
 
 { date
 echo "parm=""$parm"
@@ -151,6 +151,18 @@ read -re -p "Parameter File: " parm
 read -re -p "Trajectory File: " traj
 read -re -p "Reference File: " reference
 read -re -p "Protein Residues (Eg. 1-552): " residues
+
+parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+#read -re -p "Parameter File: " parm 
+#echo "parm=""$parm" >> Hbond.log
+traj=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
+#read -re -p "Trajectory File: " traj 
+#echo "traj=""$traj" >> Hbond.log
+reference=$(zenity --entry --file-filter=*.rst,*.pdb --title="Reference File (Eg. HD1,OY1 or their resid)")
+#read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
+#echo "active=""$active" >> Hbond.log
+residues=$(zenity --entry --title="Protein Residues (Eg. 536-552)")
+
 
 { date
 	echo "parm=""$parm"
