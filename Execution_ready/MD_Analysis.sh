@@ -22,13 +22,17 @@ echo "Now in $(pwd)"
 function Hbond {
 cat Hbond.log
 
-read -re -p "Parameter File: " parm 
+parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+#read -re -p "Parameter File: " parm 
 echo "parm=""$parm" >> Hbond.log
-read -re -p "Trajectory File: " traj 
+traj=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
+#read -re -p "Trajectory File: " traj 
 echo "traj=""$traj" >> Hbond.log
-read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
+active=$(zenity --entry --title="Active Site Residues (Eg. HD1,OY1 or their resid)")
+#read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
 echo "active=""$active" >> Hbond.log
-read -re -p "Substrate Residues (Eg. 536-552): " substrate 
+substrate=$(zenity --entry --title="Substrate Residues (Eg. 536-552)")
+#read -re -p "Substrate Residues (Eg. 536-552): " substrate 
 echo "substrate=""$substrate" >> Hbond.log
 
 { date
