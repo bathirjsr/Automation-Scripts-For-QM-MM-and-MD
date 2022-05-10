@@ -1,4 +1,5 @@
-#! /bin/bash
+#!/bin/bash
+
 # while getopts p:t:r:a:s:f: flag
 # do
 #     case "${flag}" in
@@ -66,7 +67,7 @@ EOF
 omit=$(pidof cpptraj.MPI)
 string="${omit//${IFS:0:1}/,}"
 
-nohup mpirun -n 96 cpptraj.MPI -i Hbond_"${parmfile}".in > Hbond_"${parmfile}".out &
+#nohup mpirun -n 96 cpptraj.MPI -i Hbond_"${parmfile}".in > Hbond_"${parmfile}".out &
 sleep 5
 if [ -z "$string" ]
 then
@@ -110,8 +111,8 @@ do
 done
 
 < hbond_sum_sub.dat sort -n > Hbond_Substrate_Sum.dat
-rm hbond_sum_sub.dat
-rm ./*@*.dat
+#rm hbond_sum_sub.dat
+
 
 for i in ${active};
  do
@@ -119,7 +120,7 @@ for i in ${active};
  	awk -v i="${i}" '$2 ~ i  {print $0}' hbond_avg_"${parmfile}"_donor.dat | sort -n >> Hbond_analysis.dat
  done
 
-list1=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis_sub.dat )
+list1=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis.dat )
 mapfile -t list1_arr <<< "$list1"
 for i in $list1
 	do
@@ -127,7 +128,7 @@ for i in $list1
 		for j in $row2
 			do
 			r2r="${j%@*}"
-			awk -v r="$i" -v r2="$r2r" '$1 == r && $2 ~ r2 {sum += $5} END{print r,r2,sum}' Hbond_analysis.dat > "${i}"_"${j}".dat
+			awk -v r="$i" -v r2="$r2r" '$1 == r && $2 ~ r2 {sum += $5} END{print r,r2,sum}' Hbond_analysis.dat > "${i}"_"${r2r}".dat
 			done
 	done
 
@@ -139,7 +140,7 @@ for k in "${list1_arr[@]:1}"
 	done
 
 < hbond_sum.dat sort -n > Hbond_Sum.dat
-rm hbond_sum.dat
+#rm hbond_sum.dat
 rm ./*@*.dat
 echo "Hbond_Sum.dat and Hbond_Substrate_Sum.dat Files will be created"
 }
