@@ -159,8 +159,8 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
     BASIS_SET_FILE_NAME BASIS_ADMM_MOLOPT
     POTENTIAL_FILE_NAME GTH_POTENTIALS
     UKS
-    CHARGE 0
-    MULTIPLICITY 5
+    CHARGE ${Charge}
+    MULTIPLICITY ${Muliplicity}
     &SCF
       MAX_SCF 30
       EPS_SCF 2.0E-5
@@ -358,8 +358,8 @@ cat > QMMM_MD_"${System}".inp <<EOF
 &FORCE_EVAL
         METHOD QMMM
         &DFT
-                CHARGE 0
-                MULTIPLICITY 5
+                CHARGE ${Charge}
+                MULTIPLICITY ${Multiplicity}
 		UKS
                 BASIS_SET_FILE_NAME BASIS_MOLOPT
                 BASIS_SET_FILE_NAME BASIS_ADMM
