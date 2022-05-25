@@ -95,8 +95,8 @@ list=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis_sub.dat
 mapfile -t list_arr <<< "$list"
 for i in $list
 do
-	row2=$( awk -v r="$i" '$1==r{print $0}' Hbond_analysis_sub.dat | awk '{ a[$2]++ } END { for (b in a) { print b } }' )
-	for j in $row2
+	row1=$( awk -v r="$i" '$1==r{print $0}' Hbond_analysis_sub.dat | awk '{ a[$2]++ } END { for (b in a) { print b } }' )
+	for j in $row1
 	do
 		r2r="${j%@*}"
 		awk -v r="$i" -v r2="$r2r" '$1 == r && $2 ~ r2 {sum += $5} END{print r,r2,sum}' Hbond_analysis_sub.dat > "${i}"_"${r2r}"_sub.dat
@@ -120,9 +120,9 @@ for i in ${active};
  	awk -v i="${i}" '$2 ~ i  {print $0}' hbond_avg_"${parmfile}"_donor.dat | sort -n >> Hbond_analysis.dat
  done
 
-list1=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis.dat )
-mapfile -t list1_arr <<< "$list1"
-for i in $list1
+act=$(awk '{ a[$1]++ } END { for (b in a) { print b } }' Hbond_analysis.dat )
+mapfile -t act_arr <<< "$act"
+for i in $act
 	do
 	row2=$( awk -v r="$i" '$1==r{print $0}' Hbond_analysis.dat | awk '{ a[$2]++ } END { for (b in a) { print b } }' )
 		for j in $row2
@@ -132,9 +132,9 @@ for i in $list1
 			done
 	done
 
-cat "${list1_arr[0]}"_*.dat > hbond_sum.dat
+cat "${act_arr[0]}"_*.dat > hbond_sum.dat
 
-for k in "${list1_arr[@]:1}"
+for k in "${act_arr[@]:1}"
 	do
 		cat "${k}"_*.dat >> hbond_sum.dat
 	done
@@ -148,18 +148,19 @@ echo "Hbond_Sum.dat and Hbond_Substrate_Sum.dat Files will be created"
 function RMS {
 cat RMS.log
 
-read -re -p "Parameter File: " parm
-read -re -p "Trajectory File: " traj
-read -re -p "Reference File: " reference
-read -re -p "Protein Residues (Eg. 1-552): " residues
+# read -re -p "Parameter File: " parm
+# read -re -p "Trajectory File: " traj
+# read -re -p "Reference File: " reference
+# read -re -p "Protein Residues (Eg. 1-552): " residues
 
 parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+[[ "$?" != "0" ]] && exit 1
 #read -re -p "Parameter File: " parm 
 #echo "parm=""$parm" >> Hbond.log
 traj=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
 #read -re -p "Trajectory File: " traj 
 #echo "traj=""$traj" >> Hbond.log
-reference=$(zenity --entry --file-filter=*.rst,*.pdb --title="Reference File (Eg. HD1,OY1 or their resid)")
+reference=$(zenity --file-selection --file-filter=*.rst,*.pdb --title="Reference File (Eg. HD1,OY1 or their resid)")
 #read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
 #echo "active=""$active" >> Hbond.log
 residues=$(zenity --entry --title="Protein Residues (Eg. 536-552)")
@@ -304,8 +305,8 @@ $(ColorBlue 'Choose an option:') "
         case $a in
 	        1) Hbond ; menu ;;
 	        2) RMS ; menu ;;
-		0) Exit ;;
-		*) echo -e "$red""Wrong option.""$clear";;
+			0) Exit ;;
+			*) echo -e "$red""Wrong option.""$clear";;
         esac
 }
 # Call the menu function

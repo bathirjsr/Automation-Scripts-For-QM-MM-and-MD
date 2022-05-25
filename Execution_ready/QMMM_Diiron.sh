@@ -761,7 +761,7 @@ cp scan_"${transition}".pdb ../3-TS_Opt/.
 cp scan.prmtop ../3-TS_Opt/.
 cp alpha_"${transition}".gz ../3-TS_Opt/.
 cp beta_"${transition}".gz ../3-TS_Opt/.
-#cp control ../3-TS_Opt/.
+cp control ../3-TS_Opt/.
 cp parse_amber.tcl ../3-TS_Opt/.
 cp QM.dat ../3-TS_Opt/.
 cp MM.dat ../3-TS_Opt/.
