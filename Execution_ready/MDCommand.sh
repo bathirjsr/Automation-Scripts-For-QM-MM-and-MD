@@ -15,6 +15,7 @@ do
        exit 1 ;;
 esac
 done
+job=$(pwd)
 if [ "${step}" = "restrained" ]; then
 if [ ! -e Restrained ]; then
 	    mkdir Restrained
@@ -166,7 +167,7 @@ then
 
 	cp "${input}".in "${input}"/.
 	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}" -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}" -inf "${input}"/"${input}".mdinfo -O&
-	echo "First minimization started on $(date)"
+	echo "First minimization started on $(date)" | mail -s "${input} MD started in $(hostname)" simahjsr@gmail.com
 	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;	
@@ -175,10 +176,9 @@ elif [ "${input}" = "2-min" ]
 then
 
 	if [ "$(grep -c "Total time" 1-min/1-min.out)" -ge 1 ]; then
-		coords=1-min
-		echo "First minimization completed on $(date)"
+		echo "First minimization completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job} " simahjsr@gmail.com
 	else
-		echo "First minimization terminated in $(date)"
+		echo "First minimization terminated in $(date)" | mail -s "${input} MD terminated in $(hostname) at ${job} " simahjsr@gmail.com
 		exit
 	fi
 
@@ -198,11 +198,12 @@ then
 
 	if [ "$(grep -c "Total time" 2-min/2-min.out)" -ge 1 ]; then
 		min="${coords}"
-		echo "Second minimization completed on $(date)"
+		echo "Second minimization completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job} " simahjsr@gmail.com
 	else
-		echo "Second minimization terminated on $(date)"
+		echo "Second minimization terminated on $(date)" | mail -s "${input} MD terminated in $(hostname) at ${job} " simahjsr@gmail.com
 		exit
 	fi
+
 
 else
 
@@ -222,10 +223,10 @@ else
 	
 
 	if [ "$(grep -c "Master Total wall time:" "${input}"/"${input}".out)" -ge 1 ]; then
-		echo "${input} calculation completed on $(date)"	
+		echo "${input} calculation completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job} " simahjsr@gmail.com	
 		echo "Calculation proceed"
 	else
-		echo "${input} calculation terminated on $(date)"
+		echo "${input} calculation terminated on $(date)" | mail -s "${input} MD terminated in $(hostname) at ${job} " simahjsr@gmail.com
 		exit
 	fi
 
@@ -362,9 +363,9 @@ then
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;	
 if [ "$(grep -c "Total time" 1-min/1-min.out)" -ge 1 ]; then
-		echo "First minimization completed on $(date)" | mail -s "${input} MD completed in $(hostname)" simahjsr@gmail.com
+		echo "First minimization completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job} " simahjsr@gmail.com
 	else
-		echo "First minimization terminated in $(date)" | mail -s "${input} MD terminated in $(hostname)" simahjsr@gmail.com
+		echo "First minimization terminated in $(date)" | mail -s "${input} MD terminated in $(hostname) at ${job} " simahjsr@gmail.com
 		exit
 	fi
 elif [ "${input}" = "2-min" ] 
@@ -394,9 +395,9 @@ then
 
 	if [ "$(grep -c "Total time" 2-min/2-min.out)" -ge 1 ]; then
 		min="${coords}"
-		echo "Second minimization completed on $(date)" | mail -s "${input} MD completed in $(hostname)" simahjsr@gmail.com
+		echo "Second minimization completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job} " simahjsr@gmail.com
 	else
-		echo "Second minimization terminated on $(date)" | mail -s "${input} MD terminated in $(hostname)" simahjsr@gmail.com
+		echo "Second minimization terminated on $(date)" | mail -s "${input} MD terminated in $(hostname) at ${job} " simahjsr@gmail.com
 		exit
 	fi
 
@@ -418,10 +419,10 @@ else
 	
 
 	if [ "$(grep -c "Master Total wall time:" "${input}"/"${input}".out)" -ge 1 ]; then
-		echo "${input} calculation completed on $(date)" | mail -s "${input} MD completed in $(hostname)" simahjsr@gmail.com	
+		echo "${input} calculation completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job}  at ${job} " simahjsr@gmail.com	
 		echo "Calculation proceed"
 	else
-		echo "${input} calculation terminated on $(date)" | mail -s "${input} MD terminated in $(hostname)" simahjsr@gmail.com
+		echo "${input} calculation terminated on $(date)" | mail -s "${input} MD terminated in $(hostname) at ${job} " simahjsr@gmail.com
 		exit
 	fi
 
