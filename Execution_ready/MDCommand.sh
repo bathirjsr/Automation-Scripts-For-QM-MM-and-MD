@@ -167,7 +167,7 @@ then
 
 	cp "${input}".in "${input}"/.
 	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}" -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}" -inf "${input}"/"${input}".mdinfo -O&
-	echo "First minimization started on $(date)" | mail -s "${input} MD started in $(hostname) at ${job}" simahjsr@gmail.com
+	echo "First minimization started on $(date)" 
 	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;	
@@ -358,7 +358,7 @@ then
 
 	cp "${input}".in "${input}"/.
 	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}" -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}" -inf "${input}"/"${input}".mdinfo -O&
-	echo "First minimization started on $(date)" | mail -s "${input} MD started in $(hostname) at ${job}" simahjsr@gmail.com
+	echo "First minimization started on $(date)"
 	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;	
@@ -387,7 +387,7 @@ then
 
 	cp "${input}".in "${input}"/.
 	$do_parallel -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${coords}"/"${coords}".rst -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${coords}"/"${coords}".rst -inf "${input}"/"${input}".mdinfo -O&
-	echo "Second minimization started on $(date)" | mail -s "${input} MD started in $(hostname) at ${job}" simahjsr@gmail.com
+	echo "Second minimization started on $(date)"
 	coords="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;
@@ -412,7 +412,7 @@ else
 	cp "${input}".in "${input}"/.
 	export CUDA_VISIBLE_DEVICES="${CUDA}"
 	$do_gpu -i "${input}"/"${input}".in -o "${input}"/"${input}".out -p "${prmtop}" -c "${min}"/"${min}".rst -r "${input}"/"${input}".rst -x "${input}"/"${input}".nc -ref "${min}"/"${min}".rst -inf "${input}"/"${input}".mdinfo -O&
-	echo "${input} calculation started on $(date)" | mail -s "${input} MD started $(hostname)" simahjsr@gmail.com
+	echo "${input} calculation started on $(date)" 
 	min="${input}"
 	process=$!
 	while ps -p $process > /dev/null;do sleep 1;done;
