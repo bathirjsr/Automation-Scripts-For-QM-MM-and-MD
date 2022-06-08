@@ -79,7 +79,7 @@ else
 calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
 fi
 sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
+while ps -p "${calc}" > /dev/null;do tail -n 1 Hbond_"${parmfile}".out ;done;
 
 cat > Hbond_analysis_sub.dat <<EOF
 
@@ -164,11 +164,11 @@ traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory
 [[ "$?" != "0" ]] && exit 1
 #read -re -p "Trajectory File: " traj 
 #echo "traj=""$traj" >> Hbond.log
-reference=$(zenity --file-selection --file-filter=*.rst,*.pdb --title="Reference File (Eg. HD1,OY1 or their resid)")
+reference=$(zenity --file-selection --file-filter=*.rst --title="Reference File")
 [[ "$?" != "0" ]] && exit 1
 #read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
 #echo "active=""$active" >> Hbond.log
-residues=$(zenity --entry --title="Protein Residues (Eg. 536-552)")
+residues=$(zenity --entry --title="Protein Residues (Eg. 1-552)")
 [[ "$?" != "0" ]] && exit 1
 
 { date
@@ -208,7 +208,7 @@ else
 calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
 fi
 sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
+while ps -p "${calc}" > /dev/null;do tail -n 1 RMS_"${parmfile}".out ;done;
 
 rmsd=RMSD_${parmfile}.dat
 rmsf=RMSF_${parmfile}.dat
@@ -302,7 +302,7 @@ trajout ${trajfile}_auto.nc
 run
 exit
 EOF
-nohup mpirun -n 96 cpptraj.MPI -i Autoimage.in -o Autoimage.out &
+nohup mpirun -n 96 cpptraj.MPI -i Autoimage_"${parmfile}".in -o Autoimage_"${parmfile}".out &
 sleep 5
 if [ -z "$string" ]
 then
@@ -311,7 +311,7 @@ else
 calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
 fi
 sleep 5
-while ps -p "${calc}" > /dev/null;do tail -f -n 1 Autoimage.out;done;
+while ps -p "${calc}" > /dev/null;do tail -n 1 Autoimage.out ;done;
 
 }
 function Exit() {
