@@ -24,15 +24,19 @@ function Hbond {
 cat Hbond.log
 
 parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+[[ "$?" != "0" ]] && exit 1
 #read -re -p "Parameter File: " parm 
 #echo "parm=""$parm" >> Hbond.log
-traj=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
+traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory File")
+[[ "$?" != "0" ]] && exit 1
 #read -re -p "Trajectory File: " traj 
 #echo "traj=""$traj" >> Hbond.log
 active=$(zenity --entry --title="Active Site Residues (Eg. HD1,OY1 or their resid)")
+[[ "$?" != "0" ]] && exit 1
 #read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
 #echo "active=""$active" >> Hbond.log
 substrate=$(zenity --entry --title="Substrate Residues (Eg. 536-552)")
+[[ "$?" != "0" ]] && exit 1
 #read -re -p "Substrate Residues (Eg. 536-552): " substrate 
 #echo "substrate=""$substrate" >> Hbond.log
 
@@ -55,7 +59,6 @@ residfirst="${residinp%-*}"
 cat > Hbond_"${parmfile}".in << EOF 
 parm ${parm}
 trajin ${traj}
-autoimage
 hbond hbond_${parmfile} donormask :${active} out hbond_${parmfile}_donor.dat avgout hbond_avg_${parmfile}_donor.dat
 hbond hbond_${parmfile}_sub donormask :${substrate} out hbond_${parmfile}_sub_donor.dat avgout hbond_avg_${parmfile}_sub_donor.dat
 hbond hbond_${parmfile}1 acceptormask :${active} out hbond_${parmfile}_acceptor.dat avgout hbond_avg_${parmfile}_acceptor.dat
@@ -67,7 +70,7 @@ EOF
 omit=$(pidof cpptraj.MPI)
 string="${omit//${IFS:0:1}/,}"
 
-#nohup mpirun -n 96 cpptraj.MPI -i Hbond_"${parmfile}".in > Hbond_"${parmfile}".out &
+nohup mpirun -n 96 cpptraj.MPI -i Hbond_"${parmfile}".in > Hbond_"${parmfile}".out &
 sleep 5
 if [ -z "$string" ]
 then
@@ -157,14 +160,16 @@ parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter 
 [[ "$?" != "0" ]] && exit 1
 #read -re -p "Parameter File: " parm 
 #echo "parm=""$parm" >> Hbond.log
-traj=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
+traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory File")
+[[ "$?" != "0" ]] && exit 1
 #read -re -p "Trajectory File: " traj 
 #echo "traj=""$traj" >> Hbond.log
 reference=$(zenity --file-selection --file-filter=*.rst,*.pdb --title="Reference File (Eg. HD1,OY1 or their resid)")
+[[ "$?" != "0" ]] && exit 1
 #read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
 #echo "active=""$active" >> Hbond.log
 residues=$(zenity --entry --title="Protein Residues (Eg. 536-552)")
-
+[[ "$?" != "0" ]] && exit 1
 
 { date
 	echo "parm=""$parm"
@@ -276,6 +281,39 @@ p "${surf}" w l lc rgb "red" lw 1.0 notitle, \
 EOF
 
 }
+function Autoimage() {
+parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+[[ "$?" != "0" ]] && exit 1
+
+traj=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
+[[ "$?" != "0" ]] && exit 1
+
+parmname=$(basename -- "$parm")
+parmfile="${parmname%_*}"
+
+trajname=$(basename -- "$traj")
+trajfile="${trajname%.*}"
+
+cat > Autoimage.in << EOF
+parm ${parm}
+trajin ${traj}
+autoimage
+trajout ${trajfile}_auto.nc
+run
+exit
+EOF
+nohup mpirun -n 96 cpptraj.MPI -i Autoimage.in -o Autoimage.out &
+sleep 5
+if [ -z "$string" ]
+then
+calc=$(pidof cpptraj.MPI | awk '{print $1}')
+else
+calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
+fi
+sleep 5
+while ps -p "${calc}" > /dev/null;do tail -f -n 1 Autoimage.out;done;
+
+}
 function Exit() {
 	exit 0
 }
@@ -299,12 +337,14 @@ echo -ne "
 Scan Menu
 $(ColorGreen '1)') Hbond 
 $(ColorGreen '2)') RMSD,RMSF,ROG,SAS
+$(ColorGreen '3)') Autoimage
 $(ColorGreen '0)') Exit
 $(ColorBlue 'Choose an option:') "
         read -r a
         case $a in
 	        1) Hbond ; menu ;;
 	        2) RMS ; menu ;;
+			3) Autoimage ; menu ;;
 			0) Exit ;;
 			*) echo -e "$red""Wrong option.""$clear";;
         esac
