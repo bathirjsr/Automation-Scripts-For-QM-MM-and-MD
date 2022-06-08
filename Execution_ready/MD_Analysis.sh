@@ -47,7 +47,7 @@ echo "active=""$active"
 echo "substrate=""$substrate"
 } >> Hbond.log
 parmname=$(basename -- "$parm")
-parmfile="${parmname%_*}"
+parmfile="${parmname%_auto*}"
 
 trajname=$(basename -- "$traj")
 trajfile="${trajname%.*}"
@@ -178,18 +178,14 @@ residues=$(zenity --entry --title="Protein Residues (Eg. 1-552)")
 	echo "residues=""$residues"
 } >> RMS.log
 parmname=$(basename -- "$parm")
-parmfile="${parmname%_*}"
+parmfile="${parmname%_auto*}"
 
 trajname=$(basename -- "$traj")
 trajfile="${trajname%.*}"
 
-
-
 cat > RMS_"${parmfile}".in << EOF
 parm ${parm}
 trajin ${traj}
-autoimage
-trajout ${trajfile}_auto.nc
 reference ${reference}
 rms reference out RMSD_${parmfile}.dat :${residues}@CA,ZN,FE,O1 time 0.02
 atomicfluct reference out RMSF_${parmfile}.dat :${residues}@CA,ZN,FE,O1 byres
