@@ -183,6 +183,10 @@ parmfile="${parmname%_auto*}"
 trajname=$(basename -- "$traj")
 trajfile="${trajname%.*}"
 
+residinp=$(basename -- "$residues")
+residlast="${residinp##*-}"
+residfirst="${residinp%-*}"
+
 cat > RMS_"${parmfile}".in << EOF
 parm ${parm}
 trajin ${traj}
@@ -211,7 +215,7 @@ rmsf=RMSF_${parmfile}.dat
 radgyr=ROG_${parmfile}.dat
 surf=SURF_${parmfile}.dat
 
-gnuplot  << EOF
+cat > RMS_"${parmfile}".gnu << EOF
 
 set encoding iso_8859_1
 set term post enhanced eps solid color lw 2.0 "Arial" 24
@@ -224,14 +228,9 @@ set xrange [0:1000]
 
 set output "RMSD_${parmfile}.eps";
 p "${rmsd}" w l lc rgb "red" lw 1.0 notitle, \
-
-EOF
-
-
-gnuplot  << EOF
-
-set encoding iso_8859_1
-set term post enhanced eps solid color lw 2.0 "Arial" 24
+clear
+#set encoding iso_8859_1
+#set term post enhanced eps solid color lw 2.0 "Arial" 24
 
 set xlabel "Resdiues"
 set ylabel "RMSF ({\305})"
@@ -241,13 +240,10 @@ set xrange [0:${residlast}]
 
 set output "RMSF_${parmfile}.eps";
 p "${rmsf}" w l lc rgb "red" lw 1.0 notitle, \
+clear
 
-EOF
-
-gnuplot  << EOF
-
-set encoding iso_8859_1
-set term post enhanced eps solid color lw 2.0 "Arial" 24
+#set encoding iso_8859_1
+#set term post enhanced eps solid color lw 2.0 "Arial" 24
 
 set xlabel "Time (ns)"
 set ylabel "ROG ({\305}^2)"
@@ -257,13 +253,10 @@ set key right top Left reverse
 
 set output "ROG_${parmfile}.eps";
 p "${radgyr}" u (\$1):(\$2) w l lc rgb "red" lw 1.0 notitle, \
+clear
 
-EOF
-
-gnuplot  << EOF
-
-set encoding iso_8859_1
-set term post enhanced eps solid color lw 2.0 "Arial" 24
+#set encoding iso_8859_1
+#set term post enhanced eps solid color lw 2.0 "Arial" 24
 
 set xlabel "Time (ns)"
 set ylabel "SAS ({\305})^2"
@@ -275,6 +268,8 @@ set output "SURF_${parmfile}.eps";
 p "${surf}" w l lc rgb "red" lw 1.0 notitle, \
 
 EOF
+
+gnuplot RMS_"${parmfile}".gnu
 
 }
 function Autoimage() {
