@@ -47,10 +47,10 @@ echo "active=""$active"
 echo "substrate=""$substrate"
 } >> Hbond.log
 parmname=$(basename -- "$parm")
-parmfile="${parmname%_auto*}"
+parmfile="${parmname%_*}"
 
 trajname=$(basename -- "$traj")
-trajfile="${trajname%.*}"
+trajfile="${trajname%.auto*}"
 
 residinp=$(basename -- "${substrate}")
 residlast="${residinp##*-}"
@@ -178,10 +178,10 @@ residues=$(zenity --entry --title="Protein Residues (Eg. 1-552)")
 	echo "residues=""$residues"
 } >> RMS.log
 parmname=$(basename -- "$parm")
-parmfile="${parmname%_auto*}"
+parmfile="${parmname%_*}"
 
 trajname=$(basename -- "$traj")
-trajfile="${trajname%.*}"
+trajfile="${trajname%_auto.*}"
 
 residinp=$(basename -- "$residues")
 residlast="${residinp##*-}"
@@ -199,7 +199,7 @@ run
 EOF
 omit=$(pidof cpptraj.MPI)
 string="${omit//${IFS:0:1}/,}"
-nohup mpirun -n 96 cpptraj.MPI -i RMS_"${parmfile}".in > RMS_"${parmfile}".out &
+#nohup mpirun -n 96 cpptraj.MPI -i RMS_"${parmfile}".in > RMS_"${parmfile}".out &
 sleep 5
 if [ -z "$string" ]
 then
@@ -228,9 +228,11 @@ set xrange [0:1000]
 
 set output "RMSD_${parmfile}.eps";
 p "${rmsd}" w l lc rgb "red" lw 1.0 notitle, \
-clear
-#set encoding iso_8859_1
-#set term post enhanced eps solid color lw 2.0 "Arial" 24
+
+reset
+
+set encoding iso_8859_1
+set term post enhanced eps solid color lw 2.0 "Arial" 24
 
 set xlabel "Resdiues"
 set ylabel "RMSF ({\305})"
@@ -240,10 +242,11 @@ set xrange [0:${residlast}]
 
 set output "RMSF_${parmfile}.eps";
 p "${rmsf}" w l lc rgb "red" lw 1.0 notitle, \
-clear
 
-#set encoding iso_8859_1
-#set term post enhanced eps solid color lw 2.0 "Arial" 24
+reset
+
+set encoding iso_8859_1
+set term post enhanced eps solid color lw 2.0 "Arial" 24
 
 set xlabel "Time (ns)"
 set ylabel "ROG ({\305}^2)"
@@ -253,10 +256,11 @@ set key right top Left reverse
 
 set output "ROG_${parmfile}.eps";
 p "${radgyr}" u (\$1):(\$2) w l lc rgb "red" lw 1.0 notitle, \
-clear
 
-#set encoding iso_8859_1
-#set term post enhanced eps solid color lw 2.0 "Arial" 24
+reset
+
+set encoding iso_8859_1
+set term post enhanced eps solid color lw 2.0 "Arial" 24
 
 set xlabel "Time (ns)"
 set ylabel "SAS ({\305})^2"
@@ -285,7 +289,7 @@ parmfile="${parmname%_*}"
 trajname=$(basename -- "$traj")
 trajfile="${trajname%.*}"
 
-cat > Autoimage.in << EOF
+cat > Autoimage_"${parmfile}".in << EOF
 parm ${parm}
 trajin ${traj}
 autoimage
@@ -302,7 +306,7 @@ else
 calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
 fi
 sleep 5
-while ps -p "${calc}" > /dev/null;do tail -n 1 Autoimage.out ;done;
+while ps -p "${calc}" > /dev/null;do tail -n 1 Autoimage_"${parmfile}".out ;done;
 
 }
 function Exit() {
