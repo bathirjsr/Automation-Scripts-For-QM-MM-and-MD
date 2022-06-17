@@ -199,7 +199,7 @@ run
 EOF
 omit=$(pidof cpptraj.MPI)
 string="${omit//${IFS:0:1}/,}"
-#nohup mpirun -n 96 cpptraj.MPI -i RMS_"${parmfile}".in > RMS_"${parmfile}".out &
+nohup mpirun -n 96 cpptraj.MPI -i RMS_"${parmfile}".in > RMS_"${parmfile}".out &
 sleep 5
 if [ -z "$string" ]
 then

@@ -167,11 +167,11 @@ puts \$myfile1 [atomselect1 list]
 close \$myfile1
 atomselect top "resname $resname $substrate and type HA or resname FE1 OY1 or resname SC1 and name C1 "
 set resid [atomselect1 get resid]
-foreach elementid $resid {dict set tmp $elementid 1}
-set id [dict keys $tmp]
+foreach elementid \$resid {dict set tmp \$elementid 1}
+set id [dict keys \$tmp]
 set resname [atomselect1 get resname]
-foreach elementname $resname {dict set tmp $elementname 1}
-set name [dict keys $tmp]
+foreach elementname \$resname {dict set tmp1 \$elementname 1}
+set name [dict keys \$tmp1]
 set myresidues [open qm_mm_${frame}.sh w]
 puts \$myresidues "resid=(\$id)"
 puts \$myresidues "resname=(\$name)"
