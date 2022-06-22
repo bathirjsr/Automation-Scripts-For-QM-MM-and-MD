@@ -4,6 +4,8 @@ do
     case "${flag}" in
 	s) step=${OPTARG};;
 	r) rebound=${OPTARG};;
+	*) echo "usage: $0 [-s] [-r]" >&2
+       exit 1 ;;
 esac
 done
 
