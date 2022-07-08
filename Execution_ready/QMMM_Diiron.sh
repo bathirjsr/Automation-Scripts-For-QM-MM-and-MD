@@ -229,8 +229,8 @@ printf( "%d " , a )
 }
 
 ENDOFFILE
-awk -f addone-awk mm_"${frame}".txt > M"M_${fram"e}.dat
-sed -i '1s/^/set active {/' MM_${frame}.dat
+awk -f addone-awk mm_"${frame}".txt > MM_"${frame}".dat
+sed -i '1s/^/set active {/' MM_"${frame}".dat
 echo "}" >> MM_"${frame}".dat
 awk -f addone-awk qm_"${frame}".txt > QM_"${frame}".dat
 sed -i '1s/^/set qm_atoms {/' QM_"${frame}".dat
