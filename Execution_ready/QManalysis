@@ -1,0 +1,10 @@
+#!/bin/bash
+grep 'QM/MM Energy: ' $1 | awk '{print $(NF-1)}' > tmp.dat
+gnuplot << EOF
+set encoding iso_8859_1
+set terminal postscript eps enhanced color size 3in,3in 
+set output "tmp.eps";
+plot 'tmp.dat' with linespoints pt 7 lc "black"
+EOF
+evince tmp.eps
+rm tmp.dat tmp.eps
