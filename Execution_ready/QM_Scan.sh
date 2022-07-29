@@ -44,7 +44,7 @@ function ReactionEnergy() {
 function Plot() {
 	echo "Give the filename for Potential Energy Surface Plot?  Note: Will be saved as .eps file"
 	read -re plot
-	gnuplot << EOF
+cat > PES.gnu << EOF
 set encoding iso_8859_1
 set term post enhanced eps solid color lw 2.0 "Arial" 24
 set output "${plot}.eps";
@@ -59,6 +59,7 @@ plot "PES.dat" u 1:2 t "Energy" w lp pt 7 ps 2 lc rgb "black",\
      "min.dat" u 1:2:(sprintf("(%d)", \$1)) with labels point  pt 7 offset char 1.5,0 notitle,\
      "max.dat" u 1:2:(sprintf("(%d)", \$1)) with labels point  pt 7 offset char 1.5,0 notitle,
 EOF
+	gnuplot PES.gnu
 	evince "${plot}".eps
 }
 
