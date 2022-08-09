@@ -419,7 +419,7 @@ else
 	
 
 	if [ "$(grep -c "Master Total wall time:" "${input}"/"${input}".out)" -ge 1 ]; then
-		echo "${input} calculation completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job}  at ${job} " simahjsr@gmail.com	
+		echo "${input} calculation completed on $(date)" | mail -s "${input} MD completed in $(hostname) at ${job}" simahjsr@gmail.com	
 		echo "Calculation proceed"
 	else
 		echo "${input} calculation terminated on $(date)" | mail -s "${input} MD terminated in $(hostname) at ${job} " simahjsr@gmail.com
