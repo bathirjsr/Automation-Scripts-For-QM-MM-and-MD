@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [[ ! -e Analysis ]]; then
     mkdir Analysis
 elif [[ ! -d Analysis ]]; then
