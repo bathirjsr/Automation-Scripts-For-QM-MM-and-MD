@@ -17,7 +17,7 @@ fi
 cd ../MD/6-md/ || exit
 cat > QM.tcl <<ENDOFFILE
 mol load pdb rc.pdb
-atomselect top "(resname FE1 OY1 SC1 GU1 HD1 HD2 and not backbone and not type HA H) or (resname M3L and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)"
+atomselect top "(resname FE1 OY1 SC1 GU1 HD1 HD2 and not backbone and not type HA H) or (resname M2L and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)"
 atomselect0 num
 atomselect0 writepdb QM.pdb
 exit
@@ -63,12 +63,12 @@ do
 ########REBOUND#######
   if [ "${dirs[i]}" = "Frame${rebound}" ]; then
   RB_TS=$(grep 'Final converged energy' "${dirs[i]}"/Rebound/RB_TS/RB_TS_Opt.log|awk '{printf "%5.12f", $NF}')
-  RB_TS_SP=$(grep 'Energy (     hybrid):' "${dirs[i]}"/Rebound/RB_TS/SP/TS_SP.log|awk '{printf "%5.12f", $(NF-1)}')
-  RB_TS_ZPE=$(grep 'total ZPE' "${dirs[i]}"/Rebound/RB_TS/Frequency/TS_Freq.log|awk '{printf "%7.5f", $(NF-1)}'| awk '{printf "%5.12f", $1/(1000*4.184*627.5095)}')
+  RB_TS_SP=$(grep 'Energy (     hybrid):' "${dirs[i]}"/Rebound/RB_TS/SP/RB_TS_SP.log|awk '{printf "%5.12f", $(NF-1)}')
+  RB_TS_ZPE=$(grep 'total ZPE' "${dirs[i]}"/Rebound/RB_TS/Frequency/RB_TS_Freq.log|awk '{printf "%7.5f", $(NF-1)}'| awk '{printf "%5.12f", $1/(1000*4.184*627.5095)}')
   RB_TS_B2_ZPE=$(awk -v t="$RB_TS_SP" -v r="$RB_TS_ZPE" 'BEGIN{printf "%5.12f", (t + r)}')
   RB_PD=$(grep 'Final converged energy' "${dirs[i]}"/Rebound/RB_PD/RB_PD_Opt.log|awk '{printf "%5.12f", $NF}')
-  RB_PD_SP=$(grep 'Energy (     hybrid):' "${dirs[i]}"/Rebound/RB_PD/SP/PD_SP.log|awk '{printf "%5.12f", $(NF-1)}')
-  RB_PD_ZPE=$(grep 'total ZPE' "${dirs[i]}"/Rebound/RB_PD/Frequency/PD_Freq.log|awk '{printf "%7.5f", $(NF-1)}'| awk '{printf "%5.12f", $1/(1000*4.184*627.5095)}')
+  RB_PD_SP=$(grep 'Energy (     hybrid):' "${dirs[i]}"/Rebound/RB_PD/SP/RB_PD_SP.log|awk '{printf "%5.12f", $(NF-1)}')
+  RB_PD_ZPE=$(grep 'total ZPE' "${dirs[i]}"/Rebound/RB_PD/Frequency/RB_PD_Freq.log|awk '{printf "%7.5f", $(NF-1)}'| awk '{printf "%5.12f", $1/(1000*4.184*627.5095)}')
   RB_PD_B2_ZPE=$(awk -v t="$RB_PD_SP" -v r="$RB_PD_ZPE" 'BEGIN{printf "%5.12f", (t + r)}')
   RBHAT_ZPE=$(awk -v p="$RB_TS_B2_ZPE" -v r="$PD_B2_ZPE" 'BEGIN{printf "%5.12f", (p - r)*627.5095}') 
   RB_PD_HAT_ZPE=$(awk -v p="$RB_PD_B2_ZPE" -v r="$RC_B2_ZPE" 'BEGIN{printf "%5.12f", (p - r)*627.5095}')
@@ -207,7 +207,7 @@ EOF
 	grep -A 65 "atom      charge" population_"${dirnumber}"_${step}.txt | sed '1d' | awk '{print $1,$2}' > ch_"${dirnumber}"_${step}.txt
 	grep -A 20 "Unpaired electrons" population_"${dirnumber}"_${step}.txt > UNP_"${dirnumber}"_${step}.txt
         sed '1,3d' UNP_"${dirnumber}"_${step}.txt | awk '{print $1,$2}' > spin_"${dirnumber}"_${step}.txt
-		for j in FE1 OY1 SC1 GU1 HD1 HD2 M3L
+		for j in FE1 OY1 SC1 GU1 HD1 HD2 M2L
 		do	
 			if [ "${j}" = "FE1" ]; then
 			res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')	
