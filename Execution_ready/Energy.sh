@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ "$input" = "RC" ]
+if [ "$1" = "RC" ]
 then
 B1=$(grep 'Final converged energy' ${1}_dlfind.log|awk '{printf "%5.12f", $NF}')
 else
