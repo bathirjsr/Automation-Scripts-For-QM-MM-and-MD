@@ -18,10 +18,10 @@ do
     cpptraj.cuda <<EOF
 parm ../${dirs[i]}/MD/3avr_solv.prmtop
 trajin ../${dirs[i]}/MD/Analysis/6-md_auto.nc
-distance :OY1@O1 :M3L@CM1 out ${dirs[i]}_CM1_dist.dat time 0.02
-distance :OY1@O1 :M3L@CM2 out ${dirs[i]}_CM2_dist.dat time 0.02
-distance :OY1@O1 :M3L@CM3 out ${dirs[i]}_CM3_dist.dat time 0.02
-distance :OY1@O1 :M3L@NZ out ${dirs[i]}_NZ_dist.dat time 0.02
+distance :OY1@O1 :M2L@CM1 out ${dirs[i]}_CM1_dist.dat time 0.02
+distance :OY1@O1 :M2L@H1 out ${dirs[i]}_CM2_dist.dat time 0.02
+distance :OY1@O1 :M2L@CM3 out ${dirs[i]}_CM3_dist.dat time 0.02
+distance :OY1@O1 :M2L@NZ out ${dirs[i]}_NZ_dist.dat time 0.02
 run 
 exit
 EOF
