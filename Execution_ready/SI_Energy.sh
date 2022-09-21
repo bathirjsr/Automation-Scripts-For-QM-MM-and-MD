@@ -36,7 +36,7 @@ cat > Supplementary_Energy_"${dirnumber}".txt <<EOF
   ${dirnumber} TS
   QM(B1)/MM = ${TS}
   QM(B2+ZPE)/MM = ${TS_B2_ZPE}
-  ${dirnumber} = ${PD}
+  ${dirnumber} PD
   QM(B1)/MM = ${PD}
   QM(B2+ZPE)/MM = ${PD_B2_ZPE}
 EOF
