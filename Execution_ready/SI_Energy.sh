@@ -31,13 +31,13 @@ do
 
 cat > Supplementary_Energy_"${dirnumber}".txt <<EOF
   ${dirnumber} RC
-  QM(B1)/MM = ${RC}
-  QM(B2+ZPE)/MM = ${RC_B2_ZPE}
+  QM(B1)/MM = ${RC} (a.u.)
+  QM(B2+ZPE)/MM = ${RC_B2_ZPE} (a.u.)
   ${dirnumber} TS
-  QM(B1)/MM = ${TS}
-  QM(B2+ZPE)/MM = ${TS_B2_ZPE}
-  ${dirnumber} = ${PD}
-  QM(B1)/MM = ${PD}
-  QM(B2+ZPE)/MM = ${PD_B2_ZPE}
+  QM(B1)/MM = ${TS} (a.u.)
+  QM(B2+ZPE)/MM = ${TS_B2_ZPE} (a.u.)
+  ${dirnumber} PD
+  QM(B1)/MM = ${PD} (a.u.)
+  QM(B2+ZPE)/MM = ${PD_B2_ZPE} (a.u.)
 EOF
 done
