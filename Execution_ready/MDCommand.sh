@@ -328,7 +328,7 @@ Production simulation
   imin = 0, irest = 1, ntx = 7,
   ntb = 2, pres0 = 1.0, ntp = 1,
   taup = 2.0,
-  cut = 10, ntr = 0, ntwv=-1,
+  cut = 10, ntr = 0, ntwv = -1,
   ntc = 2, ntf = 2,
   temp0 = 300.0,
   ntt = 3, gamma_ln = 2.0,
