@@ -1,5 +1,5 @@
 #! /bin/python3.6
-import sys
+import sys,argparse
 # Python program to illustrate
 # getting input from user
 a,d,c,o,r,s = input("acceptor,donor,sub_acceptor,sub_donor,residues(name or ID),substrate(Histone chain): """).split()

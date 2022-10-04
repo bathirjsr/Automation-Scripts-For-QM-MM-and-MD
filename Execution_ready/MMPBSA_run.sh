@@ -41,7 +41,7 @@ ENDOFFILE
 cat > mmpbsa_"${system}".in << EOF
 Input file for running PB and GB
 &general
-   startframe=1, endframe=10000, keep_files=2, debug_printlevel=0, verbose=1, receptor_mask=:${receptor}, ligand_mask=:${ligand},
+   startframe=1, endframe=5000, keep_files=2, debug_printlevel=0, verbose=1, receptor_mask=:${receptor}, ligand_mask=:${ligand},
    interval=10,
 /
 &gb
