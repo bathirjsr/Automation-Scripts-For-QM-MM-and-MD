@@ -1,0 +1,31 @@
+###### copy tcl8.5.11-src.tar.gz and chemsh-3.7.0.tar.gz to /usr/local/###################
+###################################Do the following in /usr/local/################################
+
+
+###################################TCL Installation#######################################
+sudo tar -xvzf tcl8.5.11-src.tar.gz 
+sudo chown -R bathirjsr:wheel tcl8.5.11
+cd tcl8.5.11/unix
+./configure --prefix=/usr/local/tcl8.5.11/
+make
+make install
+
+#################################Chemshell Installation###################################
+chmod +x gamcrypt 
+./gamcrypt ctb87ywg chemsh-3.7.0.tar.gz.E 
+tar -xvzf chemsh-3.7.0.tar.gz
+sudo chown -R <username>:wheel chemsh-3.7.0
+export TCLROOT=/usr/local/tcl8.5.11
+export LIBTCL=/usr/local/tcl8.5.11/lib/libtcl8.5.so 
+export PATH=/usr/local/chemsh-3.7.0/bin/:/usr/local/ChemShell/chemsh-3.7.0/scripts/:$PATH
+export CC=cc
+export F77=gfortran
+export F90=gfortran
+cd chemsh-3.7.0/src/config/
+./configure 
+cd ..
+make
+cd ../examples/
+./run_validation.tcsh 
+
+

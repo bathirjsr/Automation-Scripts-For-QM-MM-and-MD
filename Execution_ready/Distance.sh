@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 if [[ ! -e ../Analysis ]]; then
     mkdir ../Analysis
 elif [[ ! -d ../Analysis ]]; then
@@ -16,17 +16,24 @@ cd ../Analysis || exit
 for((i=1;i<=${#dirs[@]};i++))
 do
     cpptraj.cuda <<EOF
-parm ../Data/${dirs[i]}/MD/3avr_solv.prmtop
-trajin ../Data/${dirs[i]}/MD/Analysis/6-md_auto.nc
-distance :OY1@O1 :M3L@CM1 out ${dirs[i]}_CM1_dist.dat time 0.02
-angle :FE1 :OY1@O1 :M3L@CM1 out ${dirs[i]}_CM1_ang.dat time 0.02
-distance :OY1@O1 :M3L@H1 out ${dirs[i]}_CM2_dist.dat time 0.02
-angle :FE1 :OY1@O1 :M3L@CM2 out ${dirs[i]}_CM2_ang.dat time 0.02
-distance :OY1@O1 :M3L@CM3 out ${dirs[i]}_CM3_dist.dat time 0.02
-angle :FE1 :OY1@O1 :M3L@CM3 out ${dirs[i]}_CM3_ang.dat time 0.02
-distance :OY1@O1 :M3L@NZ out ${dirs[i]}_NZ_dist.dat time 0.02
-angle :FE1 :OY1@O1 :M3L@NZ out ${dirs[i]}_NZ_ang.dat time 0.02
+parm ../Mutations/${dirs[i]}/MD/3avr_SO_solv.prmtop
+trajin ../Mutations/${dirs[i]}/MD/Analysis/6-md_auto.nc
+distance :OY1@O2 :A11@C2 out ${dirs[i]}_O2_C2_dist.dat time 0.02
 run 
 exit
+EOF
+gnuplot <<EOF
+set encoding iso_8859_1
+set term post enhanced eps solid color lw 2.0 "Arial" 24
+
+set xlabel "Time (ns)"
+set ylabel "Distance ({\305})"
+set key right top Left reverse
+set yrange [0:10]
+set xrange [0:552]
+
+set output "${dirs[i]}O2_C2.eps";
+p "${dirs[i]}_O2_C2_dist.dat" w l lc rgb "red" lw 1.0 notitle, \
+
 EOF
 done
