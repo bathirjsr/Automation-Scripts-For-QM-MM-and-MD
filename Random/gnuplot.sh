@@ -47,7 +47,7 @@ function Distance() {
     set xrange [0:1000]
 
     set output "tmp.eps";
-    p "${inp}" w p lc rgb "blue" lw 1.0 notitle, \
+    p "${inp}" w l lc rgb "blue" lw 1.0 notitle, \
 
 EOF
 evince tmp.eps
@@ -78,7 +78,7 @@ gnuplot <<EOF
     set xrange [0:1000]
 
     set output "tmp.eps";
-    p "${inp}" w p lc rgb "blue" lw 1.0 notitle, \
+    p "${inp}" w l lc rgb "blue" lw 1.0 notitle, \
 
 EOF
 evince tmp.eps
