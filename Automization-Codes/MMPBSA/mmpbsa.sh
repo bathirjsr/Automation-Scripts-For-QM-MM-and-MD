@@ -47,9 +47,7 @@ Input file for running PB and GB
 &gb
   igb=5, saltcon=0.100,
 /
-&pb
-  istrng=0.100,radiopt=0
-/
+
 EOF
 sed -i "9s/1/0/" ./*"${system}".prmtop
 nohup mpirun -np "${nprocs}" MMPBSA.py -O -i mmpbsa_"${system}".in -o MMPBSA_"${system}".dat -sp "${system}".prmtop -cp complex_"${system}".prmtop -rp receptor_"${system}".prmtop -lp ligand_"${system}".prmtop -y ../"${traj}" > mmpbsa.out 2>&1
