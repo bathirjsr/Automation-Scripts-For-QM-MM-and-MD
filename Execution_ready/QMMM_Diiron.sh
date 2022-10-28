@@ -871,7 +871,7 @@ ENDOFFILE
 
 #*
 #EOF
-#
+
 echo "Executing TS Optimization calculation"
 omit=$(pidof chemsh.x)
 string="${omit//${IFS:0:1}/,}"
