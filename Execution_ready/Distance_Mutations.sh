@@ -32,13 +32,16 @@ done
         echo "$j" "${qmdirs[j]}"
 
     cpptraj.cuda <<EOF
-    parm Frame${dirnumber}/1-RC_Opt/rc.prmtop
-    trajin Frame${dirnumber}/1-RC_Opt/rc.opt.pdb
-    distance GLU_O1_${dirnumber} :GU1@OE1 :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_RC_dist.dat
-    distance GLU_O2_${dirnumber} :GU1@OE2 :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_RC_dist.dat
-    distance SUC_O1_${dirnumber} :SC1@O1 :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_RC_dist.dat
-    distance SUC_O2_${dirnumber} :SC1@O2' :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_RC_dist.dat
-
+    parm Frame${dirnumber}/1-RC_Opt/rc.prmtop [parm_rc]
+    trajin Frame${dirnumber}/1-RC_Opt/rc.opt.pdb parm [parm_rc]
+    parm Frame${dirnumber}/3-TS_Opt/ts.prmtop [parm_ts]
+    trajin Frame${dirnumber}/3-TS_Opt/ts.opt.pdb parm [parm_ts]
+    parm Frame${dirnumber}/4-PD_Opt/pd.prmtop [parm_pd]
+    trajin Frame${dirnumber}/4-PD_Opt/pd.opt.pdb parm [parm_pd]
+    distance GLU_O1_${dirnumber}_RC :GU1@OE1 :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_dist.dat
+    distance GLU_O2_${dirnumber}_RC :GU1@OE2 :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_dist.dat
+    distance SUC_O1_${dirnumber}_RC :SC1@O1 :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_dist.dat
+    distance SUC_O2_${dirnumber}_RC :SC1@O2' :FE1 out ${wd}/${dirs[i]}_${dirnumber}_FE_dist.dat
     run 
     exit
 EOF

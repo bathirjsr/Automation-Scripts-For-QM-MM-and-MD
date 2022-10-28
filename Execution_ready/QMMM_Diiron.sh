@@ -654,7 +654,7 @@ set B $B
 set stepnum 30
 set incr -0.1
 
-set r1 [interatomic_distance coords=scan_0.c i=$A j=$B]
+set r1 [interatomic_distance coords=scan_0.c i=\$A j=\$B]
 set initdist [expr \$r1 - 0 ]
 set bincr [expr \$incr * 1.8897261329]
 
@@ -667,7 +667,7 @@ set ReactionCoordinate [expr (\$initdist + \$bincr * \$i) ]
 dl-find maxcycle=900 coords= scan_\${i}.c  \\
 result= scan_[expr (\$i+1)].c \\
 tolerance= 0.0012 \\
-restraints= [ list [ list bond $A $B \$ReactionCoordinate 3.0 ] ] \\
+restraints= [ list [ list bond \$A \$B \$ReactionCoordinate 3.0 ] ] \\
 active_atoms= \$active \\
 theory= hybrid : [ list \\
 coupling= shift \\
@@ -710,7 +710,7 @@ puts \$control_input_settings "structure [expr (\$i+1)]"
 set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
 puts \$control_input_settings [format "Energy:%14.6f" \$energy]
 
-set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=$A j=$B unit=angstrom ]
+set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$A j=\$B unit=angstrom ]
 puts \$control_input_settings [format "Distance R1(A-B) :%4.3f" \$r1]
 
 flush \$control_input_settings

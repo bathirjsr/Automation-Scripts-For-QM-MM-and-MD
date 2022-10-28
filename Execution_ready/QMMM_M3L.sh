@@ -666,7 +666,7 @@ set B $B
 set stepnum 20
 set incr -0.1
 
-set r1 [interatomic_distance coords=scan_0.c i=$A j=$B]
+set r1 [interatomic_distance coords=scan_0.c i=\$A j=\$B]
 set initdist [expr \$r1 - 0 ]
 set bincr [expr \$incr * 1.8897261329]
 
@@ -679,7 +679,7 @@ set ReactionCoordinate [expr (\$initdist + \$bincr * \$i) ]
 dl-find maxcycle=900 coords= scan_\${i}.c  \\
 result= scan_[expr (\$i+1)].c \\
 tolerance= 0.0012 \\
-restraints= [ list [ list bond $A $B \$ReactionCoordinate 3.0 ] ] \\
+restraints= [ list [ list bond \$A \$B \$ReactionCoordinate 3.0 ] ] \\
 active_atoms= \$active \\
 theory= hybrid : [ list \\
 coupling= shift \\
@@ -722,7 +722,7 @@ puts \$control_input_settings "structure [expr (\$i+1)]"
 set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
 puts \$control_input_settings [format "Energy:%14.6f" \$energy]
 
-set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=$A j=$B unit=angstrom ]
+set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$A j=\$B unit=angstrom ]
 puts \$control_input_settings [format "Distance R1(A-B) :%4.3f" \$r1]
 
 flush \$control_input_settings
@@ -772,7 +772,7 @@ cp scan_"${transition}".pdb ../3-TS_Opt/.
 cp scan.prmtop ../3-TS_Opt/.
 cp alpha_"${transition}".gz ../3-TS_Opt/.
 cp beta_"${transition}".gz ../3-TS_Opt/.
-#cp control ../3-TS_Opt/.
+cp control ../3-TS_Opt/.
 cp parse_amber.tcl ../3-TS_Opt/.
 cp QM.dat ../3-TS_Opt/.
 cp MM.dat ../3-TS_Opt/.
@@ -848,40 +848,40 @@ exit
 
 ENDOFFILE
 
-nohup chemsh TS_Opt.chm > TS_Opt.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Terminated" TS_Opt.log)" -ge 1 ]; then
-		echo "TS Terminated by User"
-		exit
-	else
-		echo "TS Terminated normally"
-	fi
-define <<EOF
+# nohup chemsh TS_Opt.chm > TS_Opt.log &
+# process=$!
+# while ps -p ${process} > /dev/null;do sleep 1;done;
+# if [ "$(grep -c "Terminated" TS_Opt.log)" -ge 1 ]; then
+# 		echo "TS Terminated by User"
+# 		exit
+# 	else
+# 		echo "TS Terminated normally"
+# 	fi
+# define <<EOF
 
 
-a coord
-*
-no
-b all def2-SVP
-*
-eht
-y
-$charge
-n
-u $unp
-*
-n
-scf
-iter
-900
+# a coord
+# *
+# no
+# b all def2-SVP
+# *
+# eht
+# y
+# $charge
+# n
+# u $unp
+# *
+# n
+# scf
+# iter
+# 900
 
-dft
-on
-func b3-lyp
+# dft
+# on
+# func b3-lyp
 
-*
-EOF
+# *
+# EOF
 
 echo "Executing TS Optimization calculation"
 omit=$(pidof chemsh.x)
