@@ -219,7 +219,7 @@ elif [ "$step" = "TS" ]; then
 mkdir EF
 cp ts.opt.pdb EF/.
 cp ts.prmtop EF/.
-cd EF
+cd EF || exit
 
 x1=$(awk '$4 == "FE1" && $3 == "FE" {print $6}' ts.opt.pdb)
 y1=$(awk '$4 == "FE1" && $3 == "FE" {print $7}' ts.opt.pdb)
@@ -412,7 +412,7 @@ elif [ "$step" = "IM" ]; then
 mkdir EF
 cp im.opt.pdb EF/.
 cp im.prmtop EF/.
-cd EF
+cd EF || exit
 
 x1=$(awk '$4 == "FE1" && $3 == "FE" {print $6}' im.opt.pdb)
 y1=$(awk '$4 == "FE1" && $3 == "FE" {print $7}' im.opt.pdb)
