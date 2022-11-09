@@ -383,8 +383,9 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id rc.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set res [ pdb_to_res "\${sys_name_id}.pdb"]
 set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rc.prmtop
