@@ -79,7 +79,7 @@ else
 calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
 fi
 sleep 5
-while ps -p "${calc}" > /dev/null;do tail -n 1 Hbond_"${parmfile}".out ;done;
+while ps -p "${calc}" > /dev/null;do tail --pid="${calc}" -f -n 1 Hbond_"${parmfile}".out ;done;
 
 cat > Hbond_analysis_sub.dat <<EOF
 
@@ -208,7 +208,7 @@ else
 calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
 fi
 sleep 5
-while ps -p "${calc}" > /dev/null;do tail -n 1 RMS_"${parmfile}".out ;done;
+while ps -p "${calc}" > /dev/null;do tail --pid="${calc}" -f -n 1 RMS_"${parmfile}".out ;done;
 
 rmsd=RMSD_${parmfile}.dat
 rmsf=RMSF_${parmfile}.dat
@@ -306,7 +306,7 @@ else
 calc=$(pidof -o "${string}" cpptraj.MPI | awk '{print $1}')    
 fi
 sleep 5
-while ps -p "${calc}" > /dev/null;do tail -n 1 Autoimage_"${parmfile}".out ;done;
+while ps -p "${calc}" > /dev/null;do tail --pid="${calc}" -f -n 1 Autoimage_"${parmfile}".out ;done;
 
 }
 function DCCA() {
