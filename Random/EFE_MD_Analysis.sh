@@ -16,11 +16,10 @@ cd Analysis || exit
 wd=$(pwd)
 for((i=1;i<=${#dirs[@]};i++))
 do
-//how
     cpptraj.cuda <<EOF
     parm ../"${dirs[i]}"/MD/EFE_solv.prmtop
     trajin ../"${dirs[i]}"/MD/Analysis/6-md_auto.nc
-    distance C5 :GU1@OE1 :FE1 out ${wd}/${dirs[i]}_FE_C5.dat
+    distance C5 :346@O1 :FE1 out ${wd}/${dirs[i]}_FE_C5.dat time 0.02
     run 
     exit
 EOF
