@@ -281,5 +281,79 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "${jobname} Completed"
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
+elif [ "$step" = "RB" ];
+then
+job=$(pwd)
+host=$(hostname)
+jobname="RB_Scan"
+
+omit=$(pidof chemsh.x)
+string="${omit//${IFS:0:1}/,}"
+
+tcsh -c "setenv PARNODES $nodes;nohup chemsh ${chmfile}.chm >& ${chmfile}.log &"
+echo "$job $system $frame JOB started" | mail -s "Job Started-${jobname}" simahjsr@gmail.com
+
+sleep 5
+if [ -z "$string" ]
+then
+calc=$(pidof chemsh.x)
+else
+calc=$(pidof -o "${string}" chemsh.x)
+fi
+sleep 5
+while ps -p "${calc}" > /dev/null;do sleep 1;done;
+
+echo "${jobname} Completed"
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+
+elif [ "$step" = "RB_TS" ];
+then
+job=$(pwd)
+host=$(hostname)
+jobname="RB_TS"
+
+omit=$(pidof chemsh.x)
+string="${omit//${IFS:0:1}/,}"
+
+tcsh -c "setenv PARNODES $nodes;nohup chemsh ${chmfile}.chm >& ${chmfile}.log &"
+echo "$job $system $frame JOB started" | mail -s "Job Started-${jobname}" simahjsr@gmail.com
+
+sleep 5
+if [ -z "$string" ]
+then
+calc=$(pidof chemsh.x)
+else
+calc=$(pidof -o "${string}" chemsh.x)
+fi
+sleep 5
+while ps -p "${calc}" > /dev/null;do sleep 1;done;
+
+echo "${jobname} Completed"
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+
+elif [ "$step" = "RB_PD" ];
+then
+job=$(pwd)
+host=$(hostname)
+jobname="RB_PD"
+
+omit=$(pidof chemsh.x)
+string="${omit//${IFS:0:1}/,}"
+
+tcsh -c "setenv PARNODES $nodes;nohup chemsh ${chmfile}.chm >& ${chmfile}.log &"
+echo "$job $system $frame JOB started" | mail -s "Job Started-${jobname}" simahjsr@gmail.com
+
+sleep 5
+if [ -z "$string" ]
+then
+calc=$(pidof chemsh.x)
+else
+calc=$(pidof -o "${string}" chemsh.x)
+fi
+sleep 5
+while ps -p "${calc}" > /dev/null;do sleep 1;done;
+
+echo "${jobname} Completed"
+echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 
 fi
