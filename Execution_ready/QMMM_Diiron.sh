@@ -806,7 +806,7 @@ matrix dl-find.energy new volatile
 
 dl-find coords=\${sys_name_id}.c active_atoms= \$active \\
         result=\${sys_name_id}.opt.c coordinates=hdlc residues= \$res \\
-		optimiser=lbfgs tolerance=0.00135 trustradius=const \\
+		optimiser=lbfgs tolerance=0.1 trustradius=const \\
 		dimer=true delta=0.01 \\
 	    maxcycle=1000 maxene=900 \\
 		dump= 50 list_option=full \\

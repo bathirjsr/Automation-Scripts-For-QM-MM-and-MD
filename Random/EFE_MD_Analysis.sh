@@ -20,6 +20,7 @@ do
     parm ../"${dirs[i]}"/MD/EFE_solv.prmtop
     trajin ../"${dirs[i]}"/MD/Analysis/6-md_auto.nc
     distance C5 :346@O1 :FE1 out ${wd}/${dirs[i]}_FE_C5.dat time 0.02
+    
     run 
     exit
 EOF
