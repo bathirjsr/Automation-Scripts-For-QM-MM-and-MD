@@ -1581,7 +1581,7 @@ cp rebound_"${transition}".pdb RB_TS/.
 cp rebound.prmtop RB_TS/.
 cp alpha_"${transition}".gz RB_TS/.
 cp beta_"${transition}".gz RB_TS/.
-#cp control RB_TS/.
+cp control RB_TS/.
 cp parse_amber.tcl RB_TS/.
 cp QM.dat RB_TS/.
 cp MM.dat RB_TS/.
