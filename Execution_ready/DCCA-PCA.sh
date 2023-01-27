@@ -30,7 +30,7 @@ ENDOFFILE
 
 cat > DCCA-traj.in <<ENDOFFILE
 parm $prmtop
-trajin $traj 5000 10000
+trajin $traj 25000 50000
 strip !(:$residues@CA,ZN,FE,O1,C5) outprefix stripdcca
 trajout traj_dcca.dcd
 run

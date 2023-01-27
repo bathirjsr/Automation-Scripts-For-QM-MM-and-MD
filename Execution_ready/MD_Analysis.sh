@@ -312,11 +312,26 @@ while ps -p "${calc}" > /dev/null;do tail --pid="${calc}" -f -n 1 Autoimage_"${p
 function DCCA() {
 	mkdir DCCA
 cd DCCA || exit
+parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+[[ "$?" != "0" ]] && exit 1
+#read -re -p "Parameter File: " parm 
+#echo "parm=""$parm" >> Hbond.log
+traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory File")
+[[ "$?" != "0" ]] && exit 1
+residues=$(zenity --entry --title="Residues (Eg. 1-552)")
+[[ "$?" != "0" ]] && exit 1
 
-
+cat > DCCA-firstframe.in << ENDOFFILE
+parm $parm
+trajin $traj 1 1
+strip !(:$residues@CA,ZN,FE,O1,C5)
+trajout firstframe_dcca.pdb
+run
+exit
+ENDOFFILE
 
 cat > DCCA-traj.in <<ENDOFFILE
-parm $prmtop
+parm $parm
 trajin $traj 25001 50000
 strip !(:$residues@CA,ZN,FE,O1,C5) outprefix stripdcca
 trajout traj_dcca.dcd
@@ -324,16 +339,10 @@ trajout traj_dcca.nc
 run
 exit
 ENDOFFILE
-cat > DCCA-firstframe.in << ENDOFFILE
-parm $prmtop
-trajin traj_dcca.nc 1 1
-strip !(:$residues@CA,ZN,FE,O1,C5)
-trajout firstframe_dcca.pdb
-run
-exit
-ENDOFFILE
+
 
 nohup cpptraj.cuda -i DCCA-firstframe.in > DCCA-firstframe.out &
+
 nohup cpptraj.cuda -i DCCA-traj.in > DCCA-traj.out &
 process=$!
 while ps -p $process > /dev/null;do sleep 1;done;
@@ -359,14 +368,23 @@ dev.off()
 q()
 ENDOFFILE
 Rscript DCCA.r
+cd ../
 }
 function PCA() {
 	mkdir PCA
 cd PCA || exit
+parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+[[ "$?" != "0" ]] && exit 1
+#read -re -p "Parameter File: " parm 
+#echo "parm=""$parm" >> Hbond.log
+traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory File")
+[[ "$?" != "0" ]] && exit 1
+residues=$(zenity --entry --title="Residues (Eg. 1-552)")
+[[ "$?" != "0" ]] && exit 1
 
 cat > PCA-traj.in <<ENDOFFILE
-parm $prmtop
-trajin $traj 25000 50000
+parm $parm
+trajin $traj 25001 50000
 strip !(:$residues@CA) outprefix strippca
 trajout traj_pca.dcd
 run
@@ -374,7 +392,7 @@ exit
 ENDOFFILE
 
 cat > PCA-firstframe.in << ENDOFFILE
-parm $prmtop
+parm $parm
 trajin $traj 1 1
 strip !(:$residues@CA)
 trajout firstframe_pca.pdb
@@ -420,6 +438,7 @@ q()
 ENDOFFILE
 
 Rscript PCA.r
+cd ../
 }
 
 function Exit() {
@@ -443,16 +462,20 @@ ColorBlue(){
 menu(){
 echo -ne "
 Scan Menu
-$(ColorGreen '1)') Hbond 
+$(ColorGreen '1)') Autoimage 
 $(ColorGreen '2)') RMSD,RMSF,ROG,SAS
-$(ColorGreen '3)') Autoimage
+$(ColorGreen '3)') Hydrogen Bond
+$(ColorGreen '4)') DCCA
+$(ColorGreen '5)') PCA
 $(ColorGreen '0)') Exit
 $(ColorBlue 'Choose an option:') "
         read -r a
         case $a in
-	        1) Hbond ; menu ;;
+	        1) Autoimage ; menu ;;
 	        2) RMS ; menu ;;
-			3) Autoimage ; menu ;;
+			3) Hbond ; menu ;;
+			4) DCCA ; menu ;;
+			5) PCA ; menu ;;
 			0) Exit ;;
 			*) echo -e "$red""Wrong option.""$clear";;
         esac
