@@ -34,8 +34,8 @@ initial minimisation solvent
 	ntb    = 1,
 	ntr    = 1,
 	cut    = 10,
-        restraintmask = ':$residues',!residue numbers
-        restraint_wt = 500
+    restraintmask = ':$residues',!residue numbers
+    restraint_wt = 500
  /
 ENDOFFILE
 cat > 2-min.in << ENDOFFILE
@@ -48,7 +48,7 @@ initial minimisation solvent
 	ntr    = 0,
 	cut    = 10
 	restraintmask = '${resmask}',
-     	restraint_wt = 500,
+    restraint_wt = 500,
  /
 ENDOFFILE
 cat > 3-heat.in << ENDOFFILE
