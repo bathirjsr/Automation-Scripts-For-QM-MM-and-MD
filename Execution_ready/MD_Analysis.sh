@@ -168,7 +168,7 @@ reference=$(zenity --file-selection --file-filter=*.rst --title="Reference File"
 [[ "$?" != "0" ]] && exit 1
 #read -re -p "Active Site Residues (Eg. HD1,OY1 or their resid): " active 
 #echo "active=""$active" >> Hbond.log
-residues=$(zenity --entry --title="Protein Residues (Eg. 1-552)")
+residues=$(zenity --entry --title="Protein Residues (Eg. 1-552@CA,ZN,FE,O,O1)")
 [[ "$?" != "0" ]] && exit 1
 
 { date
@@ -184,17 +184,17 @@ trajname=$(basename -- "$traj")
 trajfile="${trajname%_auto.*}"
 
 residinp=$(basename -- "$residues")
-residlast="${residinp##*-}"
+residlast="${residinp##-*@}"
 residfirst="${residinp%-*}"
 
 cat > RMS_"${parmfile}".in << EOF
 parm ${parm}
 trajin ${traj}
 reference ${reference}
-rms reference out RMSD_${parmfile}.dat :${residues}@CA,ZN,FE,O1 time 0.02
-atomicfluct reference out RMSF_${parmfile}.dat :${residues}@CA,ZN,FE,O1 byres
-radgyr :${residues}@CA,ZN,FE,O1 out ROG_${parmfile}.dat time 0.02
-surf :${residues}@CA,ZN,FE,O1 out SURF_${parmfile}.dat time 0.02
+rms reference out RMSD_${parmfile}.dat :${residues} time 0.02
+atomicfluct reference out RMSF_${parmfile}.dat :${residues} byres
+radgyr :${residues} out ROG_${parmfile}.dat time 0.02
+surf :${residues} out SURF_${parmfile}.dat time 0.02
 run
 EOF
 omit=$(pidof cpptraj.MPI)
@@ -318,13 +318,13 @@ parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter 
 #echo "parm=""$parm" >> Hbond.log
 traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory File")
 [[ "$?" != "0" ]] && exit 1
-residues=$(zenity --entry --title="Residues (Eg. 1-552)")
+residues=$(zenity --entry --title="Residues (Eg. 1-552@CA,ZN,FE,O,O1)")
 [[ "$?" != "0" ]] && exit 1
 
 cat > DCCA-firstframe.in << ENDOFFILE
 parm $parm
 trajin $traj 1 1
-strip !(:$residues@CA,ZN,FE,O1,C5)
+strip !(:$residues)
 trajout firstframe_dcca.pdb
 run
 exit
@@ -333,7 +333,7 @@ ENDOFFILE
 cat > DCCA-traj.in <<ENDOFFILE
 parm $parm
 trajin $traj 25001 50000
-strip !(:$residues@CA,ZN,FE,O1,C5) outprefix stripdcca
+strip !(:$residues) outprefix stripdcca
 trajout traj_dcca.dcd
 trajout traj_dcca.nc
 run
@@ -440,6 +440,59 @@ ENDOFFILE
 Rscript PCA.r
 cd ../
 }
+function Diff_DCCA() {
+mkdir Diff_DCCA
+cd Diff_DCCA || exit
+
+wt=$(zenity --file-selection --file-filter=*.pdb --title="Select WT First Frame")
+[[ "$?" != "0" ]] && exit 1
+mut=$(zenity --file-selection --file-filter=*.pdb --title="Select Mutant First Frame")
+[[ "$?" != "0" ]] && exit 1
+wt_dcd=$(zenity --file-selection --file-filter=*.dcd --title="Select WT DCD file")
+[[ "$?" != "0" ]] && exit 1
+mut_dcd=$(zenity --file-selection --file-filter=*.dcd --title="Select Mutant DCD File")
+[[ "$?" != "0" ]] && exit 1
+
+cat > DCCA_Diff.r <<ENDOFFILE
+library(bio3d)
+pdb_wt = '$wt'
+pdb_mut = '$mut'
+pdb_wt = read.pdb(pdb_wt)
+pdb_mut = read.pdb(pdb_mut)
+dcd_wt = "$wt_dcd"
+dcd_mut = "$mut_dcd"
+dcd_wt = read.dcd(dcd_wt)
+dcd_mut = read.dcd(dcd_mut)
+ca_wt.inds <- atom.select(pdb_wt)
+ca_mut.inds <- atom.select(pdb_mut)
+xyz_wt <- fit.xyz(fixed=pdb_wt\$xyz, mobile=dcd_wt,
+fixed.inds=ca_wt.inds\$xyz,
+mobile.inds=ca_wt.inds\$xyz)
+xyz_mut <- fit.xyz(fixed=pdb_mut\$xyz, mobile=dcd_mut,
+fixed.inds=ca_mut.inds\$xyz,
+mobile.inds=ca_mut.inds\$xyz)
+cij_wt<-dccm(xyz_wt[,ca_wt.inds\$xyz])
+cij_mut<-dccm(xyz_mut[,ca_mut.inds\$xyz])
+plot(cij_wt)
+plot(cij_mut)
+cij_mut_wt = cij_mut - cij_wt
+plot(cij_mut_wt)
+write.table(cij_mut_wt, file="DCCA_Diff.dat", quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
+pdf(file = "DCCA_Diff.pdf", width = 12, height = 17, family = "Helvetica")
+plot.dccm(cij_mut_wt, scales=list(cex=3), colorkey=list(labels=list(cex=3)),
+  xlab=list(cex=3, label='Residue No.'), ylab=list(cex=3, label='Residue No.'),
+  main=list(cex=3))
+dev.off()
+q()
+
+ENDOFFILE
+
+Rscript DCCA_Diff.r
+
+cd ../
+}
+
+
 
 function Exit() {
 	exit 0
@@ -467,6 +520,7 @@ $(ColorGreen '2)') RMSD,RMSF,ROG,SAS
 $(ColorGreen '3)') Hydrogen Bond
 $(ColorGreen '4)') DCCA
 $(ColorGreen '5)') PCA
+$(ColorGreen '6)') DCCA_Diff
 $(ColorGreen '0)') Exit
 $(ColorBlue 'Choose an option:') "
         read -r a
@@ -476,6 +530,7 @@ $(ColorBlue 'Choose an option:') "
 			3) Hbond ; menu ;;
 			4) DCCA ; menu ;;
 			5) PCA ; menu ;;
+			6) Diff_DCCA ; menu ;;
 			0) Exit ;;
 			*) echo -e "$red""Wrong option.""$clear";;
         esac
