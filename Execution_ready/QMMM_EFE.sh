@@ -15,13 +15,15 @@
 #s 4 PD Optimization
 #s 4f PD Frequency
 #s 4s PD Single Point Calculation
-while getopts i:s:a:b:t:p: flag
+while getopts i:s:a:b:c:d:t:p: flag
 do
     case "${flag}" in
 	i) inp=${OPTARG};;
 	s) step=${OPTARG};;
 	a) A=${OPTARG};;
 	b) B=${OPTARG};;
+    c) C=${OPTARG};;
+	d) D=${OPTARG};;
 	t) transition=${OPTARG};;
 	p) product=${OPTARG};;	
     *) echo "usage: $0 [-i] [-s] [-a] [-b] [-t] [-p]" >&2
@@ -135,12 +137,6 @@ echo "unp=""${unp}"
 echo "nodes=""${nodes}"
 } > input.in
 
-fi
-source "${inp}"
-parmname=$(basename -- "$parm")
-parmext="${parmname##*.}"
-system="${parmname%.*}"
-
 cp "$parsefile" .
 gedit parse_amber.tcl "$tleapinput"							#Check for correct path of parse_amber.tcl
 echo "Did you check parse_amber.tcl and made sure atoms are grouped correctly as such in tleap input?"
@@ -150,6 +146,27 @@ echo "Modelling proceeds"
 else
 exit
 fi
+
+fi
+{ 
+date
+echo "parm=""${parm}"
+echo "trajin=""${trajin}"
+echo "resname=""${resname}"
+echo "substrate=""${substrate}"
+echo "tleapinput=""${tleapinput}"
+echo "parsefile=""${parsefile}"
+echo "numberofres=""${numberofres}"
+echo "frame=""${frame}"
+echo "basis=""${basis}"
+echo "charge=""${charge}"
+echo "unp=""${unp}"
+echo "nodes=""${nodes}"
+} >> QMMM_EFE.log
+source "${inp}"
+parmname=$(basename -- "$parm")
+parmext="${parmname##*.}"
+system="${parmname%.*}"
 
 #CREATING INPUT FILES FOR CPPTRAJ FOR PREPARING RC COMPLEX FILES
 cat > ReactionComplex_"${frame}".in << ENDOFFILE
@@ -240,8 +257,7 @@ do
 awk -v i="${x}" '$4==i {resname=$4;resid=$5} END{print resname resid}' rc_"${frame}".pdb >> residues_"${frame}".dat
 done
 myresidues=$(awk 'BEGIN { ORS = " " } { print }' residues_"${frame}".dat )
-echo "${myresidues}"
-
+echo "myresidues=""\"${myresidues}\"" >> input.in
 
 cat > addone-awk <<ENDOFFILE
 
@@ -700,11 +716,16 @@ set atom_charges [ list_amber_atom_charges ]
 set A $A
 set B $B
 
-set stepnum 20
+#increase
+set C $C
+set D $D
+
+set stepnum 40
 set incr -0.1
 
 set r1 [interatomic_distance coords=scan_0.c i=\$A j=\$B]
-set initdist [expr \$r1 - 0 ]
+set r2 [interatomic_distance coords=scan_0.c i=\$C j=\$D]
+set initdist [expr \$r1 - \$r2 ]
 set bincr [expr \$incr * 1.8897261329]
 
 for {set i 0} { \$i < \$stepnum} {incr i} {
@@ -716,7 +737,7 @@ set ReactionCoordinate [expr (\$initdist + \$bincr * \$i) ]
 dl-find maxcycle=900 coords= scan_\${i}.c  \\
 result= scan_[expr (\$i+1)].c \\
 tolerance= 0.0012 \\
-restraints= [ list [ list bond \$A \$B \$ReactionCoordinate 3.0 ] ] \\
+restraints= [ list [ list bonddiff2 \$A \$B \$C \$D \$ReactionCoordinate 3.0 ] ] \\
 active_atoms= \$active \\
 theory= hybrid : [ list \\
 coupling= shift \\
@@ -760,7 +781,8 @@ set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
 puts \$control_input_settings [format "Energy:%14.6f" \$energy]
 
 set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$A j=\$B unit=angstrom ]
-puts \$control_input_settings [format "Distance R1(A-B) :%4.3f" \$r1]
+set r2 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$C j=\$D unit=angstrom ]
+puts \$control_input_settings [format "Distance R1(A-B) R2(C-D) :%4.3f %4.3f" \$r1 \$r2]
 
 flush \$control_input_settings
 

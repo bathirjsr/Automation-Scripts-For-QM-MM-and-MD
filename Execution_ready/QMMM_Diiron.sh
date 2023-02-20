@@ -72,10 +72,69 @@ Steps of QMMM Calculations (Execution Folder given in Brackets)
 "
 exit
 fi
-source "${inp}"
+
 user=$USER
 host=$(hostname)
+
 if [ "$step" = "0" ]; then
+
+if [ -z "$inp" ]; then 
+
+parm=$(zenity --file-selection --file-filter=*solv.prmtop --title="Select Parameter File")
+[[ "$?" != "0" ]] && exit 1
+trajin=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
+[[ "$?" != "0" ]] && exit 1
+resname=$(zenity --entry --title="Active Site except Substrate (Eg. HD1,OY1 )")
+[[ "$?" != "0" ]] && exit 1
+substrate=$(zenity --entry --title="Substrate Residues (Eg. M3L or LAR )")
+[[ "$?" != "0" ]] && exit 1
+tleapinput=$(zenity --file-selection --file-filter=*tleap.in --title="Tleap Input file (Eg. 3avr_tleap.in )")
+[[ "$?" != "0" ]] && exit 1
+parsefile=$(zenity --file-selection --file-filter=*.tcl --title="Parse_amber File")
+[[ "$?" != "0" ]] && exit 1
+numberofres=$(zenity --entry --title="Range of residues (Eg. 1-552)")
+[[ "$?" != "0" ]] && exit 1
+frame=$(zenity --entry --title="Frame Number")
+[[ "$?" != "0" ]] && exit 1
+basis=$(zenity --entry --title="Basis Set (Eg. def2-SVP)")
+[[ "$?" != "0" ]] && exit 1
+charge=$(zenity --entry --title="Total charge of the QM region")
+[[ "$?" != "0" ]] && exit 1
+unp=$(zenity --entry --title="Number of Unpaired electrons")
+[[ "$?" != "0" ]] && exit 1
+nodes=$(zenity --entry --title="Number of CPUs")
+[[ "$?" != "0" ]] && exit 1
+
+{ 
+date
+echo "parm=""${parm}"
+echo "trajin=""${trajin}"
+echo "resname=""${resname}"
+echo "substrate=""${substrate}"
+echo "tleapinput=""${tleapinput}"
+echo "parsefile=""${parsefile}"
+echo "numberofres=""${numberofres}"
+echo "frame=""${frame}"
+echo "basis=""${basis}"
+echo "charge=""${charge}"
+echo "unp=""${unp}"
+echo "nodes=""${nodes}"
+} >> QMMM_EFE.log
+{
+echo "parm=""${parm}"
+echo "trajin=""${trajin}"
+echo "resname=""\"${resname}\""
+echo "substrate=""${substrate}"
+echo "tleapinput=""${tleapinput}"
+echo "parsefile=""${parsefile}"
+echo "numberofres=""${numberofres}"
+echo "frame=""${frame}"
+echo "basis=""${basis}"
+echo "charge=""${charge}"
+echo "unp=""${unp}"
+echo "nodes=""${nodes}"
+} > input.in
+
 cp "$parsefile" .
 gedit parse_amber.tcl "$tleapinput"							#Check for correct path of parse_amber.tcl
 echo "Did you check parse_amber.tcl and made sure atoms are grouped correctly as such in tleap input?"
@@ -86,17 +145,35 @@ else
 exit
 fi
 
+fi
+{ 
+date
+echo "parm=""${parm}"
+echo "trajin=""${trajin}"
+echo "resname=""${resname}"
+echo "substrate=""${substrate}"
+echo "tleapinput=""${tleapinput}"
+echo "parsefile=""${parsefile}"
+echo "numberofres=""${numberofres}"
+echo "frame=""${frame}"
+echo "basis=""${basis}"
+echo "charge=""${charge}"
+echo "unp=""${unp}"
+echo "nodes=""${nodes}"
+} >> QMMM_EFE.log
+source "${inp}"
+parmname=$(basename -- "$parm")
+parmext="${parmname##*.}"
+system="${parmname%.*}"
+
 #CREATING INPUT FILES FOR CPPTRAJ FOR PREPARING RC COMPLEX FILES
-cat > Frame_"${frame}".in << ENDOFFILE
+cat > ReactionComplex_"${frame}".in << ENDOFFILE
 parm ${parm}
 trajin ${trajin} ${frame} ${frame}
 autoimage
 trajout ${frame}.pdb
 run
-exit
-ENDOFFILE
-cat Frame_"${frame}".in
-cat > Water_strip_"${frame}".in <<ENDOFFILE
+clear all
 parm ${parm}
 trajin ${frame}.pdb
 reference ${frame}.pdb
@@ -104,38 +181,17 @@ strip :Na+,Cl-
 strip !(:$numberofres<:12.0) outprefix stripped12
 trajout stripped12.${system}.pdb
 run
-exit
-ENDOFFILE
-cat Water_strip_"${frame}".in
-cat > ReactionComplex_"${frame}".in <<ENDOFFILE
+clear all
 parm stripped12.${system}.prmtop
 trajin stripped12.${system}.pdb
-trajout rc.pdb
-trajout rc.rst restart
+trajout rc_${frame}.pdb
+trajout rc_${frame}.rst restart
 run
 exit
 ENDOFFILE
 cat ReactionComplex_"${frame}".in
 
 #CREATING RC COMPLEX FILES
-nohup cpptraj -i Frame_"${frame}".in > Frame_"${frame}".out &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Error" Frame_"${frame}".out)" -ge 1 ]; then
-                echo "Cpptraj Error"
-                exit
-        else
-                echo "Generated Frame PDB"
-        fi
-nohup cpptraj -i Water_strip_"${frame}".in > Water_strip_"${frame}".out &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Error" Water_strip_"${frame}".out)" -ge 1 ]; then
-                echo "Cpptraj Error"
-                exit
-        else
-                echo "Generated WaterStripped PDB and prmtop"
-        fi
 nohup cpptraj -i ReactionComplex_"${frame}".in > ReactionComplex_"${frame}".out &
 process=$!
 while ps -p ${process} > /dev/null;do sleep 1;done;
@@ -143,49 +199,29 @@ if [ "$(grep -c "Error" ReactionComplex_"${frame}".out)" -ge 1 ]; then
                 echo "Cpptraj Error"
                 exit
         else
-                echo "Generated RC files for RC_OPT"
-        fi
-cp stripped12."${system}".prmtop rc.prmtop
-sed -i "9s/1/0/" rc.prmtop
+                echo "Generated Frame PDB"
+fi
+
+cp stripped12."${system}".prmtop rc_"${frame}".prmtop
+sed -i "9s/1/0/" rc_"${frame}".prmtop
 
 #MAKING QMMM MODEL
 echo "Creating QMMM Model"
 cat > QM_MM_"${frame}".tcl <<ENDOFFILE
-mol load pdb rc.pdb
+mol load pdb rc_${frame}.pdb
 atomselect top "same residue as (within 8 of (resname $resname $substrate))"
 atomselect0 num
 atomselect0 writepdb MM_${frame}.pdb
 set myfile [open mm_${frame}.txt w]
 puts \$myfile [atomselect0 list]
 close \$myfile
-atomselect top "(resname $resname and not backbone and not name HA H) or resname $substrate"
+atomselect top "(resname $resname and not backbone and not type HA H) or (resname $substrate)"
 atomselect1 num
 atomselect1 writepdb QM_${frame}.pdb
 atomselect1 writexyz QM_${frame}.xyz
 set myfile1 [open qm_${frame}.txt w]
 puts \$myfile1 [atomselect1 list]
 close \$myfile1
-atomselect top "(resname $resname and name H) or (resname FE1 FE2) or (resname OY1 and name O1) or (resname NMA and name C13)"
-set resid [atomselect1 get resid]
-foreach elementid \$resid {dict set tmp \$elementid 1}
-set id [dict keys \$tmp]
-set resname [atomselect1 get resname]
-foreach elementname \$resname {dict set tmp1 \$elementname 1}
-set name [dict keys \$tmp1]
-set myresidues [open qm_mm_${frame}.sh w]
-puts \$myresidues "resid=(\$id)"
-puts \$myresidues "resname=(\$name)"
-puts \$myresidues "myresidues=()"
-puts \$myresidues "n=\\\${#resname\\[@]}"
-puts \$myresidues "for i in \\\$(seq 1 \\\$n);"
-puts \$myresidues "do"
-puts \$myresidues "myresidues+=(\\\${resname\\[i-1]}\\\${resid\\[i-1]})"
-puts \$myresidues "done"
-puts \$myresidues "cat > myresidues_${frame}.dat <<ENDOFFILE"
-puts \$myresidues "set res \\[ pdb_to_res \\"rc.pdb\\"]"
-puts \$myresidues "set myresidues  \\[ inlist function=combine residues= \\\\\\\$res sets= {\\\${myresidues\\[*]}} target=QM ]"
-puts \$myresidues "ENDOFFILE"
-close \$myresidues
 exit
 ENDOFFILE
 
@@ -212,9 +248,14 @@ echo "MM Modelling Success"
 else
 exit
 fi
-
-chmod +x qm_mm_"${frame}".sh
-./qm_mm_"${frame}".sh
+cat > residues_"${frame}".dat <<EOF
+EOF
+for x in ${resname} ${substrate} ;
+do
+awk -v i="${x}" '$4==i {resname=$4;resid=$5} END{print resname resid}' rc_"${frame}".pdb >> residues_"${frame}".dat
+done
+myresidues=$(awk 'BEGIN { ORS = " " } { print }' residues_"${frame}".dat )
+echo "myresidues=""\"${myresidues}\"" >> input.in
 
 cat > addone-awk <<ENDOFFILE
 
@@ -256,12 +297,11 @@ elif [[ ! -d ../../QMMM/Frame"${frame}"/1-RC_Opt ]]; then
 fi
 
 #COPYING FILES TO THE RC_Opt DIRECTORIES
-cp rc.pdb ../../QMMM/Frame"${frame}"/1-RC_Opt/.
-cp rc.rst ../../QMMM/Frame"${frame}"/1-RC_Opt/.
-cp rc.prmtop ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+cp rc_"${frame}".pdb ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.pdb
+cp rc_"${frame}".rst ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.rst
+cp rc_"${frame}".prmtop ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.prmtop
 cp QM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/QM.dat
 cp MM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/MM.dat
-cp myresidues_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/myresidues.dat
 cp parse_amber.tcl ../../QMMM/Frame"${frame}"/1-RC_Opt/.
 cp input.in ../../QMMM/Frame"${frame}"/1-RC_Opt/.
 cd ../../QMMM/Frame"${frame}"/1-RC_Opt || exit
@@ -273,8 +313,9 @@ global sys_name_id
 source parse_amber.tcl
 source MM.dat
 source QM.dat
-source myresidues.dat
 set sys_name_id rc
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rc.prmtop
 set inpcrd rc.rst
 load_amber_coords inpcrd=\$inpcrd prmtop=\$prmtop coords=rc.c
@@ -292,7 +333,7 @@ list_option=none ]
 
 set atom_charges [ list_amber_atom_charges ]
 
-# optimize geometry with distance A-B fixed
+# optimize geometry
 dl-find coords=rc.c maxcycle=999 active_atoms= \$active residues= \$myresidues list_option=full result=\${sys_name_id}.opt.c \\
 theory=hybrid : [ list \\
 coupling= shift \\
@@ -326,7 +367,9 @@ write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.\${qm_theory}.coo
 
 ENDOFFILE
 
+
 elif [ "$step" = "1" ]; then
+source "${inp}"
 job=$(pwd)
 jobname="RC-Optimization"
 nohup chemsh RC_dlfind.chm > RC_dlfind.log &
@@ -380,14 +423,27 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 if [ "$(grep -c "Energy evaluation failed" RC_dlfind.log)" -ge 1 ]; then
         echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
         sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+        omit=$(pidof chemsh.x)
+	string="${omit//${IFS:0:1}/,}"
         tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_dlfind.chm >& RC_dlfind.log &"
-        echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+	sleep 5
+	if [ -z "$string" ]
+	then
+	calc=$(pidof chemsh.x)
+	else
+	calc=$(pidof -o "${string}" chemsh.x)    
+	fi
+	sleep 5
+	while ps -p "${calc}" > /dev/null;do sleep 1;done;
+	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 else
         echo "RC Completed"
         echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
 fi
 
 elif [ "$step" = "1f" ]; then
+source "${inp}"
 jobname="RC-Frequency"
 echo "Starting Frequency calculation"
 mkdir Frequency
@@ -399,7 +455,6 @@ cp alpha Frequency/.
 cp beta Frequency/.
 cp control Frequency/.
 cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
 cp rc.prmtop Frequency/.
 cp input.in Frequency/.
 
@@ -411,8 +466,11 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id rc.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rc.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rc.opt.c theory=dl_poly  : [ list \\
@@ -473,6 +531,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "1s" ]; then
+source "${inp}"
 jobname="RC-Single Point Energy"
 echo "Starting Single Point Calculation"
 mkdir SP
@@ -493,8 +552,10 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
+
 set sys_name_id rc.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rc.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rc.opt.c theory=dl_poly  : [ list \\
@@ -510,7 +571,7 @@ list_option=none ]
 
 set atom_charges [ list_amber_atom_charges ]
 
-# optimize geometry with distance A-B fixed
+# Single Point Energy
 energy coords= \${sys_name_id}.c  energy= \${sys_name_id}.e \\
 theory=hybrid : [ list \\
 coupling= shift \\
@@ -592,6 +653,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "2" ]; then
+source "${inp}"
 jobname="Scan Calculation"
 if [[ ! -e ../2-Scan ]]; then
     mkdir ../2-Scan
@@ -625,10 +687,11 @@ puts \$control_input_settings "Summary of scan."
 source parse_amber.tcl
 source MM.dat
 source QM.dat
-source myresidues.dat
-#source orca-chemsh.tcl
 set sys_name_id scan
+set res [ pdb_to_res "\${sys_name_id}_0.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=fatone ]
 set prmtop scan.prmtop
+
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 # define QM/MM settings:
 energy energy=e coords=scan_0.c theory=dl_poly  : [ list \\
@@ -651,11 +714,16 @@ set atom_charges [ list_amber_atom_charges ]
 set A $A
 set B $B
 
-set stepnum 30
+#increase
+set C $C
+set D $D
+
+set stepnum 40
 set incr -0.1
 
 set r1 [interatomic_distance coords=scan_0.c i=\$A j=\$B]
-set initdist [expr \$r1 - 0 ]
+set r2 [interatomic_distance coords=scan_0.c i=\$C j=\$D]
+set initdist [expr \$r1 - \$r2 ]
 set bincr [expr \$incr * 1.8897261329]
 
 for {set i 0} { \$i < \$stepnum} {incr i} {
@@ -667,7 +735,7 @@ set ReactionCoordinate [expr (\$initdist + \$bincr * \$i) ]
 dl-find maxcycle=900 coords= scan_\${i}.c  \\
 result= scan_[expr (\$i+1)].c \\
 tolerance= 0.0012 \\
-restraints= [ list [ list bond \$A \$B \$ReactionCoordinate 3.0 ] ] \\
+restraints= [ list [ list bonddiff2 \$A \$B \$C \$D \$ReactionCoordinate 3.0 ] ] \\
 active_atoms= \$active \\
 theory= hybrid : [ list \\
 coupling= shift \\
@@ -711,7 +779,8 @@ set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
 puts \$control_input_settings [format "Energy:%14.6f" \$energy]
 
 set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$A j=\$B unit=angstrom ]
-puts \$control_input_settings [format "Distance R1(A-B) :%4.3f" \$r1]
+set r2 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$C j=\$D unit=angstrom ]
+puts \$control_input_settings [format "Distance R1(A-B) R2(C-D) :%4.3f %4.3f" \$r1 \$r2]
 
 flush \$control_input_settings
 
@@ -747,6 +816,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "3" ]; then
+source "${inp}"
 jobname="TS-Optimization"
 if [[ ! -e ../3-TS_Opt ]]; then
     mkdir ../3-TS_Opt
@@ -754,7 +824,6 @@ elif [[ ! -d ../3-TS_Opt ]]; then
     echo "3-TS_Opt already exists but is not a directory" 1>&2
 fi
 
-cp control ../3-TS_Opt/.
 cp scan_"${transition}".c ../3-TS_Opt/.
 cp scan_"${transition}".pdb.gz ../3-TS_Opt/.
 cp scan_"${transition}".pdb ../3-TS_Opt/.
@@ -786,6 +855,7 @@ source MM.dat
 source QM.dat
 set sys_name_id ts
 set res [ pdb_to_res "\${sys_name_id}.pdb" ]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop ts.prmtop
 # set inpcrd
 # load_amber_coords inpcrd=\$inpcrd prmtop=\$prmtop coords=dummy.c
@@ -806,7 +876,7 @@ matrix dl-find.energy new volatile
 
 dl-find coords=\${sys_name_id}.c active_atoms= \$active \\
         result=\${sys_name_id}.opt.c coordinates=hdlc residues= \$res \\
-		optimiser=lbfgs tolerance=0.1 trustradius=const \\
+		optimiser=lbfgs tolerance=0.00135 trustradius=const \\
 		dimer=true delta=0.01 \\
 	    maxcycle=1000 maxene=900 \\
 		dump= 50 list_option=full \\
@@ -837,41 +907,6 @@ exit
 
 ENDOFFILE
 
-#nohup chemsh TS_Opt.chm > TS_Opt.log &
-#process=$!
-#while ps -p ${process} > /dev/null;do sleep 1;done;
-#if [ "$(grep -c "Terminated" TS_Opt.log)" -ge 1 ]; then
-#		echo "TS Terminated by User"
-#		exit
-#	else
-#		echo "TS Terminated normally"
-#	fi
-#efine <<EOF
-
-
-#a coord
-#
-#no
-#b all def2-SVP
-#*
-#eht
-#y
-#$charge
-#n
-#u $unp
-#*
-#n
-#scf
-#iter
-#900
-
-#dft
-#on
-#func b3-lyp
-
-#*
-#EOF
-
 echo "Executing TS Optimization calculation"
 omit=$(pidof chemsh.x)
 string="${omit//${IFS:0:1}/,}"
@@ -888,6 +923,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
 
 elif [ "$step" = "3f" ]; then
+source "${inp}"
 jobname="TS-Frequency"
 echo "Starting TS Frequency calculation"
 mkdir Frequency
@@ -911,8 +947,9 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id ts.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop ts.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=ts.opt.c theory=dl_poly  : [ list \\
@@ -974,6 +1011,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "3s" ]; then
+source "${inp}"
 jobname="TS-Single Point Energy"
 echo "Starting Single Point Calculation"
 mkdir SP
@@ -996,6 +1034,8 @@ source QM.dat
 source MM.dat
 source myresidues.dat
 set sys_name_id ts.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop ts.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=ts.opt.c theory=dl_poly  : [ list \\
@@ -1011,7 +1051,7 @@ list_option=none ]
 
 set atom_charges [ list_amber_atom_charges ]
 
-# optimize geometry with distance A-B fixed
+# Single Point Energy
 energy coords= \${sys_name_id}.c  energy= \${sys_name_id}.e \\
 theory=hybrid : [ list \\
 coupling= shift \\
@@ -1093,6 +1133,7 @@ echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | 
 
 
 elif [ "$step" = "4" ]; then
+source "${inp}"
 jobname="PD-Optimization"
 if [[ ! -e ../4-PD_Opt ]]; then
     mkdir ../4-PD_Opt
@@ -1103,9 +1144,12 @@ fi
 echo "Starting PD Optimization"
 cp scan_"${product}".c ../4-PD_Opt/.
 cp scan_"${product}".pdb.gz ../4-PD_Opt/.
+cp scan_"${product}".pdb ../4-PD_Opt/.
 cp scan.prmtop ../4-PD_Opt/.
 cp alpha_"${product}".gz ../4-PD_Opt/.
+cp alpha_"${product}" ../4-PD_Opt/.
 cp beta_"${product}".gz ../4-PD_Opt/.
+cp beta_"${product}" ../4-PD_Opt/.
 cp control ../4-PD_Opt/.
 cp parse_amber.tcl ../4-PD_Opt/.
 cp QM.dat ../4-PD_Opt/.
@@ -1129,8 +1173,9 @@ global sys_name_id
 source parse_amber.tcl
 source MM.dat
 source QM.dat
-source myresidues.dat
 set sys_name_id pd
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop pd.prmtop
 #set inpcrd pd.rst
 #load_amber_coords inpcrd=\$inpcrd prmtop=\$prmtop coords=rc.c
@@ -1149,8 +1194,8 @@ energy energy=e coords=pd.c theory=dl_poly  : [ list \\
 set atom_charges [ list_amber_atom_charges ]
 #set qm_atoms {5369-5385 2943-2948 4111-4121 2912-2922 5386-5412}
 
-# optimize geometry with distance A-B fixed
-dl-find coords=pd.c maxcycle=999 active_atoms= \$active residues= \$myresidues list_option=full result=\${sys_name_id}.opt.c \
+# optimize geometry
+dl-find coords=pd.c maxcycle=999 active_atoms= \$active residues= \$myresidues list_option=full result=\${sys_name_id}.opt.c \\
 theory=hybrid : [ list \\
       coupling= shift \\
       qm_region= \$qm_atoms \\
@@ -1198,6 +1243,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "4f" ]; then
+source "${inp}"
 jobname="PD-Frequency"
 echo "Starting PD Frequency calculation"
 mkdir Frequency
@@ -1221,8 +1267,9 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id pd.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop pd.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=pd.opt.c theory=dl_poly  : [ list \\
@@ -1283,7 +1330,8 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "4s" ]; then
-jobname="TS-Single Point Energy"
+source "${inp}"
+jobname="PD-Single Point Energy"
 echo "Starting PD Single Point Calculation"
 mkdir SP
 cp QM.dat SP/.
@@ -1416,6 +1464,7 @@ echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | 
 
 
 elif [ "$step" = "RB" ]; then
+source "${inp}"
 jobname="RB-Scan"
 if [[ ! -e ../Rebound ]]; then
     mkdir ../Rebound
@@ -1451,8 +1500,9 @@ puts \$control_input_settings "Summary of scan."
 source parse_amber.tcl
 source MM.dat
 source QM.dat
-source myresidues.dat
 set sys_name_id rebound
+set res [ pdb_to_res "\${sys_name_id}_0.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=fatone ]
 set prmtop rebound.prmtop
 energy energy=e coords=rebound_0.c theory=dl_poly  : [ list \\
 amber_prmtop_file=\$prmtop \\
@@ -1568,6 +1618,7 @@ echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | 
 
 
 elif [ "$step" = "RB_TS" ]; then
+source "${inp}"
 jobname="RB_TS-Optimization"
 if [[ ! -e RB_TS ]]; then
     mkdir RB_TS
@@ -1606,6 +1657,7 @@ source MM.dat
 source QM.dat
 set sys_name_id rb_ts
 set res [ pdb_to_res "\${sys_name_id}.pdb" ]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rb_ts.prmtop
 # set inpcrd
 # load_amber_coords inpcrd=\$inpcrd prmtop=\$prmtop coords=dummy.c
@@ -1657,40 +1709,40 @@ exit
 
 ENDOFFILE
 
-nohup chemsh RB_TS_Opt.chm > RB_TS_Opt.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Terminated" TS_Opt.log)" -ge 1 ]; then
-		echo "TS Terminated by User"
-		exit
-	else
-		echo "TS Terminated normally"
-	fi
-define <<EOF
+# nohup chemsh RB_TS_Opt.chm > RB_TS_Opt.log &
+# process=$!
+# while ps -p ${process} > /dev/null;do sleep 1;done;
+# if [ "$(grep -c "Terminated" TS_Opt.log)" -ge 1 ]; then
+# 		echo "TS Terminated by User"
+# 		exit
+# 	else
+# 		echo "TS Terminated normally"
+# 	fi
+# define <<EOF
 
 
-a coord
-*
-no
-b all def2-SVP
-*
-eht
-y
-$charge
-n
-u $unp
-*
-n
-scf
-iter
-900
+# a coord
+# *
+# no
+# b all def2-SVP
+# *
+# eht
+# y
+# $charge
+# n
+# u $unp
+# *
+# n
+# scf
+# iter
+# 900
 
-dft
-on
-func b3-lyp
+# dft
+# on
+# func b3-lyp
 
-*
-EOF
+# *
+# EOF
 
 echo "Executing TS Optimization calculation"
 omit=$(pidof chemsh.x)
@@ -1708,6 +1760,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
 
 elif [ "$step" = "RB_TS_Freq" ]; then
+source "${inp}"
 jobname="RB_TS-Frequency"
 echo "Starting TS Frequency calculation"
 mkdir Frequency
@@ -1733,6 +1786,8 @@ source QM.dat
 source MM.dat
 source myresidues.dat
 set sys_name_id rb_ts.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues} target=QM ]
 set prmtop rb_ts.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rb_ts.opt.c theory=dl_poly  : [ list \\
@@ -1794,6 +1849,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_TS_SP" ]; then
+source "${inp}"
 jobname="RB_TS-Single Point Energy"
 echo "Starting Single Point Calculation"
 mkdir SP
@@ -1814,8 +1870,9 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id rb_ts.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rb_ts.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rb_ts.opt.c theory=dl_poly  : [ list \\
@@ -1913,6 +1970,7 @@ echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | 
 
 
 elif [ "$step" = "RB_PD" ]; then
+source "${inp}"
 jobname="RB_PD-Optimization"
 if [[ ! -e RB_PD ]]; then
     mkdir RB_PD
@@ -1952,8 +2010,9 @@ global sys_name_id
 source parse_amber.tcl
 source MM.dat
 source QM.dat
-source myresidues.dat
 set sys_name_id rb_pd
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rb_pd.prmtop
 energy energy=e coords=rb_pd.c theory=dl_poly  : [ list \\
 					    amber_prmtop_file=\$prmtop \\
@@ -2017,6 +2076,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_PD_Freq" ]; then
+source "${inp}"
 jobname="RB_PD-Frequency"
 echo "Starting RB_PD Frequency calculation"
 mkdir Frequency
@@ -2040,8 +2100,9 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id rb_pd.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rb_pd.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rb_pd.opt.c theory=dl_poly  : [ list \\
@@ -2102,6 +2163,7 @@ while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_PD_SP" ]; then
+source "${inp}"
 jobname="RB_PD-Single Point Energy"
 echo "Starting PD Single Point Calculation"
 mkdir SP
@@ -2122,8 +2184,9 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id rb_pd.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rb_pd.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rb_pd.opt.c theory=dl_poly  : [ list \\
@@ -2221,8 +2284,6 @@ fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
 echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
-
-
 
 
 

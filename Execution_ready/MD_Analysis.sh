@@ -184,7 +184,7 @@ trajname=$(basename -- "$traj")
 trajfile="${trajname%_auto.*}"
 
 residinp=$(basename -- "$residues")
-residlast="${residinp##-*@}"
+residlast="${residinp-##@}"
 residfirst="${residinp%-*}"
 
 cat > RMS_"${parmfile}".in << EOF
