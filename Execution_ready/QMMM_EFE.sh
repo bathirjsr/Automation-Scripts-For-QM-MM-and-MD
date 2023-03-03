@@ -165,7 +165,7 @@ echo "nodes=""${nodes}"
 } >> QMMM_EFE.log
 source "${inp}"
 parmname=$(basename -- "$parm")
-parmext="${parmname##*.}"
+#parmext="${parmname##*.}"
 system="${parmname%.*}"
 
 #CREATING INPUT FILES FOR CPPTRAJ FOR PREPARING RC COMPLEX FILES
