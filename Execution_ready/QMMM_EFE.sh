@@ -820,26 +820,26 @@ echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | 
 elif [ "$step" = "3" ]; then
 source "${inp}"
 jobname="TS-Optimization"
-if [[ ! -e ../3-TS_Opt ]]; then
-    mkdir ../3-TS_Opt
-elif [[ ! -d ../3-TS_Opt ]]; then
-    echo "3-TS_Opt already exists but is not a directory" 1>&2
+if [[ ! -e ../${transition}-TS_Opt ]]; then
+    mkdir ../${transition}-TS_Opt
+elif [[ ! -d ../${transition}-TS_Opt ]]; then
+    echo "${transition}-TS_Opt already exists but is not a directory" 1>&2
 fi
 
-cp scan_"${transition}".c ../3-TS_Opt/.
-cp scan_"${transition}".pdb.gz ../3-TS_Opt/.
-cp scan_"${transition}".pdb ../3-TS_Opt/.
-cp scan.prmtop ../3-TS_Opt/.
-cp alpha_"${transition}".gz ../3-TS_Opt/.
-cp beta_"${transition}".gz ../3-TS_Opt/.
-cp control ../3-TS_Opt/.
-cp parse_amber.tcl ../3-TS_Opt/.
-cp QM.dat ../3-TS_Opt/.
-cp MM.dat ../3-TS_Opt/.
-cp myresidues.dat ../3-TS_Opt/.
-cp input.in ../3-TS_Opt/.
+cp scan_"${transition}".c ../${transition}-TS_Opt/.
+cp scan_"${transition}".pdb.gz ../${transition}-TS_Opt/.
+cp scan_"${transition}".pdb ../${transition}-TS_Opt/.
+cp scan.prmtop ../${transition}-TS_Opt/.
+cp alpha_"${transition}".gz ../${transition}-TS_Opt/.
+cp beta_"${transition}".gz ../${transition}-TS_Opt/.
+cp control ../${transition}-TS_Opt/.
+cp parse_amber.tcl ../${transition}-TS_Opt/.
+cp QM.dat ../${transition}-TS_Opt/.
+cp MM.dat ../${transition}-TS_Opt/.
+cp myresidues.dat ../${transition}-TS_Opt/.
+cp input.in ../${transition}-TS_Opt/.
 
-cd ../3-TS_Opt/ || exit
+cd ../${transition}-TS_Opt/ || exit
 sed -i "1s/scan_0.pdb/ts.pdb/" myresidues.dat
 sed -i "2s/target=fatone/target=QM/" myresidues.dat
 gunzip ./*.gz
@@ -1137,29 +1137,29 @@ echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | 
 elif [ "$step" = "4" ]; then
 source "${inp}"
 jobname="PD-Optimization"
-if [[ ! -e ../4-PD_Opt ]]; then
-    mkdir ../4-PD_Opt
-elif [[ ! -d ../4-PD_Opt ]]; then
-    echo "4-PD_Opt already exists but is not a directory" 1>&2
+if [[ ! -e ../${product}-IM_Opt ]]; then
+    mkdir ../${product}-IM_Opt
+elif [[ ! -d ../${product}-IM_Opt ]]; then
+    echo "${product}-IM_Opt already exists but is not a directory" 1>&2
 fi
 
 echo "Starting PD Optimization"
-cp scan_"${product}".c ../4-PD_Opt/.
-cp scan_"${product}".pdb.gz ../4-PD_Opt/.
-cp scan_"${product}".pdb ../4-PD_Opt/.
-cp scan.prmtop ../4-PD_Opt/.
-cp alpha_"${product}".gz ../4-PD_Opt/.
-cp alpha_"${product}" ../4-PD_Opt/.
-cp beta_"${product}".gz ../4-PD_Opt/.
-cp beta_"${product}" ../4-PD_Opt/.
-cp control ../4-PD_Opt/.
-cp parse_amber.tcl ../4-PD_Opt/.
-cp QM.dat ../4-PD_Opt/.
-cp MM.dat ../4-PD_Opt/.
-cp myresidues.dat ../4-PD_Opt/.
-cp input.in ../4-PD_Opt/.
+cp scan_"${product}".c ../${product}-IM_Opt/.
+cp scan_"${product}".pdb.gz ../${product}-IM_Opt/.
+cp scan_"${product}".pdb ../${product}-IM_Opt/.
+cp scan.prmtop ../${product}-IM_Opt/.
+cp alpha_"${product}".gz ../${product}-IM_Opt/.
+cp alpha_"${product}" ../${product}-IM_Opt/.
+cp beta_"${product}".gz ../${product}-IM_Opt/.
+cp beta_"${product}" ../${product}-IM_Opt/.
+cp control ../${product}-IM_Opt/.
+cp parse_amber.tcl ../${product}-IM_Opt/.
+cp QM.dat ../${product}-IM_Opt/.
+cp MM.dat ../${product}-IM_Opt/.
+cp myresidues.dat ../${product}-IM_Opt/.
+cp input.in ../${product}-IM_Opt/.
 
-cd ../4-PD_Opt/ || exit
+cd ../${product}-IM_Opt/ || exit
 sed -i "1s/scan_0.pdb/pd.pdb/" myresidues.dat
 sed -i "2s/target=fatone/target=QM/" myresidues.dat
 gunzip ./*.gz
@@ -1977,7 +1977,7 @@ jobname="RB_PD-Optimization"
 if [[ ! -e RB_PD ]]; then
     mkdir RB_PD
 elif [[ ! -d RB_PD ]]; then
-    echo "4-PD_Opt already exists but is not a directory" 1>&2
+    echo "${product}-IM_Opt already exists but is not a directory" 1>&2
 fi
 
 echo "Starting PD Optimization"
