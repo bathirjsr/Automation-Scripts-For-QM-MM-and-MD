@@ -15,13 +15,15 @@
 #s 4 PD Optimization
 #s 4f PD Frequency
 #s 4s PD Single Point Calculation
-while getopts i:s:a:b:t:p: flag
+while getopts i:s:a:b:c:d:t:p: flag
 do
     case "${flag}" in
 	i) inp=${OPTARG};;
 	s) step=${OPTARG};;
 	a) A=${OPTARG};;
 	b) B=${OPTARG};;
+    c) C=${OPTARG};;
+    d) D=${OPTARG};;
 	t) transition=${OPTARG};;
 	p) product=${OPTARG};;	
     *) echo "usage: $0 [-i] [-s] [-a] [-b] [-t] [-p]" >&2
