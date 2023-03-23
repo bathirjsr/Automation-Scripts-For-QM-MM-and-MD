@@ -1,5 +1,5 @@
 #!/bin/bash
-grep 'Final converged energy:' "$1" | awk 'NR==1{init=$NF}{print NR,($(NF)-init)*627.5095}' > PES.dat
+grep 'Final converged energy:' "$@" | awk 'NR==1{init=$NF}{print NR,($(NF)-init)*627.5095}' > PES.dat
 awk 'prev!=""&&prev<=prev2&&prev<=$2{print line}{prev2=prev;prev=$2;line=$0}' PES.dat | awk '{printf "%2.0f %5.12f \n", $1,$2}' > min.dat
 awk 'prev!=""&&prev>=prev2&&prev>=$2{print line}{prev2=prev;prev=$2;line=$0}' PES.dat | awk '{printf "%2.0f %5.12f \n", $1,$2}' > max.dat
 last=$(awk 'END{print NR}' PES.dat)

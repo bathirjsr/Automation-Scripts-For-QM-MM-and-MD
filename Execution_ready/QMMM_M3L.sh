@@ -320,7 +320,7 @@ list_option=none ]]
 # save structure
 read_pdb  file= \${sys_name_id}.pdb  coords=hybrid.dl_poly.coords
 write_pdb file= \${sys_name_id}.opt.pdb coords= \${sys_name_id}.opt.c
-write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.\${qm_theory}.coords
+write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 
   exit
 
@@ -842,7 +842,7 @@ scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \\
          list_option=none ]]
 read_pdb  file= \${sys_name_id}.pdb  coords=hybrid.dl_poly.coords
 write_pdb file= \${sys_name_id}.opt.pdb coords= \${sys_name_id}.opt.c
-write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.\${qm_theory}.coords
+write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 
 exit
 
@@ -1191,7 +1191,7 @@ scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \\
 # save structure
 read_pdb  file= \${sys_name_id}.pdb  coords=hybrid.dl_poly.coords
 write_pdb file= \${sys_name_id}.opt.pdb coords= \${sys_name_id}.opt.c
-write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.\${qm_theory}.coords
+write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 
 exit
 
@@ -1665,7 +1665,7 @@ scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \\
          list_option=none ]]
 read_pdb  file= \${sys_name_id}.pdb  coords=hybrid.dl_poly.coords
 write_pdb file= \${sys_name_id}.opt.pdb coords= \${sys_name_id}.opt.c
-write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.\${qm_theory}.coords
+write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 
 exit
 
@@ -2010,7 +2010,7 @@ scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \\
 # save structure
 read_pdb  file= \${sys_name_id}.pdb  coords=hybrid.dl_poly.coords
 write_pdb file= \${sys_name_id}.opt.pdb coords= \${sys_name_id}.opt.c
-write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.\${qm_theory}.coords
+write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 
 exit
 
