@@ -16,7 +16,7 @@ done
 mkdir MMPBSA
 cp "${prmtop}" MMPBSA/"${system}".prmtop
 cd MMPBSA || exit
-cpptraj.cuda << ENDOFFILE
+cpptraj << ENDOFFILE
 parm ../${prmtop}
 parmstrip !(:${complex})
 parmwrite out complex_${system}.prmtop
