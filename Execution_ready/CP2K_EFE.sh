@@ -60,10 +60,6 @@ set link_Carb_file [open link_Carb.txt w]
 puts \$link_Carb_file [\${link_Carb} list]
 close \$link_Carb_file
 
-set link_Sub_file [open link_Sub.txt w]
-puts \$link_Sub_file [\${link_Sub} list]
-close \$link_Sub_file
-
 exit
 ENDOFFILE
 
@@ -92,7 +88,6 @@ awk -f addone-awk qm_Fe.txt > QM_Fe.dat
 awk -f addone-awk link_His1.txt > Link_His1.dat
 awk -f addone-awk link_His2.txt > Link_His2.dat
 awk -f addone-awk link_Carb.txt > Link_Carb.dat
-awk -f addone-awk link_Sub.txt > Link_Sub.dat 
 
 QM_C=$(< QM_C.dat awk 'NR==1{print $0}')
 QM_N=$(< QM_N.dat awk 'NR==1{print $0}')
