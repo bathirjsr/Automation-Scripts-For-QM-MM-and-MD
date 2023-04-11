@@ -711,7 +711,7 @@ cat > QMMM_MetaD_"${System}".inp <<EOF
                 &QS
                         METHOD GPW
                         EPS_DEFAULT 1.0E-10
-			EPS_PGF_ORB 1.0E-16
+			            EPS_PGF_ORB 1.0E-16
                         EXTRAPOLATION ASPC
                         &SE
                                 &COULOMB
