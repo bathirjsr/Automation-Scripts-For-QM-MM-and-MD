@@ -152,7 +152,7 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
     POTENTIAL_FILE_NAME GTH_POTENTIALS
     UKS
     CHARGE ${Charge}
-    MULTIPLICITY ${Muliplicity}
+    MULTIPLICITY ${Multiplicity}
     &SCF
       MAX_SCF 30
       EPS_SCF 2.0E-5
@@ -1002,5 +1002,7 @@ cat > QMMM_MetaD_"${System}".inp <<EOF
 EOF
 
 nohup mpirun -n "${nproc}" cp2k.popt -o QMMM_MetaD_"${System}".out QMMM_MetaD_"${System}".inp &
+
+
 
 fi
