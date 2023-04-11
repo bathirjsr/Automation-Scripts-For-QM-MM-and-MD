@@ -4,17 +4,16 @@ source "${1}"
 
 cat > QM_MM_MD.tcl <<ENDOFFILE
 mol load pdb ${pdb}
-set QM [atomselect top "(resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)"]
-set QM_Fe [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element Fe "]
-set QM_C [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element C "]
-set QM_N [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element N "]
-set QM_O [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element O"]
-set QM_H [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element H"]
+set QM [atomselect top "(resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})"]
+set QM_Fe [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})) and element Fe "]
+set QM_C [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element C "]
+set QM_N [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element N "]
+set QM_O [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element O"]
+set QM_H [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element H"]
 
 set link_His1 [atomselect top "resname ${His1} and type CA CB"]
 set link_His2 [atomselect top "resname ${His2} and type CA CB"]
 set link_Carb [atomselect top "resname ${Carb} and type CA CB"]
-set link_Sub [atomselect top "resname ${Sub} and type CD CE"]
 
 \$QM num
 \$QM_C num
@@ -106,8 +105,6 @@ link_His2_1=$(< Link_His2.dat awk 'NR==1{print $1}')
 link_His2_2=$(< Link_His2.dat awk 'NR==1{print $2}')
 link_Carb_1=$(< Link_Carb.dat awk 'NR==1{print $1}')
 link_Carb_2=$(< Link_Carb.dat awk 'NR==1{print $2}')
-link_Sub_1=$(< Link_Sub.dat awk 'NR==1{print $1}')
-link_Sub_2=$(< Link_Sub.dat awk 'NR==1{print $2}')
 
 x_dec=$(< "${pdb}" awk 'NR==1{print $2}')
 y_dec=$(< "${pdb}" awk 'NR==1{print $3}')
@@ -290,11 +287,6 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
       LINK_TYPE IMOMM
       QM_INDEX ${link_Carb_2}
       MM_INDEX ${link_Carb_1}
-    &END LINK
-    &LINK
-      LINK_TYPE IMOMM
-      QM_INDEX ${link_Sub_2}
-      MM_INDEX ${link_Sub_1}
     &END LINK
 
   &END QMMM
@@ -560,11 +552,6 @@ cat > QMMM_MD_"${System}".inp <<EOF
       			LINK_TYPE IMOMM
       			QM_INDEX ${link_Carb_2}
       			MM_INDEX ${link_Carb_1}
-    		&END LINK
-    		&LINK
-      			LINK_TYPE IMOMM
-      			QM_INDEX ${link_Sub_2}
-			MM_INDEX ${link_Sub_1}
     		&END LINK
 
 
@@ -891,11 +878,6 @@ cat > QMMM_MetaD_"${System}".inp <<EOF
       			LINK_TYPE IMOMM
       			QM_INDEX ${link_Carb_2}
       			MM_INDEX ${link_Carb_1}
-    		&END LINK
-    		&LINK
-      			LINK_TYPE IMOMM
-      			QM_INDEX ${link_Sub_2}
-			MM_INDEX ${link_Sub_1}
     		&END LINK
 
 
