@@ -6,10 +6,10 @@ cat > QM_MM_MD.tcl <<ENDOFFILE
 mol load pdb ${pdb}
 set QM [atomselect top "(resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})"]
 set QM_Fe [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})) and element Fe "]
-set QM_C [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element C "]
-set QM_N [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element N "]
-set QM_O [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element O"]
-set QM_H [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub}) and element H"]
+set QM_C [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})) and element C "]
+set QM_N [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})) and element N "]
+set QM_O [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})) and element O"]
+set QM_H [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub})) and element H"]
 
 set link_His1 [atomselect top "resname ${His1} and type CA CB"]
 set link_His2 [atomselect top "resname ${His2} and type CA CB"]
