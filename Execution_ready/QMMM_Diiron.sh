@@ -1034,7 +1034,6 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id ts.opt
 set res [ pdb_to_res "\${sys_name_id}.pdb"]
 set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
@@ -1353,8 +1352,9 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id pd.opt
+set res [ pdb_to_res "\${sys_name_id}.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop pd.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=pd.opt.c theory=dl_poly  : [ list \\
