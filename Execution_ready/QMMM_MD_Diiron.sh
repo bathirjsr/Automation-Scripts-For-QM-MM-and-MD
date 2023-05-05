@@ -254,7 +254,6 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
       QM_INDEX ${link_AP1_2}
       MM_INDEX ${link_AP1_1}
     &END LINK
-    &LINK
 
   &END QMMM
 
@@ -506,25 +505,40 @@ cat > QMMM_MD_"${System}".inp <<EOF
                 &END QM_KIND
                 
 		&LINK
-			LINK_TYPE IMOMM
-			QM_INDEX ${link_His1_2}
-			MM_INDEX ${link_His1_1}
-		&END LINK
-    		&LINK
-      			LINK_TYPE IMOMM
-      			QM_INDEX ${link_His2_2}
-      			MM_INDEX ${link_His2_1}
-    		&END LINK
-    		&LINK
-      			LINK_TYPE IMOMM
-      			QM_INDEX ${link_Carb_2}
-      			MM_INDEX ${link_Carb_1}
-    		&END LINK
-    		&LINK
-      			LINK_TYPE IMOMM
-      			QM_INDEX ${link_Sub_2}
-			MM_INDEX ${link_Sub_1}
-    		&END LINK
+                        LINK_TYPE IMOMM
+                        QM_INDEX ${link_HD1_2}
+                        MM_INDEX ${link_HD1_1}
+                &END LINK
+                &LINK
+                        LINK_TYPE IMOMM
+                        QM_INDEX ${link_HE1_2}
+                        MM_INDEX ${link_HE1_1}
+                &END LINK
+                &LINK
+                        LINK_TYPE IMOMM
+                        QM_INDEX ${link_HE2_2}
+                        MM_INDEX ${link_HE2_1}
+                &END LINK
+                &LINK
+                        LINK_TYPE IMOMM
+                        QM_INDEX ${link_GU1_2}
+                        MM_INDEX ${link_GU1_1}
+                &END LINK
+                &LINK
+                        LINK_TYPE IMOMM
+                        QM_INDEX ${link_GU2_2}
+                        MM_INDEX ${link_GU2_1}
+                &END LINK
+                &LINK
+                        LINK_TYPE IMOMM
+                        QM_INDEX ${link_GU3_2}
+                        MM_INDEX ${link_GU3_1}
+                &END LINK
+                &LINK
+                        LINK_TYPE IMOMM
+                        QM_INDEX ${link_AP1_2}
+                        MM_INDEX ${link_AP1_1}
+                &END LINK
 
 
                 &PRINT
