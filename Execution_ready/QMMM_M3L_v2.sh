@@ -693,7 +693,6 @@ set sys_name_id scan
 set res [ pdb_to_res "\${sys_name_id}_0.pdb"]
 set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=fatone ]
 set prmtop scan.prmtop
-
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 # define QM/MM settings:
 energy energy=e coords=scan_0.c theory=dl_poly  : [ list \\
@@ -716,16 +715,11 @@ set atom_charges [ list_amber_atom_charges ]
 set A $A
 set B $B
 
-#increase
-set C $C
-set D $D
-
-set stepnum 40
+set stepnum 20
 set incr -0.1
 
 set r1 [interatomic_distance coords=scan_0.c i=\$A j=\$B]
-set r2 [interatomic_distance coords=scan_0.c i=\$C j=\$D]
-set initdist [expr \$r1 - \$r2 ]
+set initdist [expr \$r1 - 0 ]
 set bincr [expr \$incr * 1.8897261329]
 
 for {set i 0} { \$i < \$stepnum} {incr i} {
@@ -737,7 +731,7 @@ set ReactionCoordinate [expr (\$initdist + \$bincr * \$i) ]
 dl-find maxcycle=900 coords= scan_\${i}.c  \\
 result= scan_[expr (\$i+1)].c \\
 tolerance= 0.0012 \\
-restraints= [ list [ list bonddiff2 \$A \$B \$C \$D \$ReactionCoordinate 3.0 ] ] \\
+restraints= [ list [ list bond \$A \$B \$ReactionCoordinate 3.0 ] ] \\
 active_atoms= \$active \\
 theory= hybrid : [ list \\
 coupling= shift \\
@@ -781,8 +775,7 @@ set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
 puts \$control_input_settings [format "Energy:%14.6f" \$energy]
 
 set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$A j=\$B unit=angstrom ]
-set r2 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$C j=\$D unit=angstrom ]
-puts \$control_input_settings [format "Distance R1(A-B) R2(C-D) :%4.3f %4.3f" \$r1 \$r2]
+puts \$control_input_settings [format "Distance R1(A-B) :%4.3f" \$r1]
 
 flush \$control_input_settings
 
