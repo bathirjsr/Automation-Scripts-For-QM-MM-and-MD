@@ -184,7 +184,8 @@ trajname=$(basename -- "$traj")
 trajfile="${trajname%_auto.*}"
 
 residinp=$(basename -- "$residues")
-residlast="${residinp-##@}"
+residext="${residues#*-}"
+residlast="${residext%%@*}"
 residfirst="${residinp%-*}"
 
 cat > RMS_"${parmfile}".in << EOF
@@ -393,7 +394,7 @@ ENDOFFILE
 
 cat > PCA-firstframe.in << ENDOFFILE
 parm $parm
-trajin $traj 1 1
+trajin $traj 25001 25001
 strip !(:$residues@CA)
 trajout firstframe_pca.pdb
 run
