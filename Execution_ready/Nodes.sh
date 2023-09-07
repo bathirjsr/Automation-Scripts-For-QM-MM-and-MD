@@ -1,4 +1,5 @@
-for dir in $(pwdx $(pidof chemsh.x) | awk '{print $NF}'); do
+#! /bin/bash
+for dir in $(pwdx "$(pidof chemsh.x)" | awk '{print $NF}'); do
     file="$dir/input.in"
     if [ -e "$file" ]; then
         line=$(grep "nodes" "$file")
