@@ -2,18 +2,30 @@
 #strip !(:1-466@CA,ZN,FE,O1,C5) outprefix strippedCAF (Oxo & mutants)
 #RMSD, RMSF, Radius of Gyration, SASA
 
-while getopts p:t:r:s: flag
+while getopts p:t:r:s:m: flag
 do
     case "${flag}" in
         p) prmtop=${OPTARG};;
         t) traj=${OPTARG};;
 	      r) residues=${OPTARG};;
         s) step=${OPTARG};;
-        *) echo "usage: $0 [-p] [-t] [-r] [-s]" >&2
+        m) mask=${OPTARG};;
+        *) echo "usage: $0 [-p] [-t] [-r] [-s] [-m]" >&2
          exit 1 ;;
 esac
 done
-
+parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter File")
+[[ "$?" != "0" ]] && exit 1
+#read -re -p "Parameter File: " parm 
+#echo "parm=""$parm" >> Hbond.log
+traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory File")
+[[ "$?" != "0" ]] && exit 1
+#read -re -p "Trajectory File: " traj 
+#echo "traj=""$traj" >> Hbond.log
+residues=$(zenity --entry --title="Protein Residues (Eg. 1-552)")
+[[ "$?" != "0" ]] && exit 1
+mask=$(zenity --entry --title="Mask (Eg. CA,ZN,FE,O,O1)")
+[[ "$?" != "0" ]] && exit 1
 if [ "$step" = "DCCA" ]; then
 
 mkdir DCCA
@@ -22,7 +34,7 @@ cd DCCA || exit
 cat > DCCA-firstframe.in << ENDOFFILE
 parm $prmtop
 trajin $traj 1 1
-strip !(:$residues@CA,ZN,FE,O1,C5)
+strip !(:$residues@$mask)
 trajout firstframe_dcca.pdb
 run
 exit
@@ -31,7 +43,7 @@ ENDOFFILE
 cat > DCCA-traj.in <<ENDOFFILE
 parm $prmtop
 trajin $traj 25000 50000
-strip !(:$residues@CA,ZN,FE,O1,C5) outprefix stripdcca
+strip !(:$residues@$mask) outprefix stripdcca
 trajout traj_dcca.dcd
 run
 exit

@@ -319,13 +319,14 @@ parm=$(zenity --file-selection --file-filter=*.prmtop --title="Select Parameter 
 #echo "parm=""$parm" >> Hbond.log
 traj=$(zenity --file-selection --file-filter=*auto.nc --title="Select Trajectory File")
 [[ "$?" != "0" ]] && exit 1
-residues=$(zenity --entry --title="Residues (Eg. 1-552@CA,ZN,FE,O,O1)")
+residues=$(zenity --entry --title="Residues (Eg. 1-552)")
 [[ "$?" != "0" ]] && exit 1
-
+mask=$(zenity --entry --title="Mask (Eg. CA,ZN,FE,O,O1)")
+[[ "$?" != "0" ]] && exit 1
 cat > DCCA-firstframe.in << ENDOFFILE
 parm $parm
 trajin $traj 1 1
-strip !(:$residues)
+strip !(:$residues@$mask)
 trajout firstframe_dcca.pdb
 run
 exit
@@ -333,8 +334,8 @@ ENDOFFILE
 
 cat > DCCA-traj.in <<ENDOFFILE
 parm $parm
-trajin $traj 25001 50000
-strip !(:$residues) outprefix stripdcca
+trajin $traj 5000 10000
+strip !(:$residues@$mask) outprefix stripdcca
 trajout traj_dcca.dcd
 trajout traj_dcca.nc
 run
