@@ -1,4 +1,6 @@
 #! /bin/bash
+
+if [ "$1" = "chemsh.x" ]; then
 for dir in $(pwdx $(pidof chemsh.x) | awk '{print $NF}'); do
     file="$dir/input.in"
     if [ -e "$file" ]; then
@@ -9,3 +11,4 @@ for dir in $(pwdx $(pidof chemsh.x) | awk '{print $NF}'); do
         fi
     fi
 done
+fi
