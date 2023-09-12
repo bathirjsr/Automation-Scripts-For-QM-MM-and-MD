@@ -4,7 +4,7 @@ source "${1}"
 
 cat > QM_MM_MD.tcl <<ENDOFFILE
 mol load pdb ${pdb}
-set QM [atomselect top "(resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)"]
+set QM [atomselect top "(resname ${His2} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)"]
 set QM_Fe [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element Fe "]
 set QM_C [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element C "]
 set QM_N [atomselect top "((resname ${His1} ${His2} ${Carb} ${Co_sub} ${Metal} ${Oxygen} and not backbone and not type HA H) or (resname ${Sub} and not backbone and not type HA H CB CD CG HB2 HB3 HD2 HD3 HG2 HG3)) and element N "]
@@ -160,7 +160,7 @@ cat > QMMM_MD_SP_"${System}".inp <<EOF
     POTENTIAL_FILE_NAME GTH_POTENTIALS
     UKS
     CHARGE ${Charge}
-    MULTIPLICITY ${Muliplicity}
+    MULTIPLICITY ${Multiplicity}
     &SCF
       MAX_SCF 30
       EPS_SCF 2.0E-5

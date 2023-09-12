@@ -9,7 +9,7 @@ done
 echo "There are ${#dirs[@]} dirs in the current path"
 for((i=1;i<=${#dirs[@]};i++))
 do
-cd "${dirs[i]}"/MD/Analysis/ || continue 1
+cd "${dirs[i]}"/MD_Replica/Analysis/ || continue 1
     cpptraj.cuda <<EOF
 parm ../EFE_solv.prmtop
 trajin 6-md_auto.nc 1 50000 5

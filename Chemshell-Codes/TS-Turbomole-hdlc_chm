@@ -1,0 +1,65 @@
+# adenine - Amber example with polarisation turned off
+# hybrid with electrostaic embedding
+global sys_name_id
+source parse_amber.tcl
+#source orca-chemsh.tcl
+source active.dat
+set sys_name_id ts 
+set res [ pdb_to_res "${sys_name_id}.pdb" ]
+set myresidues  [ inlist function=combine residues= $res sets= {ENZY343 ENZY344 ENZY345} target=fatone ]
+#define core region for TS
+set coreregion { { core } { {5369 5370 5371 5375 5372} } }
+# C-H-O_FE sequence
+set resimerge [ inlist function=merge   residues= $myresidues residues2= $coreregion ]
+set clean     [ inlist function=exclude residues= $resimerge set1=fatone  set2=core target=fatone-core ]
+set trick     [ inlist function=remove  residues= $clean sets= {core} ]
+set tsresidues  [ inlist function=merge   residues= $trick residues2= $coreregion]
+set prmtop ts.prmtop   
+# for the time being we have to calculate an energy to be able to call list_amber_atom_charges
+energy energy=e coords=ts.c theory=dl_poly  : [ list \
+					    amber_prmtop_file=$prmtop \
+					    scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+					    mxexcl=2000  \
+					    mxlist=40000 \
+					    cutoff=1000 \
+					    use_pairlist = no \
+					    save_dl_poly_files = yes \
+   					    exact_srf=yes \
+					    list_option=none ]
+
+set atom_charges [ list_amber_atom_charges ]
+set qm_atoms {5369-5385 2943-2948 4111-4121 2912-2922 5386-5412}
+
+# optimize geometry with distance A-B fixed
+hdlcopt coords=ts.c active_atoms= $active residues= $tsresidues reghdl=80 cfact=0.5 toler=0.00099 maxfun= 1000 core=core nvar=15 mode=1 contyp=0 recalc=0 ctfirst=1 lockon=1 list_option=full result=ts.opt.c \
+theory=hybrid : [ list \
+      coupling= shift \
+      qm_region= $qm_atoms \
+      atom_charges= $atom_charges \
+      qm_theory= turbomole : [list   \
+                       read_control= yes \
+                       scratchdir=/data/shobhit/temp/t1 \
+                       hamiltonian= b3-lyp \
+                       scftype= uhf  ]  \
+      mm_theory= dl_poly  : [ list \
+        amber_prmtop_file= $prmtop \
+        exact_srf=yes \
+    use_pairlist=no \
+mxlist=40000 \
+cutoff=1000 \
+mxexcl=2000  \
+debug_memory=no \
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \
+                conn= ts.c \
+                save_dl_poly_files = yes \
+         list_option=none ]]
+
+
+####
+# save structure
+read_pdb  file= ts.pdb  coords=hybrid.dl_poly.coords
+write_pdb file= ts.opt.pdb coords= ts.opt.c
+write_xyz file= ts.${qm_region}.opt.xyz coords=hybrid.${qm_theory}.coords
+
+ exit
+
