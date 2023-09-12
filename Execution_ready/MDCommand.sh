@@ -91,8 +91,6 @@ Relaxation 2
    ntr=1, restraint_wt=5.0, restraintmask=':$residues', ! Keep weak restraints on backbone
    ig=-1,
    nmropt=1,
-   restraintmask = '${resmask}',
-   restraint_wt = 5000,
 /
 &wt type='TEMP0', istep1=0, istep2=500000,value1=300.0, value2=300.0 /
 &wt type='END'  /
@@ -103,14 +101,14 @@ Production simulation
   imin = 0, irest = 1, ntx = 7,
   ntb = 2, pres0 = 1.0, ntp = 1,
   taup = 2.0,
-  cut = 10, ntr = 0, ntwv=-1,
+  cut = 10, ntr = 1, ntwv=-1,
   ntc = 2, ntf = 2,
   temp0 = 300.0,
   ntt = 3, gamma_ln = 2.0,
   nstlim = 100000000, dt = 0.002,ioutfm=1,
   ntpr = 10000, ntwx = 10000, ntwr = 10000, ntxo = 2
   restraintmask = '${resmask}',
-  restraint_wt = 5000,
+  restraint_wt = 500,
 /
 ENDOFFILE
 cat > 6-equil.in << ENDOFFILE
@@ -142,7 +140,7 @@ Production simulation
   ntc = 2, ntf = 2,
   temp0 = 300.0,
   ntt = 3, gamma_ln = 2.0,
-  nstlim = 500000000, dt = 0.002,ioutfm=1,
+  nstlim = 400000000, dt = 0.002,ioutfm=1,
   ntpr = 10000, ntwx = 10000, ntwr = 10000, ntxo = 2
  /
 ENDOFFILE
