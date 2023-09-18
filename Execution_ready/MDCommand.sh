@@ -105,7 +105,7 @@ Production simulation
   ntc = 2, ntf = 2,
   temp0 = 300.0,
   ntt = 3, gamma_ln = 2.0,
-  nstlim = 100000000, dt = 0.002,ioutfm=1,
+  nstlim = 200000000, dt = 0.002,ioutfm=1,
   ntpr = 10000, ntwx = 10000, ntwr = 10000, ntxo = 2
   restraintmask = '${resmask}',
   restraint_wt = 500,
