@@ -192,10 +192,10 @@ cat > RMS_"${parmfile}".in << EOF
 parm ${parm}
 trajin ${traj}
 reference ${reference}
-rms reference out RMSD_${parmfile}.dat :${residues} time 0.02
+rms reference out RMSD_${parmfile}.dat :${residues} time 0.1
 atomicfluct reference out RMSF_${parmfile}.dat :${residues} byres
-radgyr :${residues} out ROG_${parmfile}.dat time 0.02
-surf :${residues} out SURF_${parmfile}.dat time 0.02
+radgyr :${residues} out ROG_${parmfile}.dat time 0.1
+surf :${residues} out SURF_${parmfile}.dat time 0.1
 run
 EOF
 omit=$(pidof cpptraj.MPI)
@@ -292,7 +292,7 @@ trajfile="${trajname%.*}"
 
 cat > Autoimage_"${parmfile}".in << EOF
 parm ${parm}
-trajin ${traj}
+trajin ${traj} 1 last 5
 autoimage
 trajout ${trajfile}_auto.nc
 run

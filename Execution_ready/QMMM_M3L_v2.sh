@@ -715,7 +715,7 @@ set atom_charges [ list_amber_atom_charges ]
 set A $A
 set B $B
 
-set stepnum 20
+set stepnum 35
 set incr -0.1
 
 set r1 [interatomic_distance coords=scan_0.c i=\$A j=\$B]
