@@ -1,5 +1,5 @@
 #!/bin/bash
-while getopts p:t:c:r:l:s:n: flag
+while getopts p:t:c:r:l:n:s:e flag
 do
   case "${flag}" in
   p) prmtop=${OPTARG};;
@@ -7,12 +7,15 @@ do
 	c) complex=${OPTARG};;
   r) receptor=${OPTARG};;
 	l) ligand=${OPTARG};;
-	s) system=${OPTARG};;
 	n) nprocs=${OPTARG};;
+  s) start=${OPTARG};;
+  e) end=${OPTARG};;
   *) echo "usage: $0 [-p] [-t] [-c] [-r] [-l] [-s] [-n]" >&2
        exit 1 ;;
 esac
 done
+parmname=$(basename -- "$parm")
+system="${parmname%_*}"
 mkdir MMPBSA
 cp "${prmtop}" MMPBSA/"${system}".prmtop
 cd MMPBSA || exit
@@ -41,7 +44,7 @@ ENDOFFILE
 cat > mmpbsa_"${system}".in << EOF
 Input file for running PB and GB
 &general
-   startframe=1, endframe=5000, keep_files=2, debug_printlevel=0, verbose=1, receptor_mask=:${receptor}, ligand_mask=:${ligand},
+   startframe=$start, endframe=$end, keep_files=2, debug_printlevel=0, verbose=1, receptor_mask=:${receptor}, ligand_mask=:${ligand},
    interval=10,
 /
 &gb

@@ -386,7 +386,7 @@ residues=$(zenity --entry --title="Residues (Eg. 1-552)")
 
 cat > PCA-traj.in <<ENDOFFILE
 parm $parm
-trajin $traj 25001 50000
+trajin $traj 5001 10000
 strip !(:$residues@CA) outprefix strippca
 trajout traj_pca.dcd
 run
@@ -395,7 +395,7 @@ ENDOFFILE
 
 cat > PCA-firstframe.in << ENDOFFILE
 parm $parm
-trajin $traj 25001 25001
+trajin $traj 5001 5001
 strip !(:$residues@CA)
 trajout firstframe_pca.pdb
 run
