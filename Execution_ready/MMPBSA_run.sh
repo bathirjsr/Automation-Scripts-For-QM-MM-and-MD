@@ -1,5 +1,5 @@
 #!/bin/bash
-while getopts p:t:c:r:l:n:s:e flag
+while getopts p:t:c:r:l:n:s:e: flag
 do
   case "${flag}" in
   p) prmtop=${OPTARG};;
