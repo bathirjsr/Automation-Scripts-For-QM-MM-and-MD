@@ -461,7 +461,6 @@ cp rc.prmtop Frequency/.
 cp input.in Frequency/.
 
 cd Frequency/ || exit
-sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RC_Freq.chm <<ENDOFFILE
 global sys_name_id
@@ -469,8 +468,6 @@ source parse_amber.tcl
 source QM.dat
 source MM.dat
 set sys_name_id rc.opt
-set res [ pdb_to_res "\${sys_name_id}.pdb"]
-set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set res [ pdb_to_res "\${sys_name_id}.pdb"]
 set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rc.prmtop
@@ -542,12 +539,10 @@ cp MM.dat SP/.
 cp rc.opt.pdb SP/.
 cp rc.opt.c SP/.
 cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
 cp rc.prmtop SP/.
 cp input.in SP/.
 
 cd SP/ || exit
-sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RC_SP.chm <<ENDOFFILE
 global sys_name_id
@@ -672,12 +667,9 @@ cp control ../2-Scan/.
 cp parse_amber.tcl ../2-Scan/.
 cp QM.dat ../2-Scan/.
 cp MM.dat ../2-Scan/.
-cp myresidues.dat ../2-Scan/.
 cp input.in ../2-Scan/.
 
 cd ../2-Scan/ || exit
-sed -i "1s/rc.pdb/scan_0.pdb/" myresidues.dat
-sed -i "2s/target=QM/target=fatone/" myresidues.dat
 cp rc.opt.c scan_0.c
 cp rc.opt.pdb scan_0.pdb
 cp rc.prmtop scan.prmtop
@@ -829,12 +821,9 @@ cp control ../${transition}-TS_Opt/.
 cp parse_amber.tcl ../${transition}-TS_Opt/.
 cp QM.dat ../${transition}-TS_Opt/.
 cp MM.dat ../${transition}-TS_Opt/.
-cp myresidues.dat ../${transition}-TS_Opt/.
 cp input.in ../${transition}-TS_Opt/.
 
 cd ../${transition}-TS_Opt/ || exit
-sed -i "1s/scan_0.pdb/ts.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
 gunzip ./*.gz
 cp alpha_"${transition}" alpha
 cp beta_"${transition}" beta
@@ -930,12 +919,10 @@ cp alpha Frequency/.
 cp beta Frequency/.
 cp control Frequency/.
 cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
 cp ts.prmtop Frequency/.
 cp input.in Frequency/.
 
 cd Frequency/ || exit
-sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > TS_Freq.chm <<ENDOFFILE
 global sys_name_id
@@ -1015,12 +1002,10 @@ cp MM.dat SP/.
 cp ts.opt.pdb SP/.
 cp ts.opt.c SP/.
 cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
 cp ts.prmtop SP/.
 cp input.in SP/.
 
 cd SP/ || exit
-sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > TS_SP.chm <<ENDOFFILE
 global sys_name_id
@@ -1148,12 +1133,9 @@ cp control ../${product}-IM_Opt/.
 cp parse_amber.tcl ../${product}-IM_Opt/.
 cp QM.dat ../${product}-IM_Opt/.
 cp MM.dat ../${product}-IM_Opt/.
-cp myresidues.dat ../${product}-IM_Opt/.
 cp input.in ../${product}-IM_Opt/.
 
 cd ../${product}-IM_Opt/ || exit
-sed -i "1s/scan_0.pdb/pd.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
 gunzip ./*.gz
 cp alpha_"${product}" alpha
 cp beta_"${product}" beta
@@ -1249,12 +1231,10 @@ cp alpha Frequency/.
 cp beta Frequency/.
 cp control Frequency/.
 cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
 cp pd.prmtop Frequency/.
 cp input.in Frequency/.
 
 cd Frequency/ || exit
-sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > PD_Freq.chm <<ENDOFFILE
 global sys_name_id
@@ -1333,12 +1313,10 @@ cp MM.dat SP/.
 cp pd.opt.pdb SP/.
 cp pd.opt.c SP/.
 cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
 cp pd.prmtop SP/.
 cp input.in SP/.
 
 cd SP/ || exit
-sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > PD_SP.chm <<ENDOFFILE
 global sys_name_id
@@ -1475,12 +1453,9 @@ cp control ../Rebound/.
 cp parse_amber.tcl ../Rebound/.
 cp QM.dat ../Rebound/.
 cp MM.dat ../Rebound/.
-cp myresidues.dat ../Rebound/.
 cp input.in ../Rebound/.
 
 cd ../Rebound/ || exit
-sed -i "1s/pd.pdb/rebound_0.pdb/" myresidues.dat
-sed -i "2s/target=QM/target=fatone/" myresidues.dat
 cp pd.opt.c rebound_0.c
 cp pd.opt.pdb rebound_0.pdb
 cp pd.prmtop rebound.prmtop
@@ -1629,12 +1604,9 @@ cp control RB_TS/.
 cp parse_amber.tcl RB_TS/.
 cp QM.dat RB_TS/.
 cp MM.dat RB_TS/.
-cp myresidues.dat RB_TS/.
 cp input.in RB_TS/.
 
 cd RB_TS/ || exit
-sed -i "1s/rebound_0.pdb/rb_ts.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
 gunzip ./*.gz
 cp alpha_"${transition}" alpha
 cp beta_"${transition}" beta
@@ -1765,22 +1737,19 @@ cp alpha Frequency/.
 cp beta Frequency/.
 cp control Frequency/.
 cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
 cp rb_ts.prmtop Frequency/.
 cp input.in Frequency/.
 
 cd Frequency/ || exit
-sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_TS_Freq.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id rb_ts.opt
 set res [ pdb_to_res "\${sys_name_id}.pdb"]
-set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues} target=QM ]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rb_ts.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rb_ts.opt.c theory=dl_poly  : [ list \\
@@ -1851,12 +1820,10 @@ cp MM.dat SP/.
 cp rb_ts.opt.pdb SP/.
 cp rb_ts.opt.c SP/.
 cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
 cp rb_ts.prmtop SP/.
 cp input.in SP/.
 
 cd SP/ || exit
-sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_TS_SP.chm <<ENDOFFILE
 global sys_name_id
@@ -1984,12 +1951,9 @@ cp control RB_PD/.
 cp parse_amber.tcl RB_PD/.
 cp QM.dat RB_PD/.
 cp MM.dat RB_PD/.
-cp myresidues.dat RB_PD/.
 cp input.in RB_PD/.
 
 cd RB_PD/ || exit
-sed -i "1s/rebound_0.pdb/rb_pd.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
 gunzip ./*.gz
 cp alpha_"${product}" alpha
 cp beta_"${product}" beta
@@ -2081,12 +2045,10 @@ cp alpha Frequency/.
 cp beta Frequency/.
 cp control Frequency/.
 cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
 cp rb_pd.prmtop Frequency/.
 cp input.in Frequency/.
 
 cd Frequency/ || exit
-sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_PD_Freq.chm <<ENDOFFILE
 global sys_name_id
@@ -2165,12 +2127,10 @@ cp MM.dat SP/.
 cp rb_pd.opt.pdb SP/.
 cp rb_pd.opt.c SP/.
 cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
 cp rb_pd.prmtop SP/.
 cp input.in SP/.
 
 cd SP/ || exit
-sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
 job=$(pwd)
 cat > RB_PD_SP.chm <<ENDOFFILE
 global sys_name_id
