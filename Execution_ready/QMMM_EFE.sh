@@ -30,7 +30,13 @@ do
        exit 1 ;;
 esac
 done
+send_email_notification() {
+    local subject="$1"
+    local message="$2"
+    local recipient="simahjsr@gmail.com"  # Replace with the actual email address
 
+    echo "$message" | mail -s "$subject" "$recipient"
+}
 
 if [ "$1" = "help" ];
 then
@@ -106,7 +112,7 @@ unp=$(zenity --entry --title="Number of Unpaired electrons")
 [[ "$?" != "0" ]] && exit 1
 nodes=$(zenity --entry --title="Number of CPUs")
 [[ "$?" != "0" ]] && exit 1
-
+source "${inp}"
 { 
 date
 echo "parm=""${parm}"
@@ -163,7 +169,7 @@ echo "charge=""${charge}"
 echo "unp=""${unp}"
 echo "nodes=""${nodes}"
 } >> QMMM_EFE.log
-source "${inp}"
+
 parmname=$(basename -- "$parm")
 #parmext="${parmname##*.}"
 system="${parmname%.*}"
