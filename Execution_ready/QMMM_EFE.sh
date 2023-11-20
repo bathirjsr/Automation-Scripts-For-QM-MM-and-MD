@@ -658,7 +658,27 @@ calc=$(pidof -o "${string}" chemsh.x)
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" RC_SP.log)" -ge 1 ]; then
+    echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
+    sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+    omit=$(pidof chemsh.x)
+	string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_SP.chm >& RC_SP.log &"
+	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+	sleep 5
+	if [ -z "$string" ]
+	    then
+	    calc=$(pidof chemsh.x)
+	    else
+	    calc=$(pidof -o "${string}" chemsh.x)    
+	fi
+	sleep 5
+	while ps -p "${calc}" > /dev/null;do sleep 1;done;
+	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+else
+        echo "RC SP Completed"
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+fi
 
 elif [ "$step" = "2" ]; then
 source "${inp}"
@@ -987,7 +1007,7 @@ scftype= uhf  ]  \\
 mm_theory= dl_poly  : [ list \\
 amber_prmtop_file= \$prmtop \\
 exact_srf=yes \\
-use_pairlist=no \\
+use_pairlist=no \\SCF convergence criteria cannot be satisfied in dscf
 mxlist=40000 \\
 cutoff=1000 \\
 mxexcl=2000  \\
@@ -1136,8 +1156,27 @@ calc=$(pidof -o "${string}" chemsh.x)
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
-
+if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" TS_SP.log)" -ge 1 ]; then
+    echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
+    sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+    omit=$(pidof chemsh.x)
+	string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_SP.chm >& TS_SP.log &"
+	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+	sleep 5
+	if [ -z "$string" ]
+	    then
+	    calc=$(pidof chemsh.x)
+	    else
+	    calc=$(pidof -o "${string}" chemsh.x)    
+	fi
+	sleep 5
+	while ps -p "${calc}" > /dev/null;do sleep 1;done;
+	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+else
+        echo "TS SP Completed"
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+fi
 
 elif [ "$step" = "4" ]; then
 source "${inp}"
@@ -1455,8 +1494,28 @@ calc=$(pidof -o "${string}" chemsh.x)
 fi
 sleep 5
 while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
+if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" PD_SP.log)" -ge 1 ]; then
+    echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
+    sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+    omit=$(pidof chemsh.x)
+	string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_SP.chm >& PD_SP.log &"
+	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+	sleep 5
+	if [ -z "$string" ]
+	    then
+	    calc=$(pidof chemsh.x)
+	    else
+	    calc=$(pidof -o "${string}" chemsh.x)    
+	fi
+	sleep 5
+	while ps -p "${calc}" > /dev/null;do sleep 1;done;
+	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+else
+        echo "PD SP Completed"
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+fi
 
 ###############################################################################################################################################################
 
