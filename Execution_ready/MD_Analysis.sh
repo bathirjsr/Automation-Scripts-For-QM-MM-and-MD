@@ -402,8 +402,8 @@ run
 exit
 ENDOFFILE
 
-nohup  mpirun -n 96 cpptraj.MPI -i PCA-firstframe.in > PCA-firstframe.out &
-nohup  mpirun -n 96 cpptraj.MPI -i PCA-traj.in > PCA-traj.out &
+nohup cpptraj.MPI -i PCA-firstframe.in > PCA-firstframe.out &
+nohup cpptraj.MPI -i PCA-traj.in > PCA-traj.out &
 process=$!
 while ps -p $process > /dev/null;do sleep 1;done;
 
