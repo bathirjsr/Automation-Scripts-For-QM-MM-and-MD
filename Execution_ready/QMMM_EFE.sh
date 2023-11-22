@@ -1850,7 +1850,7 @@ source QM.dat
 source MM.dat
 set sys_name_id rb_ts.opt
 set res [ pdb_to_res "\${sys_name_id}.pdb"]
-set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues} target=QM ]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=QM ]
 set prmtop rb_ts.prmtop
 # for the time being we have to calculate an energy to be able to call list_amber_atom_charges
 energy energy=e coords=rb_ts.opt.c theory=dl_poly  : [ list \\
