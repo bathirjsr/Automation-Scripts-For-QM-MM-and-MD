@@ -1837,7 +1837,6 @@ cp alpha Frequency/.
 cp beta Frequency/.
 cp control Frequency/.
 cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
 cp rb_ts.prmtop Frequency/.
 cp input.in Frequency/.
 
@@ -1849,7 +1848,6 @@ global sys_name_id
 source parse_amber.tcl
 source QM.dat
 source MM.dat
-source myresidues.dat
 set sys_name_id rb_ts.opt
 set res [ pdb_to_res "\${sys_name_id}.pdb"]
 set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues} target=QM ]
