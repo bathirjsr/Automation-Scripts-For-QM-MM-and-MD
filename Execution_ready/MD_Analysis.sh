@@ -55,8 +55,8 @@ trajname=$(basename -- "$traj")
 trajfile="${trajname%.auto*}"
 
 residinp=$(basename -- "${substrate}")
-residlast="${residinp##*-}"
-residfirst="${residinp%-*}"
+#residlast="${residinp##*-}"
+#residfirst="${residinp%-*}"
 
 cat > Hbond_"${parmfile}".in << EOF 
 parm ${parm}
@@ -125,7 +125,7 @@ trajfile="${trajname%_auto.*}"
 residinp=$(basename -- "$residues")
 residext="${residues#*-}"
 residlast="${residext%%@*}"
-residfirst="${residinp%-*}"
+#residfirst="${residinp%-*}"
 
 cat > RMS_"${parmfile}".in << EOF
 parm ${parm}

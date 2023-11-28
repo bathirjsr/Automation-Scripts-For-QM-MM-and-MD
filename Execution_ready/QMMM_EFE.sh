@@ -85,7 +85,7 @@ user=$USER
 host=$(hostname)
 
 if [ "$step" = "0" ]; then
-
+source "${inp}"
 if [ -z "$inp" ]; then 
 
 parm=$(zenity --file-selection --file-filter=*solv.prmtop --title="Select Parameter File")
