@@ -422,9 +422,9 @@ z1=$(awk '$4 == "FE1" && $3 == "FE" {print $8}' pd.opt.pdb)
 #y2=$(awk '$4 == "O11" && $3 == "O1" {print $7}' pd.opt.pdb)
 #z2=$(awk '$4 == "O11" && $3 == "O1" {print $8}' pd.opt.pdb)
 
-x2=$(awk '$4 == "OY1" && $3 == "O1" {print $6}' ts.opt.pdb)
-y2=$(awk '$4 == "OY1" && $3 == "O1" {print $7}' ts.opt.pdb)
-z2=$(awk '$4 == "OY1" && $3 == "O1" {print $8}' ts.opt.pdb)
+x2=$(awk '$4 == "OY1" && $3 == "O1" {print $6}' pd.opt.pdb)
+y2=$(awk '$4 == "OY1" && $3 == "O1" {print $7}' pd.opt.pdb)
+z2=$(awk '$4 == "OY1" && $3 == "O1" {print $8}' pd.opt.pdb)
 
 
 cp pd.opt.pdb pd.opt.pdb.bk
@@ -434,7 +434,7 @@ cat > cpptraj.in <<ENDOFFILE
 parm pd.prmtop
 trajin pd.opt.pdb
 reference pd.opt.pdb
-strip !(:${nt}-${ct}) outprefix std
+strip !(:${nt}-${ct}<:8.0) outprefix std
 trajout std.pdb
 run
 exit
