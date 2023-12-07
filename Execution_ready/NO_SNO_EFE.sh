@@ -12,7 +12,7 @@ then
   echo "" >> beta_edit
   cp ../hybrid.turbomole.coords .
   #######################Change sed number here to total number of atoms###############
-  sed '1,4d' hybrid.turbomole.coords | sed -n '1,65 p' | awk '{printf "%2s%16f%14f%14f\n", $1,$2*0.529177249,$3*0.529177249,$4*0.529177249}' > inpcrd
+  sed '1,4d' hybrid.turbomole.coords | sed -n '1,78 p' | awk '{printf "%2s%16f%14f%14f\n", $1,$2*0.529177249,$3*0.529177249,$4*0.529177249}' > inpcrd
   echo "" >> inpcrd
 
 ####################Change Charge and Multiplicity here#################
@@ -47,7 +47,7 @@ then
   sed '1,3d' beta | sed '$d' > beta_edit
   echo "" >> beta_edit
   cp ../hybrid.turbomole.coords .
-  sed '1,4d' hybrid.turbomole.coords | sed -n '1,65 p' | awk '{printf "%2s%16f%14f%14f\n", $1,$2*0.529177249,$3*0.529177249,$4*0.529177249}' > inpcrd
+  sed '1,4d' hybrid.turbomole.coords | sed -n '1,78 p' | awk '{printf "%2s%16f%14f%14f\n", $1,$2*0.529177249,$3*0.529177249,$4*0.529177249}' > inpcrd
   echo "" >> inpcrd
   cat > Gauss_code.txt << EOF
 %nproc=12
@@ -80,7 +80,7 @@ then
   sed '1,3d' beta | sed '$d' > beta_edit
   echo "" >> beta_edit
   cp ../hybrid.turbomole.coords .
-  sed '1,4d' hybrid.turbomole.coords | sed -n '1,65 p' | awk '{printf "%2s%16f%14f%14f\n", $1,$2*0.529177249,$3*0.529177249,$4*0.529177249}' > inpcrd
+  sed '1,4d' hybrid.turbomole.coords | sed -n '1,78 p' | awk '{printf "%2s%16f%14f%14f\n", $1,$2*0.529177249,$3*0.529177249,$4*0.529177249}' > inpcrd
   echo "" >> inpcrd
   cat > Gauss_code.txt << EOF
 %nproc=12
