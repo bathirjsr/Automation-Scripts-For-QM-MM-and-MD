@@ -20,7 +20,7 @@ then
 %nproc=12
 %mem=2gb
 %chk=RC_NO
-#ub3lyp/def2svp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
+#ub3lyp/def2tzvp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
 
 MOs
 
@@ -53,7 +53,7 @@ then
 %nproc=12
 %mem=2gb
 %chk=TS_NO
-#ub3lyp/def2svp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
+#ub3lyp/def2tzvp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
 
 MOs
 
@@ -86,7 +86,7 @@ then
 %nproc=12
 %mem=2gb
 %chk=PD_NO
-#ub3lyp/def2svp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
+#ub3lyp/def2tzvp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
 
 MOs
 
