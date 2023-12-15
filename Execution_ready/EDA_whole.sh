@@ -391,7 +391,6 @@ cd ../../../../
 for dir in *_Opt; do
     if [ -d "$dir" ]; then
         echo "Found directory: $dir"
-        cd $dir
         if  [[ $dir == *"RC"* ]] ; then
           eda rc
         elif  [[ $dir == *"TS"* ]] ; then
