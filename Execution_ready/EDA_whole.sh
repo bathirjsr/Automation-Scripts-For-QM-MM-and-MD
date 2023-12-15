@@ -35,7 +35,7 @@ ${totres} !number of total residues
 2000 !max number of types
 ${1}.opt.mdcrd
 EOF
-cp ../../../Residue_E_Decomp_07_15.x .
+cp ../../Residue_E_Decomp_07_15.x .
 ./Residue_E_Decomp_07_15.x << EOF
 EDA.inp
 ${1}.prmtop
