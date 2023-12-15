@@ -11,13 +11,7 @@ do
 esac
 done
 function eda {
-if [ "${1}" = "rc" ];then
-    cd "${dirs[i]}"/1-"${1^^}"_Opt || exit
-elif [ "${1}" = "ts" ];then
-    cd "${dirs[i]}"/3-"${1^^}"_Opt || exit
-elif [ "${1}" = "pd" ];then
-    cd "${dirs[i]}"/4-"${1^^}"_Opt || exit
-fi
+  cd "${dirs}" || exit
   mkdir EDA
   cd EDA || exit
   cp ../"${1}".opt.pdb .
@@ -288,7 +282,7 @@ done
 cd ../../../
 }
 function eda-diff {
-   cd "${dirs[i]}"/1-RC_Opt/EDA || exit
+   cd EDA || exit
    mkdir EDA-TS-RC
 cd EDA-TS-RC || exit
 if [ "$1" = "TS-RC" ]; then
@@ -391,22 +385,19 @@ Rscript rmagic-EDA-single-diffs-nostd_"${k}".r
 done
 cd ../../../../
 }
-declare -a dirs
-i=1
-for d in */
-do
-    dirs[i++]="${d%/}"
-done
-echo "There are ${#dirs[@]} dirs in the current path"
-for((i=1;i<=${#dirs[@]};i++))
-do
-  dirname=$(basename -- "${dirs[i]}")
-  dirnumber="${dirname##*Frame}"
-  echo "${dirnumber}"
-  echo "$i" "${dirs[i]}"
-  eda rc
-  eda ts
-  eda pd
-  eda-diff TS-RC
-  eda-diff PD-RC
+#!/bin/bash
+
+# Loop through directories with '_Opt' in their name
+for dir in *_Opt; do
+    if [ -d "$dir" ]; then
+        echo "Found directory: $dir"
+        cd $dir
+        if  [[ $dir == *"RC"* ]] ; then
+          eda rc
+        elif  [[ $dir == *"TS"* ]] ; then
+          eda ts
+        elif [[ $dir == *"IM"* ]] || [[ $dir == *"PD"* ]]; then
+          eda pd
+        fi
+    fi
 done
