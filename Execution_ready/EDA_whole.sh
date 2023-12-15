@@ -11,7 +11,7 @@ do
 esac
 done
 function eda {
-  cd "${dirs}" || exit
+  cd "${dir}" || exit
   mkdir EDA
   cd EDA || exit
   cp ../"${1}".opt.pdb .
