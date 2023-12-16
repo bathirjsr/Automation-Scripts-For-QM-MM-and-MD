@@ -81,7 +81,8 @@ A_tot <- "${PWD}/${1^^}_${j}_tot_avg.dat"
 ## This script will remove the matches directly surrounding ROI for you
 ## Which is good because by not being just Coul and vdW, they're too dominant
 ROI <- ${j}
-
+## How many data sets to add (use 4 after decimal)
+sets <- 1.0000
 #----------------------------------------------------------------------#
 #---------Behind the Curtain: No Need to Modify Past This Line---------#
 #----------------------------------------------------------------------#
@@ -110,11 +111,20 @@ options(scipen = 999)
 ## Reading each file as a data.table.
 ## Bonus - fread is much faster than read.csv
 read1Ac <- fread(infile1Ac, header=FALSE)
+#read2Ac <- fread(infile2Ac, header=FALSE)
+#read3Ac <- fread(infile3Ac, header=FALSE)
+#read4Ac <- fread(infile4Ac, header=FALSE)
+#read5Ac <- fread(infile5Ac, header=FALSE)
 
 colnames(read1Ac) <- c("Index", "ResidueA", "ResidueB", "Coulomb", "StdErr")
+#colnames(read2Ac) <- c("Index", "ResidueA", "ResidueB", "Coulomb", "StdErr")
+#colnames(read3Ac) <- c("Index", "ResidueA", "ResidueB", "Coulomb", "StdErr")
+#colnames(read4Ac) <- c("Index", "ResidueA", "ResidueB", "Coulomb", "StdErr")
+#colnames(read5Ac) <- c("Index", "ResidueA", "ResidueB", "Coulomb", "StdErr")
 
 ## Combine all the datasets into 1
-bound <- read1Ac
+bound <- rbind(read1Ac)
+#bound <- rbind(read1Ac, read2Ac, read3Ac, read4Ac, read5Ac)
 
 ## Add in a blank row of the match for future plotting needs
 extra <- data.frame(0, ROI, ROI, 0, 0)
@@ -127,10 +137,21 @@ bound\$ResidueB <- as.numeric(bound\$ResidueB)
 bound\$Coulomb <- as.numeric(bound\$Coulomb)
 bound\$StdErr <- as.numeric(bound\$StdErr)
 
-## Sort with that new zero row
-bound <- bound[order(ResidueB),]
+## Collapse repeat lines into themselves (i.e. add numbers together)
+superbound_avg <- aggregate(data=bound, cbind(Coulomb,StdErr)~ResidueA+ResidueB, FUN=sum)
+##superbound_sd <- aggregate(data=bound, cbind(Coulomb,StdErr)~ResidueA+ResidueB, FUN=sd)
 
-save_cols_Ac <- bound[,c("ResidueA", "ResidueB", "Coulomb")]
+## Get average based on number of sets combined [This if for 3]
+superbound_avg\$AvgCoulomb <- format(superbound_avg\$Coulomb / sets, digits=4, format="f")
+##superbound_avg\$AvgCoulombSD <- format(superbound_sd\$Coulomb / sets, digits=4, format="f")
+
+## If you for some reason care about StdErr, then you'd uncomment this
+## Yes, it's weird that StdErr has a SD, but that's just a sanity thing
+#superbound_avg\$AvgStdErr <- format(superbound_avg\$StdErr / sets, digits=4, format="f")
+#superbound_avg\$AvgStdErrSD <- format(superbound_sd\$StdErr / sets, digits=4, format="f")
+
+save_cols_Ac <- superbound_avg[,c("ResidueA", "ResidueB", "AvgCoulomb")]
+##save_cols_Ac <- superbound_avg[,c("ResidueA", "ResidueB", "AvgCoulomb", "AvgCoulombSD", "AvgStdErr", "AvgStdErrSD")]
 
 only_ROI_rows_Ac <- filter(save_cols_Ac, ResidueA == ROI | ResidueB == ROI)
 
@@ -141,16 +162,20 @@ only_ROI_rows_Ac[(ROI),4] <- 0
 clean_rows_Ac <- data.frame(only_ROI_rows_Ac)
 
 ## Pattern searching converted it to a character string, so back to numeric
-clean_rows_Ac\$Coulomb <- as.numeric(clean_rows_Ac\$Coulomb)
+clean_rows_Ac\$AvgCoulomb <- as.numeric(clean_rows_Ac\$AvgCoulomb)
+##clean_rows_Ac\$AvgCoulombSD <- as.numeric(clean_rows_Ac\$AvgCoulombSD)
 
 ## Limit to 4 sig figs after decimal
-clean_rows_Ac\$Coulomb <- formatC(clean_rows_Ac\$Coulomb, digits=4, format="f")
+clean_rows_Ac\$AvgCoulomb <- formatC(clean_rows_Ac\$AvgCoulomb, digits=4, format="f")
+##clean_rows_Ac\$AvgCoulombSD <- formatC(clean_rows_Ac\$AvgCoulombSD, digits=4, format="f")
 
 ## Set the two residues surrounding the ROI to zero
 ## This is because energy is overpowering due to other energy terms
 ## So if ROI=100, you remove matches between 99 & 100 as well as 100 & 101
 if (ROI != 1) {clean_rows_Ac[(ROI-1),3] <- 0
+clean_rows_Ac[(ROI-1),3] <- 0
 }
+clean_rows_Ac[(ROI+1),3] <- 0
 clean_rows_Ac[(ROI+1),3] <- 0
 
 #------------------------------------------------------------------------#
@@ -177,18 +202,24 @@ sink()
 ## Reading each file as a data.table.
 ## Bonus - fread is much faster than read.csv
 read1Av <- fread(infile1Av, header=FALSE)
+#read2Av <- fread(infile2Av, header=FALSE)
+#read3Av <- fread(infile3Av, header=FALSE)
+#read4Av <- fread(infile4Av, header=FALSE)
+#read5Av <- fread(infile5Av, header=FALSE)
 
 colnames(read1Av) <- c("Index", "ResidueA", "ResidueB", "VdW", "StdErr")
+#colnames(read2Av) <- c("Index", "ResidueA", "ResidueB", "VdW", "StdErr")
+#colnames(read3Av) <- c("Index", "ResidueA", "ResidueB", "VdW", "StdErr")
+#colnames(read4Av) <- c("Index", "ResidueA", "ResidueB", "VdW", "StdErr")
+#colnames(read5Av) <- c("Index", "ResidueA", "ResidueB", "VdW", "StdErr")
 
 ## Combine all the datasets into 1
-bound <- read1Av
+bound <- rbind(read1Av)
+#bound <- rbind(read1Av, read2Av, read3Av, read4Av, read5Av)
 
 ## Add in a blank row of the match for future plotting needs
 extra <- data.frame(0, ROI, ROI, 0, 0)
 bound <- rbind(bound, setNames(extra, names(read1Av)))
-
-## Sort with that new zero row
-bound <- bound[order(ResidueB),]
 
 #bound\$Index <- as.numeric(bound\$Index)
 bound\$Index <- as.numeric(bound\$Index)
@@ -197,8 +228,21 @@ bound\$ResidueB <- as.numeric(bound\$ResidueB)
 bound\$VdW <- as.numeric(bound\$VdW)
 bound\$StdErr <- as.numeric(bound\$StdErr)
 
+## Collapse repeat lines into themselves (i.e. add numbers together)
+superbound_avg <- aggregate(data=bound, cbind(VdW,StdErr)~ResidueA+ResidueB, FUN=sum)
+##superbound_sd <- aggregate(data=bound, cbind(VdW,StdErr)~ResidueA+ResidueB, FUN=sd)
 
-save_cols_Av <- bound[,c("ResidueA", "ResidueB", "VdW")]
+## Get average based on number of sets combined [This if for 3]
+superbound_avg\$AvgVdW <- format(superbound_avg\$VdW / sets, digits=4, format="f")
+##superbound_avg\$AvgVdWSD <- format(superbound_sd\$VdW / sets, digits=4, format="f")
+
+## If you for some reason care about StdErr, then you'd uncomment this
+## Yes, it's weird that StdErr has a SD, but that's just a sanity thing
+#superbound_avg\$AvgStdErr <- format(superbound_avg\$StdErr / sets, digits=4, format="f")
+##superbound_avg\$AvgStdErrSD <- format(superbound_sd\$StdErr / sets, digits=4, format="f")
+
+save_cols_Av <- superbound_avg[,c("ResidueA", "ResidueB", "AvgVdW")]
+##save_cols_Av <- superbound_avg[,c("ResidueA", "ResidueB", "AvgVdW", "AvgStdErr", "AvgStdErrSD")]
 
 only_ROI_rows_Av <- filter(save_cols_Av, ResidueA == ROI | ResidueB == ROI)
 
@@ -209,16 +253,20 @@ only_ROI_rows_Av[(ROI),4] <- 0
 clean_rows_Av <- data.frame(only_ROI_rows_Av)
 
 ## Pattern searching converted it to a character string, so back to numeric
-clean_rows_Av\$VdW <- as.numeric(clean_rows_Av\$VdW)
+clean_rows_Av\$AvgVdW <- as.numeric(clean_rows_Av\$AvgVdW)
+##clean_rows_Av\$AvgVdWSD <- as.numeric(clean_rows_Av\$AvgVdWSD)
 
 ## Limit to 4 sig figs after decimal
-clean_rows_Av\$VdW <- formatC(clean_rows_Av\$VdW, digits=4, format="f")
+clean_rows_Av\$AvgVdW <- formatC(clean_rows_Av\$AvgVdW, digits=4, format="f")
+##clean_rows_Av\$AvgVdWSD <- formatC(clean_rows_Av\$AvgVdWSD, digits=4, format="f")
 
 ## Set the two residues surrounding the ROI to zero
 ## This is because energy is overpowering due to other energy terms
 ## So if ROI=100, you remove matches between 99 & 100 as well as 100 & 101
 if (ROI != 1) {clean_rows_Av[(ROI-1),3] <- 0
+clean_rows_Av[(ROI-1),3] <- 0
 }
+clean_rows_Av[(ROI+1),3] <- 0
 clean_rows_Av[(ROI+1),3] <- 0
 
 #------------------------------------------------------------------------#
@@ -244,22 +292,29 @@ sink()
 combine_Acv = cbind(clean_rows_Ac, clean_rows_Av[,3:4])
 
 ## Formatting the rows converted it to a character string, so back to numeric again!
-combine_Acv\$Coulomb <- as.numeric(combine_Acv\$Coulomb)
-combine_Acv\$VdW <- as.numeric(combine_Acv\$VdW)
+combine_Acv\$AvgCoulomb <- as.numeric(combine_Acv\$AvgCoulomb)
+##combine_Acv\$AvgCoulombSD <- as.numeric(combine_Acv\$AvgCoulombSD)
+combine_Acv\$AvgVdW <- as.numeric(combine_Acv\$AvgVdW)
+##combine_Acv\$AvgVdWSD <- as.numeric(combine_Acv\$AvgVdWSD)
 
 ## Your data are now ResidueA ResidueB AvgCoul AvgCoulSD AvgVdW AvgVdWSD
 ## Append a column called AvgIntTot thats the sum of AvgCoul and AvgVdW
-combine_Acv\$IntTot <- (combine_Acv\$Coulomb + combine_Acv\$VdW)
+combine_Acv\$AvgIntTot <- (combine_Acv\$AvgCoulomb + combine_Acv\$AvgVdW)
+
+## Now append a column that's the avg standard deviation
+##combine_Acv\$AvgStdDev <- (combine_Acv\$AvgCoulombSD + combine_Acv\$AvgVdWSD) / 2
 
 ## Create a new variable that's just ResidueA ResidueB AvgIntTot AvgStdDev
-save_cols_tot <- combine_Acv[,c("ResidueA", "ResidueB", "IntTot")]
+save_cols_tot <- combine_Acv[,c("ResidueA", "ResidueB", "AvgIntTot")]
 
 ## Sanity Check!
 ## Set the two residues surrounding the ROI to zero
 ## This is because energy is overpowering due to other energy terms
 ## So if ROI=100, you remove matches between 99 & 100 as well as 100 & 101
 if (ROI != 1) {save_cols_tot[(ROI-1),3] <- 0
+save_cols_tot[(ROI-1),3] <- 0
 }
+save_cols_tot[(ROI+1),3] <- 0
 save_cols_tot[(ROI+1),3] <- 0
 
 #------------------------------------------------------------------------#
