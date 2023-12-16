@@ -334,7 +334,7 @@ ENDOFFILE
 Rscript rmagic-EDA-single-run_"${j}".r
 
 done
-cd ../../../
+cd ../../
 }
 function eda-diff {
    cd EDA || exit
