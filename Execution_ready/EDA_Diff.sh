@@ -11,7 +11,6 @@ read -p "TS Folder name" ts
 read -p "RC Folder name" rc
 mkdir EDA-$ts-$rc
 cd EDA-$ts-$rc || exit
-fi
 for k in ${residues}
 do
 
