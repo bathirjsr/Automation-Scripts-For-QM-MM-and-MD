@@ -31,7 +31,7 @@ infileBCV <- Sys.glob("${PWD}/../${rc}/EDA/RC_${k}_tot_avg.dat")
 #--Define your outfile names--#
 #-----------------------------#
 ## A - B
-TOTAB <- "${PWD}/$1_${k}_tot_avg.dat"
+TOTAB <- "${PWD}/TS-RC_${k}_tot_avg.dat"
 ## This is X in coul-X
 ## Y and Z are X+1 and X-1
 ## Other scripts call this the ROI
