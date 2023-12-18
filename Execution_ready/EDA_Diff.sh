@@ -236,4 +236,5 @@ print(save_cols_clean_total_CV, row.names=FALSE)
 sink()
 
 EOF
+cd ../
 done
