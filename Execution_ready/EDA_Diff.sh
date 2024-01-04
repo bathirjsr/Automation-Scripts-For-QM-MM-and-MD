@@ -103,7 +103,7 @@ Rscript rmagic-EDA-single-diffs-nostd_"${k}".r
 
 cat > Cumulative-EDA.r <<EOF
 
-base_path <- "/home/chem-adm/PhD/PHF8/PHF8-variants/TS_I191A/QM-MM/snap1/1rc-opt/EDA/EDA-TS-RC/TS-RC_"
+base_path <- "${PWD}/TS-RC_"
 
 # Define the specific parts of the file names (assuming these are the varying parts)
 file_numbers <- c(247, 249, 319, 450, 451, 452, 461)  # Add more numbers as needed
@@ -118,7 +118,7 @@ for (i in seq_along(file_numbers)) {
 #-----------------------------#
 
 ## A - B
-TOTAB <- "/home/chem-adm/PhD/PHF8/PHF8-variants/TS_I191A/QM-MM/snap1/1rc-opt/EDA/EDA-TS-RC/TS-RC_tot_avg.dat"
+TOTAB <- "${PWD}/TS-RC_tot_avg.dat"
 
 ## This is X in coul-X
 ## Y and Z are X+1 and X-1
