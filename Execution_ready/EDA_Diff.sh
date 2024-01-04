@@ -106,7 +106,7 @@ cat > Cumulative-EDA.r <<EOF
 base_path <- "${PWD}/TS-RC_"
 
 # Define the specific parts of the file names (assuming these are the varying parts)
-file_numbers <- c(247, 249, 319, 450, 451, 452, 461)  # Add more numbers as needed
+file_numbers <- c(${residues})  # Add more numbers as needed
 
 # Loop through the numbers and generate the lines
 for (i in seq_along(file_numbers)) {
