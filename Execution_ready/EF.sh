@@ -434,7 +434,7 @@ cat > cpptraj.in <<ENDOFFILE
 parm pd.prmtop
 trajin pd.opt.pdb
 reference pd.opt.pdb
-strip !(:${nt}-${ct}<:8.0) outprefix std
+strip !(:${nt}-${ct}) outprefix std
 trajout std.pdb
 run
 exit
