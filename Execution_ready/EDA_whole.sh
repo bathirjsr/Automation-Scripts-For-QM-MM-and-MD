@@ -355,7 +355,8 @@ for dir in *_Opt; do
         fi
     fi
     elif [ -n "$1" ]; then
-      if [ -d "$dir" ]; then
+      if [ -d "$1" ]; then
+      dir=$1
         echo "Found directory: $dir"
         if  [[ $dir == *"RC"* ]] ; then
           eda rc
