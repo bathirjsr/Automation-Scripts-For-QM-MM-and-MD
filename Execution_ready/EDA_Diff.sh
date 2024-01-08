@@ -8,12 +8,18 @@ do
 esac
 done
 ls
+
 read -p "TS Folder name" ts
 ts_folder="${ts%-*}${ts#*-}"
 ts_folder="${ts_folder%_*}"
 read -p "RC Folder name" rc
 rc_folder="${rc%-*}${rc#*-}"
 rc_folder="${rc_folder%_*}"
+if [[ $rc_folder == *"IM"* ]] || [[ $rc_folder == *"PD"* ]]; then
+rc_final=PD
+else
+rc_final=RC
+fi
 mkdir EDA-$ts_folder-$rc_folder
 cd EDA-$ts_folder-$rc_folder || exit
 for k in ${residues}
@@ -31,7 +37,7 @@ cat > rmagic-EDA-single-diffs-nostd_"${k}".r << ENDOFFILE
 ## Set A (system 1)
 infileACV <- Sys.glob("${PWD}/../${ts}/EDA/TS_${k}_tot_avg.dat")
 ##Set B (system 2)
-infileBCV <- Sys.glob("${PWD}/../${rc}/EDA/RC_${k}_tot_avg.dat")
+infileBCV <- Sys.glob("${PWD}/../${rc}/EDA/${rc_final}_${k}_tot_avg.dat")
 #-----------------------------#
 #--Define your outfile names--#
 #-----------------------------#
