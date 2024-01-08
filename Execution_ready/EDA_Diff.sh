@@ -9,9 +9,13 @@ esac
 done
 ls
 read -p "TS Folder name" ts
+ts_folder="${ts%-*}${ts#*-}"
+ts_folder="${ts_folder%_*}"
 read -p "RC Folder name" rc
-mkdir EDA-$ts-$rc
-cd EDA-$ts-$rc || exit
+rc_folder="${rc%-*}${rc#*-}"
+rc_folder="${rc_folder%_*}"
+mkdir EDA-$ts_folder-$rc_folder
+cd EDA-$ts_folder-$rc_folder || exit
 for k in ${residues}
 do
 
@@ -276,5 +280,7 @@ done
 
 gnuplot plot.gnu
 convert -density 300 EDA.eps EDA.png
+
+sort -n -k2 gnu.dat | head -n 5 > EDA_Res.txt && sort -n -k2 gnu.dat | tail -n 5 >> EDA_Res.txt
 done
 cd ../
