@@ -1,7 +1,8 @@
-while getopts s: flag
+while getopts r:s: flag
 do
     case "${flag}" in
-          s) residues=${OPTARG};;
+          r) residues=${OPTARG};;
+          s) sysname==${OPTARG};;
         *) echo "usage: $0 [-r]" >&2
        exit 1 ;;
 esac
@@ -102,17 +103,28 @@ ENDOFFILE
 Rscript rmagic-EDA-single-diffs-nostd_"${k}".r
 
 cat > Cumulative-EDA.r <<EOF
+## Run this with "Rscript rmagic-EDA-avg-diffs.r"
+## (Assuming you've already installed R...)
 
-base_path <- "${PWD}/TS-RC_"
+#--------------------------------------------------------------#
+#-----Specify the paths to the Files from rmagic-EDA-avg.r-----#
+#--------------------------------------------------------------#
 
-# Define the specific parts of the file names (assuming these are the varying parts)
-file_numbers <- c(${residues})  # Add more numbers as needed
+## This script has been pre-built for 2 systems that have gone through
+## rmagic-EDA-avg.r (meaning there were replicates originally)
 
-# Loop through the numbers and generate the lines
-for (i in seq_along(file_numbers)) {
-    line <- paste0("infile", i, "ACV <- Sys.glob(\"", base_path, file_numbers[i], "_tot_avg.dat\")")
-    print(line)
-}
+## Paths to the -tot- files
+## Set A (system 1)
+infile1ACV <- Sys.glob("${PWD}/TS-RC_"${residues[0]}"_tot_avg.dat")
+infile2ACV <- Sys.glob("${PWD}/TS-RC_"${residues[1]}"_tot_avg.dat")
+infile3ACV <- Sys.glob("${PWD}/TS-RC_"${residues[2]}"_tot_avg.dat")
+infile4ACV <- Sys.glob("${PWD}/TS-RC_"${residues[3]}"_tot_avg.dat")
+infile5ACV <- Sys.glob("${PWD}/TS-RC_"${residues[4]}"_tot_avg.dat")
+infile6ACV <- Sys.glob("${PWD}/TS-RC_"${residues[5]}"_tot_avg.dat")
+infile7ACV <- Sys.glob("${PWD}/TS-RC_"${residues[6]}"_tot_avg.dat")
+
+
+
 #-----------------------------#
 #--Define your outfile names--#
 #-----------------------------#
@@ -174,13 +186,13 @@ combineA6CV <- as.data.frame(combineA6CV)
 combineA7CV <- as.data.frame(combineA7CV)
 
 ## They're not numbers, so make them numbers
-combineA1CV$TotAvg <- as.numeric(as.character(combineA1CV$TotAvg))
-combineA2CV$TotAvg <- as.numeric(as.character(combineA2CV$TotAvg))
-combineA3CV$TotAvg <- as.numeric(as.character(combineA3CV$TotAvg))
-combineA4CV$TotAvg <- as.numeric(as.character(combineA4CV$TotAvg))
-combineA5CV$TotAvg <- as.numeric(as.character(combineA5CV$TotAvg))
-combineA6CV$TotAvg <- as.numeric(as.character(combineA6CV$TotAvg))
-combineA7CV$TotAvg <- as.numeric(as.character(combineA7CV$TotAvg))
+combineA1CV\$TotAvg <- as.numeric(as.character(combineA1CV\$TotAvg))
+combineA2CV\$TotAvg <- as.numeric(as.character(combineA2CV\$TotAvg))
+combineA3CV\$TotAvg <- as.numeric(as.character(combineA3CV\$TotAvg))
+combineA4CV\$TotAvg <- as.numeric(as.character(combineA4CV\$TotAvg))
+combineA5CV\$TotAvg <- as.numeric(as.character(combineA5CV\$TotAvg))
+combineA6CV\$TotAvg <- as.numeric(as.character(combineA6CV\$TotAvg))
+combineA7CV\$TotAvg <- as.numeric(as.character(combineA7CV\$TotAvg))
 
 
 ## Combine A res numbers, tot average, tot average
@@ -193,22 +205,22 @@ colnames(combineTotCV) <- c("R1", "1TotalE", "2TotalE", "3TotalE", "4TotalE", "5
 combineTotCV <- as.data.frame(combineTotCV)
 
 ## If the R1 column doesn't equal X_val, use R1. Else, use R2.
-combineTotCV$Residue <- as.numeric(as.character(combineTotCV$R1))
+combineTotCV\$Residue <- as.numeric(as.character(combineTotCV\$R1))
 
 ## They're not numbers, so make them numbers
-## combineTotCV$1TotalE <- as.numeric(as.character(combineTotCV$1TotalE))
-## combineTotCV$2TotalE <- as.numeric(as.character(combineTotCV$2TotalE))
-## combineTotCV$3TotalE <- as.numeric(as.character(combineTotCV$3TotalE))
-## combineTotCV$4TotalE <- as.numeric(as.character(combineTotCV$4TotalE))
-## combineTotCV$5TotalE <- as.numeric(as.character(combineTotCV$5TotalE))
-## combineTotCV$6TotalE <- as.numeric(as.character(combineTotCV$6TotalE))
-## combineTotCV$7TotalE <- as.numeric(as.character(combineTotCV$7TotalE))
+## combineTotCV\$1TotalE <- as.numeric(as.character(combineTotCV\$1TotalE))
+## combineTotCV\$2TotalE <- as.numeric(as.character(combineTotCV\$2TotalE))
+## combineTotCV\$3TotalE <- as.numeric(as.character(combineTotCV\$3TotalE))
+## combineTotCV\$4TotalE <- as.numeric(as.character(combineTotCV\$4TotalE))
+## combineTotCV\$5TotalE <- as.numeric(as.character(combineTotCV\$5TotalE))
+## combineTotCV\$6TotalE <- as.numeric(as.character(combineTotCV\$6TotalE))
+## combineTotCV\$7TotalE <- as.numeric(as.character(combineTotCV\$7TotalE))
 
 
 ## Multiply B * -1
 ## THIS WILL DO A - B!!
-## combineTotCV$BTotalE <- (combineTotCV$BTotalE*(-1.0000000000))
-combineTotCV$TotalDiffE <- rowSums(combineTotCV[, c("1TotalE", "2TotalE", "3TotalE", "4TotalE", "5TotalE", "6TotalE", "7TotalE")])
+## combineTotCV\$BTotalE <- (combineTotCV\$BTotalE*(-1.0000000000))
+combineTotCV\$TotalDiffE <- rowSums(combineTotCV[, c("1TotalE", "2TotalE", "3TotalE", "4TotalE", "5TotalE", "6TotalE", "7TotalE")])
 
 
 ## Create a new variable with just Residue, DiffE, and AvgSTDEV
@@ -220,7 +232,7 @@ save_cols_clean_total_CV <- format(save_cols_total_CV, digits=8)
 ## Explicitly remove the two residues matched next to the residue of interest
 ## This is because it's more than interaction energy (stuff like bond E too)
 ## (Note: | is the or operator)
-#save_cols_clean_total_CV <- save_cols_clean_total_CV[!(save_cols_clean_total_CV$Residue == as.numeric(X_val)+1 | #save_cols_clean_total_CV$Residue == as.numeric(X_val)-1),]
+#save_cols_clean_total_CV <- save_cols_clean_total_CV[!(save_cols_clean_total_CV\$Residue == as.numeric(X_val)+1 | #save_cols_clean_total_CV\$Residue == as.numeric(X_val)-1),]
 
 #---------------------------------------------------------------------#
 #--------------------------TOT OUTFILES-------------------------------#
@@ -234,7 +246,35 @@ save_cols_clean_total_CV <- format(save_cols_total_CV, digits=8)
 sink(TOTAB, type=c("output"))
 print(save_cols_clean_total_CV, row.names=FALSE)
 sink()
-
 EOF
+
+Rscript Cumulative-EDA.r
+
+cp TS-RC_tot_avg.dat gnu.dat
+sed "s/^[ \t]*//" -i gnu.dat
+
+cat > plot.gnu <<ENDOFFILE
+set encoding iso_8859_1
+#set palette defined ( 0 "red", 1 "yellow", 2 "cyan", 3 "blue", 4 "magenta")
+set terminal postscript eps enhanced color size 3in,3in 
+set xlabel "Residue Number"
+set ylabel "Energy (kcal/mol)"
+set key right top
+#set yrange [-2:2]
+#set xrange [0:552]
+#set title "EDA"
+set output "EDA.eps";
+plot "gnu.dat" u (\$1):(\$2) with impulses t "$sysname"
+ENDOFFILE
+for j in ${residues}
+
+do
+
+awk -v x=$j '$1!=x{print}' gnu.dat > tmp && mv tmp gnu.dat
+
+done
+
+gnuplot plot.gnu
+convert -density 300 EDA.eps EDA.png
 done
 cd ../
