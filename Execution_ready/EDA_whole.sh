@@ -353,7 +353,6 @@ for dir in *_Opt; do
         elif [[ $dir == *"IM"* ]] || [[ $dir == *"PD"* ]]; then
           eda pd
         fi
-    
     elif [ -n "$1" ]; then
       if [ -d "$1" ]; then
         dir=$1
@@ -365,5 +364,6 @@ for dir in *_Opt; do
         elif [[ $dir == *"IM"* ]] || [[ $dir == *"PD"* ]]; then
           eda pd
         fi
+      fi
     fi
 done
