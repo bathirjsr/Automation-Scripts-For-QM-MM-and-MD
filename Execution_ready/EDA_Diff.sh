@@ -119,13 +119,13 @@ cat > Cumulative-EDA.r <<EOF
 
 ## Paths to the -tot- files
 ## Set A (system 1)
-infile1ACV <- Sys.glob("${PWD}/TS-RC_"${residues[0]}"_tot_avg.dat")
-infile2ACV <- Sys.glob("${PWD}/TS-RC_"${residues[1]}"_tot_avg.dat")
-infile3ACV <- Sys.glob("${PWD}/TS-RC_"${residues[2]}"_tot_avg.dat")
-infile4ACV <- Sys.glob("${PWD}/TS-RC_"${residues[3]}"_tot_avg.dat")
-infile5ACV <- Sys.glob("${PWD}/TS-RC_"${residues[4]}"_tot_avg.dat")
-infile6ACV <- Sys.glob("${PWD}/TS-RC_"${residues[5]}"_tot_avg.dat")
-infile7ACV <- Sys.glob("${PWD}/TS-RC_"${residues[6]}"_tot_avg.dat")
+infile1ACV <- Sys.glob("${PWD}/TS-RC_${residues[0]}_tot_avg.dat")
+infile2ACV <- Sys.glob("${PWD}/TS-RC_${residues[1]}_tot_avg.dat")
+infile3ACV <- Sys.glob("${PWD}/TS-RC_${residues[2]}_tot_avg.dat")
+infile4ACV <- Sys.glob("${PWD}/TS-RC_${residues[3]}_tot_avg.dat")
+infile5ACV <- Sys.glob("${PWD}/TS-RC_${residues[4]}_tot_avg.dat")
+infile6ACV <- Sys.glob("${PWD}/TS-RC_${residues[5]}_tot_avg.dat")
+infile7ACV <- Sys.glob("${PWD}/TS-RC_${residues[6]}_tot_avg.dat")
 
 
 
