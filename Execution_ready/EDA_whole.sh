@@ -354,4 +354,15 @@ for dir in *_Opt; do
           eda pd
         fi
     fi
+    elif [ -n "$1" ]; then
+      if [ -d "$dir" ]; then
+        echo "Found directory: $dir"
+        if  [[ $dir == *"RC"* ]] ; then
+          eda rc
+        elif  [[ $dir == *"TS"* ]] ; then
+          eda ts
+        elif [[ $dir == *"IM"* ]] || [[ $dir == *"PD"* ]]; then
+          eda pd
+        fi
+    fi
 done
