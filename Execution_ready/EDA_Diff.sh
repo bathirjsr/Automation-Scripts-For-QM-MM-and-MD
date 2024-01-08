@@ -111,7 +111,7 @@ sink()
 ENDOFFILE
 
 Rscript rmagic-EDA-single-diffs-nostd_"${k}".r
-
+IFS=' ' read -ra residue_array <<< "$residues"
 cat > Cumulative-EDA.r <<EOF
 ## Run this with "Rscript rmagic-EDA-avg-diffs.r"
 ## (Assuming you've already installed R...)
@@ -125,13 +125,13 @@ cat > Cumulative-EDA.r <<EOF
 
 ## Paths to the -tot- files
 ## Set A (system 1)
-infile1ACV <- Sys.glob("${PWD}/TS-RC_${residues[0]}_tot_avg.dat")
-infile2ACV <- Sys.glob("${PWD}/TS-RC_${residues[1]}_tot_avg.dat")
-infile3ACV <- Sys.glob("${PWD}/TS-RC_${residues[2]}_tot_avg.dat")
-infile4ACV <- Sys.glob("${PWD}/TS-RC_${residues[3]}_tot_avg.dat")
-infile5ACV <- Sys.glob("${PWD}/TS-RC_${residues[4]}_tot_avg.dat")
-infile6ACV <- Sys.glob("${PWD}/TS-RC_${residues[5]}_tot_avg.dat")
-infile7ACV <- Sys.glob("${PWD}/TS-RC_${residues[6]}_tot_avg.dat")
+infile1ACV <- Sys.glob("${PWD}/TS-RC_${residue_array[0]}_tot_avg.dat")
+infile2ACV <- Sys.glob("${PWD}/TS-RC_${residue_array[1]}_tot_avg.dat")
+infile3ACV <- Sys.glob("${PWD}/TS-RC_${residue_array[2]}_tot_avg.dat")
+infile4ACV <- Sys.glob("${PWD}/TS-RC_${residue_array[3]}_tot_avg.dat")
+infile5ACV <- Sys.glob("${PWD}/TS-RC_${residue_array[4]}_tot_avg.dat")
+infile6ACV <- Sys.glob("${PWD}/TS-RC_${residue_array[5]}_tot_avg.dat")
+infile7ACV <- Sys.glob("${PWD}/TS-RC_${residue_array[6]}_tot_avg.dat")
 
 
 
