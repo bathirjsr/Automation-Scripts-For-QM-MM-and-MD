@@ -113,6 +113,14 @@ ENDOFFILE
 Rscript rmagic-EDA-single-diffs-nostd_"${k}".r
 
 done
+# Loop over files of the specified pattern
+for file in TS-RC_*_tot_avg.dat; do
+    # Check if the file exists and is a regular file
+    if [ -f "$file" ]; then
+        # Use sed to remove lines containing 'NA'
+        sed -i '/NA/d' "$file"
+    fi
+done
 
 IFS=' ' read -ra residue_array <<< "$residues"
 cat > Cumulative-EDA.r <<EOF
