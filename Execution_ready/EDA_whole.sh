@@ -1,11 +1,12 @@
 #!/bin/bash
 ## Execution example: ./EDA_whole -r 552 -s "276 278 356 533 534 535 546"
 ## Folder should include 3 files: rc/ts.opt.pdb rc/ts.prmtop Residue_E_Decomp_07_15.x
-while getopts r:s: flag
+while getopts r:s:o: flag
 do
     case "${flag}" in
         r) resid=${OPTARG};;
         s) residues=${OPTARG};;
+        o) one=${OPTARG};;
         *) echo "usage: $0 [-r]" >&2
        exit 1 ;;
 esac
@@ -343,9 +344,9 @@ cd ../../../../
 #!/bin/bash
 
 # Loop through directories with '_Opt' in their name
-if [ -n "$1" ]; then
-      if [ -d "$1" ]; then
-        dir=$1
+if [ -n "$one" ]; then
+      if [ -d "$one" ]; then
+        dir=$one
         echo "Found directory: $dir"
         if  [[ $dir == *"RC"* ]] ; then
           eda rc
