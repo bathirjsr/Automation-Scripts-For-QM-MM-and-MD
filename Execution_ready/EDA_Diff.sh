@@ -111,6 +111,9 @@ sink()
 ENDOFFILE
 
 Rscript rmagic-EDA-single-diffs-nostd_"${k}".r
+
+done
+
 IFS=' ' read -ra residue_array <<< "$residues"
 cat > Cumulative-EDA.r <<EOF
 ## Run this with "Rscript rmagic-EDA-avg-diffs.r"
@@ -288,5 +291,5 @@ gnuplot plot.gnu
 convert -density 300 EDA.eps EDA.png
 
 sort -n -k2 gnu.dat | head -n 5 > EDA_Res.txt && sort -n -k2 gnu.dat | tail -n 5 >> EDA_Res.txt
-done
+
 cd ../
