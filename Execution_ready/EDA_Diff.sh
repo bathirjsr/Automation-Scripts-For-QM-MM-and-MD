@@ -2,7 +2,7 @@ while getopts r:s: flag
 do
     case "${flag}" in
           r) residues=${OPTARG};;
-          s) sysname==${OPTARG};;
+          s) sysname=${OPTARG};;
         *) echo "usage: $0 [-r]" >&2
        exit 1 ;;
 esac
