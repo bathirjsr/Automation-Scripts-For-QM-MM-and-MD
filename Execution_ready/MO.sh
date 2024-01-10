@@ -1,5 +1,5 @@
 #!/bin/bash
-eiger -a > MOs.txt
+eiger > MOs.txt
 less MOs.txt 
 read -p "Enter MO range:" mo
 proper <<EOF
