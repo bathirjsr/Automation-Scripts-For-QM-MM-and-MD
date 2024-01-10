@@ -213,7 +213,7 @@ p "${surf}" w l lc rgb "red" lw 1.0 notitle, \
 
 EOF
 
-gnuplot RMS_"${parmfile}".gnucd ../
+gnuplot RMS_"${parmfile}".gnu
 
 cd ../
 }
