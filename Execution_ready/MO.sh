@@ -14,6 +14,7 @@ mkdir MO
 cp MOs.txt MO/.
 mv ./*.plt MO/
 cd MO || exit
+cp ../coord .
 for pltfile in *.plt; do
     # Extract the base name without the file extension
     basename=${pltfile%.plt}
