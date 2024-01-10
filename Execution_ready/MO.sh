@@ -13,6 +13,13 @@ echo "Converting plt to cube files"
 mkdir MO
 cp MOs.txt MO/.
 mv ./*.plt MO/
-mv plt2cub.bin MO/
 cd MO || exit
-cp ../coord .
+for pltfile in *.plt; do
+    # Extract the base name without the file extension
+    basename=${pltfile%.plt}
+
+    # Convert plt to cub using plt2cub.bin
+    plt2cub.bin $pltfile > "${basename}.cub"
+
+    echo "Converted $pltfile to ${basename}.cub"
+done
