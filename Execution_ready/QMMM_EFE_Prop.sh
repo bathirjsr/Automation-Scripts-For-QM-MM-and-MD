@@ -96,6 +96,8 @@ resname=$(zenity --entry --title="Active Site except Substrate (Eg. HD1,OY1 )")
 [[ "$?" != "0" ]] && exit 1
 substrate=$(zenity --entry --title="Substrate Residues (Eg. M3L or LAR )")
 [[ "$?" != "0" ]] && exit 1
+scs_residues=$(zenity --entry --title="SCS Residues (Eg. 171 )")
+[[ "$?" != "0" ]] && exit 1
 tleapinput=$(zenity --file-selection --file-filter=*tleap.in --title="Tleap Input file (Eg. 3avr_tleap.in )")
 [[ "$?" != "0" ]] && exit 1
 parsefile=$(zenity --file-selection --file-filter=*.tcl --title="Parse_amber File")
@@ -119,6 +121,7 @@ echo "parm=""${parm}"
 echo "trajin=""${trajin}"
 echo "resname=""${resname}"
 echo "substrate=""${substrate}"
+echo "scs_residues=""${scs_residues}"
 echo "tleapinput=""${tleapinput}"
 echo "parsefile=""${parsefile}"
 echo "numberofres=""${numberofres}"
@@ -133,6 +136,7 @@ echo "parm=""${parm}"
 echo "trajin=""${trajin}"
 echo "resname=""\"${resname}\""
 echo "substrate=""${substrate}"
+echo "scs_residues=""\"${scs_residues}\""
 echo "tleapinput=""${tleapinput}"
 echo "parsefile=$(pwd)/parse_amber.tcl"
 echo "numberofres=""${numberofres}"
@@ -217,13 +221,13 @@ sed -i "9s/1/0/" rc_"${frame}".prmtop
 echo "Creating QMMM Model"
 cat > QM_MM_"${frame}".tcl <<ENDOFFILE
 mol load pdb rc_${frame}.pdb
-atomselect top "same residue as (within 8 of (resname $resname $substrate))"
+atomselect top "same residue as (within 8 of (resname $resname $substrate or resid $scs_residues))"
 atomselect0 num
 atomselect0 writepdb MM_${frame}.pdb
 set myfile [open mm_${frame}.txt w]
 puts \$myfile [atomselect0 list]
 close \$myfile
-atomselect top "(resname $resname and not backbone and not type HA H) or (resname $substrate)"
+atomselect top "((resname $resname or resid $scs_residues) and not backbone and not type HA H) or (resname $substrate)"
 atomselect1 num
 atomselect1 writepdb QM_${frame}.pdb
 atomselect1 writexyz QM_${frame}.xyz
@@ -236,6 +240,7 @@ ENDOFFILE
 echo "Using rc.pdb"
 echo "Using Residues:${resname}"
 echo "Using Substrate:${substrate}"
+echo "Using SCS Residues:${scs_residues}"
 
 vmd -dispdev text -e QM_MM_"${frame}".tcl
 
@@ -261,6 +266,10 @@ EOF
 for x in ${resname} ${substrate} ;
 do
 awk -v i="${x}" '$4==i {resname=$4;resid=$5} END{print resname resid}' rc_"${frame}".pdb >> residues_"${frame}".dat
+done
+for y in ${scs_residues} ;
+do
+awk -v i="${y}" '$5==i {resname=$4;resid=$5} END{print resname resid}' rc_"${frame}".pdb >> residues_"${frame}".dat
 done
 myresidues=$(awk 'BEGIN { ORS = " " } { print }' residues_"${frame}".dat )
 echo "myresidues=""\"${myresidues}\"" >> input.in
@@ -746,7 +755,7 @@ set B $B
 set C $C
 set D $D
 
-set stepnum 50
+set stepnum 40
 set incr -0.1
 
 set r1 [interatomic_distance coords=scan_0.c i=\$A j=\$B]
