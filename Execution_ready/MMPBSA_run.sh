@@ -49,6 +49,7 @@ Input file for running PB and GB
 /
 &gb
   igb=5, saltcon=0.100,
+  decomposition=1, print_res="$complex",
 /
 &pb
   istrng=0.100,radiopt=0
