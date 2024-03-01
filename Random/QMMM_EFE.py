@@ -8,40 +8,41 @@ class QMMMApplication(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="QMMM Setup")
         self.set_border_width(10)
-        self.set_default_size(400, 200)  # Set initial size
+        self.set_default_size(400, 300)  # Adjusted for visibility
 
-        # Use a scrolled window to make the content dynamically adjust to the size of the window
+        # Create a scrolled window
         scrolled_window = Gtk.ScrolledWindow()
         scrolled_window.set_hexpand(True)
         scrolled_window.set_vexpand(True)
         self.add(scrolled_window)
 
-        # Create a grid to place inside the scrolled window
+        # Create a grid inside the scrolled window
         grid = Gtk.Grid()
-        grid.set_column_homogeneous(True)
-        grid.set_row_homogeneous(True)
+        grid.set_column_spacing(10)  # Add some spacing for readability
         scrolled_window.add(grid)
 
-        # Define widgets and add them to the grid
-        self.entries = {}
+        # Define which fields require a browse button
         browse_fields = ['parm', 'trajin', 'tleapinput', 'parsefile']
-        input_fields = ['parm', 'trajin', 'active', 'substrate', 'tleapinput', 'parsefile', 'numberofres', 'frame', 'basis', 'charge', 'unp', 'nodes']
-        placeholders = {
+
+        # Define all input fields and their placeholder texts
+        input_fields = {
             'parm': 'Select Parameter File',
             'trajin': 'Select Trajectory File',
-            'active': 'Active Site except Substrate (Eg. HD1 OY1 )',
-            'substrate': 'Substrate Residues (Eg. M3L or LAR )',
-            'tleapinput' : 'Select tleap File from MCPB',
-            'parsefile' : 'Select Parse_amber File',
-            'numberofres' : 'Total number of residues(Eg. 1-552)',
-            'frame' : 'Enter the Frame Number to be used',
-            'basis' : 'Enter Basis set(Eg. def2-SVP)',
-            'charge' : 'Enter Charge of the System',
-            'unp' : 'Number of unpaired electrons',
-            'nodes' : 'Number of processors to use',
+            'resname': 'Active Site except Substrate (E.g., HD1, OY1)',
+            'substrate': 'Substrate Residues (E.g., M3L or LAR)',
+            'tleapinput': 'tleap Input File',
+            'parsefile': 'Parse_amber File',
+            'numberofres': 'Range of Residues (E.g., 1-552)',
+            'frame': 'Frame Number',
+            'basis': 'Basis Set (E.g., def2-SVP)',
+            'charge': 'Total Charge of the QM Region',
+            'unp': 'Number of Unpaired Electrons',
+            'nodes': 'Number of CPUs',
         }
 
-        for i, field in enumerate(input_fields):
+        # Create widgets for each input field
+        self.entries = {}
+        for i, (field, placeholder) in enumerate(input_fields.items()):
             label = Gtk.Label(label=field.capitalize())
             entry = Gtk.Entry()
             entry.set_placeholder_text(placeholder)
@@ -55,10 +56,10 @@ class QMMMApplication(Gtk.Window):
                 button.connect("clicked", self.on_browse_clicked, field)
                 grid.attach(button, 2, i, 1, 1)
 
-
+        # Add a submit button at the end
         submit_button = Gtk.Button(label="Submit")
         submit_button.connect("clicked", self.on_submit_clicked)
-        grid.attach(submit_button, 0, len(input_fields), 3, 1)
+        grid.attach(submit_button, 0, len(input_fields) + 1, 3, 1)
 
     def on_browse_clicked(self, widget, field):
         dialog = Gtk.FileChooserDialog(title="Please choose a file", parent=self, action=Gtk.FileChooserAction.OPEN)
@@ -70,7 +71,7 @@ class QMMMApplication(Gtk.Window):
         dialog.destroy()
 
     def on_submit_clicked(self, widget):
-        # Placeholder for actual operations
+        # Collect and print values for demonstration
         print({field: entry.get_text() for field, entry in self.entries.items()})
         Gtk.main_quit()
 
