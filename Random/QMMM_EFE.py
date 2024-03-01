@@ -24,6 +24,7 @@ class QMMMApplication(Gtk.Window):
 
         # Define widgets and add them to the grid
         self.entries = {}
+        browse_fields = ['parm', 'trajin', 'tleapinput', 'parsefile']
         input_fields = ['parm', 'trajin', 'active', 'substrate', 'tleapinput', 'parsefile', 'numberofres', 'frame', 'basis', 'charge', 'unp', 'nodes']
         placeholders = {
             'parm': 'Select Parameter File',
@@ -41,16 +42,19 @@ class QMMMApplication(Gtk.Window):
         }
 
         for i, field in enumerate(input_fields):
-            label = Gtk.Label(label=field.capitalize())
+             label = Gtk.Label(label=field.capitalize())
             entry = Gtk.Entry()
-            # Set placeholder text if defined
-            entry.set_placeholder_text(placeholders.get(field, "Enter value"))
-            button = Gtk.Button(label="Browse")
-            button.connect("clicked", self.on_browse_clicked, field)
+            entry.set_placeholder_text(placeholder)
             self.entries[field] = entry
             grid.attach(label, 0, i, 1, 1)
             grid.attach(entry, 1, i, 1, 1)
-            grid.attach(button, 2, i, 1, 1)
+
+            # Conditionally add a browse button
+            if field in browse_fields:
+                button = Gtk.Button(label="Browse")
+                button.connect("clicked", self.on_browse_clicked, field)
+                grid.attach(button, 2, i, 1, 1)
+
 
         submit_button = Gtk.Button(label="Submit")
         submit_button.connect("clicked", self.on_submit_clicked)
