@@ -59,6 +59,71 @@ Steps of QMMM Calculations (Execution Folder given in Brackets)
 args = parser.parse_args()
 
 # Use the parsed arguments
-print(f"Input file: {args.input}")
-print(f"Step number: {args.step}")
+#print(f"Input file: {args.input}")
+#print(f"Step number: {args.step}")
+
+
+
+
 # Continue for other arguments as needed
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
+class QMMMDialog(Gtk.Window):
+    def __init__(self):
+        Gtk.Window.__init__(self, title="QMMM File Selections")
+        self.set_border_width(10)
+
+        # Creating a VBox layout to stack widgets vertically
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.add(vbox)
+
+        # Button for Parameter File selection
+        self.parm_button = Gtk.Button(label="Select Parameter File")
+        self.parm_button.connect("clicked", self.on_file_clicked, "parm")
+        vbox.pack_start(self.parm_button, True, True, 0)
+
+        # ... Add other buttons and entries similarly ...
+
+        # Text entry for charge
+        self.charge_entry = Gtk.Entry()
+        self.charge_entry.set_text("Total charge of the QM region")
+        vbox.pack_start(self.charge_entry, True, True, 0)
+
+        # Submit button
+        self.submit_button = Gtk.Button(label="Submit")
+        self.submit_button.connect("clicked", self.on_submit_clicked)
+        vbox.pack_start(self.submit_button, True, True, 0)
+
+    def on_file_clicked(self, widget, data):
+        dialog = Gtk.FileChooserDialog(
+            title="Please choose a file", parent=self, action=Gtk.FileChooserAction.OPEN
+        )
+        dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+
+        # Adding file filters can be done here based on the 'data' parameter to customize per file type
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print(f"File selected: {dialog.get_filename()}")
+        elif response == Gtk.ResponseType.CANCEL:
+            print("No file selected")
+
+        dialog.destroy()
+
+    def on_submit_clicked(self, widget):
+        print(f"Charge: {self.charge_entry.get_text()}")
+        # You can retrieve other entries' values similarly and proceed with your logic
+
+        # Close the window/application
+        Gtk.main_quit()
+
+def main():
+    win = QMMMDialog()
+    win.connect("destroy", Gtk.main_quit)
+    win.show_all()
+    Gtk.main()
+
+if __name__ == "__main__":
+    main()
