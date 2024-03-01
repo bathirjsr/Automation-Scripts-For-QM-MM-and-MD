@@ -140,4 +140,18 @@ class QMMMDialog(Gtk.Window):
         # Example of accessing one of the entries and files chosen
         print(f"Active Site Residues: {self.resname_entry.get_text()}")
         if hasattr(self, 'parm'):
-    
+            print(f"Parameter File: {self.parm}")
+        # Add similar lines to access and print other attributes
+
+        # Here you would add your logic to use the collected data
+
+        Gtk.main_quit()
+
+def main():
+    win = QMMMDialog()
+    win.connect("destroy", Gtk.main_quit)
+    win.show_all()
+    Gtk.main()
+
+if __name__ == "__main__":
+    main()
