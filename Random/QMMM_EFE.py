@@ -72,58 +72,72 @@ from gi.repository import Gtk
 
 class QMMMDialog(Gtk.Window):
     def __init__(self):
-        Gtk.Window.__init__(self, title="QMMM File Selections")
+        Gtk.Window.__init__(self, title="QMMM File and Data Selections")
         self.set_border_width(10)
+        self.set_size_request(400, 600)
 
-        # Creating a VBox layout to stack widgets vertically
-        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        # Vertical box to hold widgets
+        vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         self.add(vbox)
 
-        # Button for Parameter File selection
-        self.parm_button = Gtk.Button(label="Select Parameter File")
-        self.parm_button.connect("clicked", self.on_file_clicked, "parm")
-        vbox.pack_start(self.parm_button, True, True, 0)
+        # Parameter File
+        self.create_file_chooser_button(vbox, "Select Parameter File (*.prmtop)", "*.prmtop", "parm")
+        # Trajectory File
+        self.create_file_chooser_button(vbox, "Select Trajectory File (*.nc)", "*.nc", "trajin")
+        # tleap Input File
+        self.create_file_chooser_button(vbox, "Select tleap Input File (*.in)", "*tleap.in", "tleapinput")
+        # Parse_amber File
+        self.create_file_chooser_button(vbox, "Select Parse_amber File (*.tcl)", "*.tcl", "parsefile")
 
-        # ... Add other buttons and entries similarly ...
-
-        # Text entry for charge
-        self.charge_entry = Gtk.Entry()
-        self.charge_entry.set_text("Total charge of the QM region")
-        vbox.pack_start(self.charge_entry, True, True, 0)
+        # Active Site Residues
+        self.create_text_entry(vbox, "Active Site except Substrate (Eg. HD1,OY1 )", "resname")
+        # Substrate Residues
+        self.create_text_entry(vbox, "Substrate Residues (Eg. M3L or LAR )", "substrate")
+        # Range of Residues
+        self.create_text_entry(vbox, "Range of Residues (Eg. 1-552)", "numberofres")
+        # Frame Number
+        self.create_text_entry(vbox, "Frame Number", "frame")
+        # Basis Set
+        self.create_text_entry(vbox, "Basis Set (Eg. def2-SVP)", "basis")
+        # Total Charge
+        self.create_text_entry(vbox, "Total Charge of the QM Region", "charge")
+        # Number of Unpaired Electrons
+        self.create_text_entry(vbox, "Number of Unpaired Electrons", "unp")
+        # Number of CPUs
+        self.create_text_entry(vbox, "Number of CPUs", "nodes")
 
         # Submit button
-        self.submit_button = Gtk.Button(label="Submit")
-        self.submit_button.connect("clicked", self.on_submit_clicked)
-        vbox.pack_start(self.submit_button, True, True, 0)
+        submit_button = Gtk.Button(label="Submit")
+        submit_button.connect("clicked", self.on_submit_clicked)
+        vbox.pack_start(submit_button, True, True, 0)
 
-    def on_file_clicked(self, widget, data):
-        dialog = Gtk.FileChooserDialog(
-            title="Please choose a file", parent=self, action=Gtk.FileChooserAction.OPEN
-        )
+    def create_file_chooser_button(self, vbox, button_label, file_filter_pattern, data):
+        button = Gtk.Button(label=button_label)
+        button.connect("clicked", self.on_file_clicked, file_filter_pattern, data)
+        vbox.pack_start(button, True, True, 0)
+
+    def create_text_entry(self, vbox, placeholder_text, data):
+        entry = Gtk.Entry()
+        entry.set_placeholder_text(placeholder_text)
+        vbox.pack_start(entry, True, True, 0)
+        setattr(self, data + '_entry', entry)
+
+    def on_file_clicked(self, widget, file_filter_pattern, data):
+        dialog = Gtk.FileChooserDialog(title="Please choose a file", parent=self, action=Gtk.FileChooserAction.OPEN)
         dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
-        # Adding file filters can be done here based on the 'data' parameter to customize per file type
+        file_filter = Gtk.FileFilter()
+        file_filter.add_pattern(file_filter_pattern)
+        dialog.add_filter(file_filter)
 
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
-            print(f"File selected: {dialog.get_filename()}")
-        elif response == Gtk.ResponseType.CANCEL:
-            print("No file selected")
-
+            print(f"{data} selected: {dialog.get_filename()}")
+            setattr(self, data, dialog.get_filename())
         dialog.destroy()
 
     def on_submit_clicked(self, widget):
-        print(f"Charge: {self.charge_entry.get_text()}")
-        # You can retrieve other entries' values similarly and proceed with your logic
-
-        # Close the window/application
-        Gtk.main_quit()
-
-def main():
-    win = QMMMDialog()
-    win.connect("destroy", Gtk.main_quit)
-    win.show_all()
-    Gtk.main()
-
-if __name__ == "__main__":
-    main()
+        # Example of accessing one of the entries and files chosen
+        print(f"Active Site Residues: {self.resname_entry.get_text()}")
+        if hasattr(self, 'parm'):
+    
