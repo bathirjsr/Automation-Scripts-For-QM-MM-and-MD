@@ -1,39 +1,41 @@
 import gi
-import os
-import subprocess
-import sys
-
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from gi.repository import Gtk
 
 class QMMMApplication(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="QMMM Setup")
         self.set_border_width(10)
+        self.set_default_size(400, 200)  # Set initial size
 
+        # Use a scrolled window to make the content dynamically adjust to the size of the window
+        scrolled_window = Gtk.ScrolledWindow()
+        scrolled_window.set_hexpand(True)
+        scrolled_window.set_vexpand(True)
+        self.add(scrolled_window)
+
+        # Create a grid to place inside the scrolled window
         grid = Gtk.Grid()
-        self.add(grid)
+        grid.set_column_homogeneous(True)
+        grid.set_row_homogeneous(True)
+        scrolled_window.add(grid)
 
-        # Define widgets and add them to the grid with placeholder texts
+        # Define widgets and add them to the grid
         self.entries = {}
-        input_fields = {
-            'parm': 'Path to parameter file (e.g., solv.prmtop)',
-            'trajin': 'Path to trajectory file (e.g., trajectory.nc)',
-            'resname': 'Active site except substrate (e.g., HD1, OY1)',
-            'substrate': 'Substrate residues (e.g., M3L or LAR)',
-            'tleapinput': 'Tleap input file path (e.g., tleap.in)',
-            'parsefile': 'Parse_amber TCL file path',
-            'numberofres': 'Range of residues (e.g., 1-552)',
-            'frame': 'Frame number',
-            'basis': 'Basis set (e.g., def2-SVP)',
-            'charge': 'Total charge of the QM region',
-            'unp': 'Number of unpaired electrons',
-            'nodes': 'Number of CPUs',
+        input_fields = ['parm', 'trajin', 'resname', 'substrate', 'tleapinput', 'parsefile', 'numberofres', 'frame', 'basis', 'charge', 'unp', 'nodes']
+        placeholders = {
+            'parm': 'Select Parameter File',
+            'trajin': 'Select Trajectory File',
+            'resname': 'Active Site except Substrate (Eg. HD1,OY1 )',
+            'substrate': 'Substrate Residues (Eg. M3L or LAR )',
+            # Add other placeholders as needed
         }
-        for i, (field, placeholder) in enumerate(input_fields.items()):
+
+        for i, field in enumerate(input_fields):
             label = Gtk.Label(label=field.capitalize())
             entry = Gtk.Entry()
-            entry.set_placeholder_text(placeholder)  # Set placeholder text
+            # Set placeholder text if defined
+            entry.set_placeholder_text(placeholders.get(field, "Enter value"))
             button = Gtk.Button(label="Browse")
             button.connect("clicked", self.on_browse_clicked, field)
             self.entries[field] = entry
@@ -43,9 +45,7 @@ class QMMMApplication(Gtk.Window):
 
         submit_button = Gtk.Button(label="Submit")
         submit_button.connect("clicked", self.on_submit_clicked)
-        grid.attach_next_to(submit_button, label, Gtk.PositionType.BOTTOM, 3, 1)
-
-        self.connect("destroy", Gtk.main_quit)
+        grid.attach(submit_button, 0, len(input_fields), 3, 1)
 
     def on_browse_clicked(self, widget, field):
         dialog = Gtk.FileChooserDialog(title="Please choose a file", parent=self, action=Gtk.FileChooserAction.OPEN)
@@ -57,15 +57,13 @@ class QMMMApplication(Gtk.Window):
         dialog.destroy()
 
     def on_submit_clicked(self, widget):
-        # Collect values from entries
-        values = {field: entry.get_text() for field, entry in self.entries.items()}
-        print(values)  # Placeholder for actual operations
+        # Placeholder for actual operations
+        print({field: entry.get_text() for field, entry in self.entries.items()})
         Gtk.main_quit()
-
-        # Here you would add the logic for file operations and external process executions
 
 def main():
     win = QMMMApplication()
+    win.connect("destroy", Gtk.main_quit)
     win.show_all()
     Gtk.main()
 
