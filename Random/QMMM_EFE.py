@@ -18,7 +18,7 @@ class QMMMApplication(Gtk.Window):
 
         # Create a grid inside the scrolled window
         grid = Gtk.Grid()
-        grid.set_column_spacing(10)  # Add some spacing for readability
+        #grid.set_column_spacing(10)  # Add some spacing for readability
         scrolled_window.add(grid)
 
         # Define which fields require a browse button
