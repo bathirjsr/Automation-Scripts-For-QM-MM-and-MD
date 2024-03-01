@@ -1,3 +1,5 @@
+import sys
+import subprocess
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -5,7 +7,7 @@ from gi.repository import Gtk
 class QMMMApplication(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="QMMM Setup")
-        self.set_border_width(10)
+        self.set_border_width(100)
         self.set_default_size(400, 200)  # Set initial size
 
         # Use a scrolled window to make the content dynamically adjust to the size of the window
@@ -22,13 +24,20 @@ class QMMMApplication(Gtk.Window):
 
         # Define widgets and add them to the grid
         self.entries = {}
-        input_fields = ['parm', 'trajin', 'resname', 'substrate', 'tleapinput', 'parsefile', 'numberofres', 'frame', 'basis', 'charge', 'unp', 'nodes']
+        input_fields = ['parm', 'trajin', 'active', 'substrate', 'tleapinput', 'parsefile', 'numberofres', 'frame', 'basis', 'charge', 'unp', 'nodes']
         placeholders = {
             'parm': 'Select Parameter File',
             'trajin': 'Select Trajectory File',
-            'resname': 'Active Site except Substrate (Eg. HD1,OY1 )',
+            'active': 'Active Site except Substrate (Eg. HD1 OY1 )',
             'substrate': 'Substrate Residues (Eg. M3L or LAR )',
-            # Add other placeholders as needed
+            'tleapinput' : 'Select tleap File from MCPB',
+            'parsefile' : 'Select Parse_amber File',
+            'numberofres' : 'Total number of residues(Eg. 1-552)',
+            'frame' : 'Enter the Frame Number to be used',
+            'basis' : 'Enter Basis set(Eg. def2-SVP)',
+            'charge' : 'Enter Charge of the System',
+            'unp' : 'Number of unpaired electrons',
+            'nodes' : 'Number of processors to use',
         }
 
         for i, field in enumerate(input_fields):
