@@ -14,12 +14,26 @@ class QMMMApplication(Gtk.Window):
         grid = Gtk.Grid()
         self.add(grid)
 
-        # Define widgets and add them to the grid
+        # Define widgets and add them to the grid with placeholder texts
         self.entries = {}
-        input_fields = ['parm', 'trajin', 'resname', 'substrate', 'tleapinput', 'parsefile', 'numberofres', 'frame', 'basis', 'charge', 'unp', 'nodes']
-        for i, field in enumerate(input_fields):
+        input_fields = {
+            'parm': 'Path to parameter file (e.g., solv.prmtop)',
+            'trajin': 'Path to trajectory file (e.g., trajectory.nc)',
+            'resname': 'Active site except substrate (e.g., HD1, OY1)',
+            'substrate': 'Substrate residues (e.g., M3L or LAR)',
+            'tleapinput': 'Tleap input file path (e.g., tleap.in)',
+            'parsefile': 'Parse_amber TCL file path',
+            'numberofres': 'Range of residues (e.g., 1-552)',
+            'frame': 'Frame number',
+            'basis': 'Basis set (e.g., def2-SVP)',
+            'charge': 'Total charge of the QM region',
+            'unp': 'Number of unpaired electrons',
+            'nodes': 'Number of CPUs',
+        }
+        for i, (field, placeholder) in enumerate(input_fields.items()):
             label = Gtk.Label(label=field.capitalize())
             entry = Gtk.Entry()
+            entry.set_placeholder_text(placeholder)  # Set placeholder text
             button = Gtk.Button(label="Browse")
             button.connect("clicked", self.on_browse_clicked, field)
             self.entries[field] = entry
