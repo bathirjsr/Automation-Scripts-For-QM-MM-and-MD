@@ -42,7 +42,7 @@ class QMMMApplication(Gtk.Window):
         }
 
         for i, field in enumerate(input_fields):
-             label = Gtk.Label(label=field.capitalize())
+            label = Gtk.Label(label=field.capitalize())
             entry = Gtk.Entry()
             entry.set_placeholder_text(placeholder)
             self.entries[field] = entry
