@@ -7,7 +7,7 @@ from gi.repository import Gtk
 class QMMMApplication(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="QMMM Setup")
-        self.set_border_width(100)
+        self.set_border_width(10)
         self.set_default_size(400, 200)  # Set initial size
 
         # Use a scrolled window to make the content dynamically adjust to the size of the window
