@@ -195,6 +195,7 @@ cat ReactionComplex_"${frame}".in
 
 #CREATING RC COMPLEX FILES
 nohup cpptraj -i ReactionComplex_"${frame}".in > ReactionComplex_"${frame}".out &
+sleep 5
 wait $!
 if grep -q "Error" ReactionComplex_"${frame}".out; then
     echo "Cpptraj Error"
