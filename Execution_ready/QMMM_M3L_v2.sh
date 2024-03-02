@@ -198,10 +198,11 @@ nohup cpptraj -i ReactionComplex_"${frame}".in > ReactionComplex_"${frame}".out 
 sleep 5
 wait $!
 if grep -q "RUN END" ReactionComplex_"${frame}".out; then
-    echo "Cpptraj Error"
-    exit 1
+    echo "Proceeds"
+    
 else
-    echo "Generated Frame PDB"
+    echo "Cpptraj Error "
+    exit 1
 fi
 
 cp stripped12."${system}".prmtop rc_"${frame}".prmtop
