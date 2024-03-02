@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import sys
 import subprocess
 import gi
@@ -28,16 +29,16 @@ class QMMMApplication(Gtk.Window):
         input_fields = {
             'parm': 'Select Parameter File',
             'trajin': 'Select Trajectory File',
-            'resname': 'Active Site except Substrate (E.g., HD1, OY1)',
-            'substrate': 'Substrate Residues (E.g., M3L or LAR)',
             'tleapinput': 'tleap Input File',
             'parsefile': 'Parse_amber File',
+            'active': 'Active Site except Substrate (E.g., HD1, OY1)',
+            'substrate': 'Substrate Residues (E.g., M3L or NMA or ADG)',
             'numberofres': 'Range of Residues (E.g., 1-552)',
-            'frame': 'Frame Number',
-            'basis': 'Basis Set (E.g., def2-SVP)',
+            'frame': 'Select Frame Number',
+            'basis': 'Select Basis Set (E.g., def2-SVP)',
             'charge': 'Total Charge of the QM Region',
             'unp': 'Number of Unpaired Electrons',
-            'nodes': 'Number of CPUs',
+            'nodes': 'Number of Processors to be used',
         }
 
         # Create widgets for each input field

@@ -195,13 +195,12 @@ cat ReactionComplex_"${frame}".in
 
 #CREATING RC COMPLEX FILES
 nohup cpptraj -i ReactionComplex_"${frame}".in > ReactionComplex_"${frame}".out &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Error" ReactionComplex_"${frame}".out)" -ge 1 ]; then
-                echo "Cpptraj Error"
-                exit
-        else
-                echo "Generated Frame PDB"
+wait $!
+if grep -q "Error" ReactionComplex_"${frame}".out; then
+    echo "Cpptraj Error"
+    exit 1
+else
+    echo "Generated Frame PDB"
 fi
 
 cp stripped12."${system}".prmtop rc_"${frame}".prmtop
