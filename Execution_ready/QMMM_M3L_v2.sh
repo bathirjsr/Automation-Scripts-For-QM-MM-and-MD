@@ -197,7 +197,7 @@ cat ReactionComplex_"${frame}".in
 nohup cpptraj -i ReactionComplex_"${frame}".in > ReactionComplex_"${frame}".out &
 sleep 5
 wait $!
-if grep -q "Error" ReactionComplex_"${frame}".out; then
+if grep -q "RUN END" ReactionComplex_"${frame}".out; then
     echo "Cpptraj Error"
     exit 1
 else
