@@ -255,6 +255,7 @@ awk '{ if ($4 == "CY1") {print gensub (/[^[:blank:]]+/, "CYM", 4)} else {print $
 awk '{ if ($4 == "CY2") {print gensub (/[^[:blank:]]+/, "CYM", 4)} else {print $0}}' std.pdb > tmp && mv tmp std.pdb
 awk '{ if ($4 == "HE1") {print gensub (/[^[:blank:]]+/, "HIE", 4)} else {print $0}}' std.pdb > tmp && mv tmp std.pdb
 awk '{ if ($4 == "GU1") {print gensub (/[^[:blank:]]+/, "GLU", 4)} else {print $0}}' std.pdb > tmp && mv tmp std.pdb
+awk '{ if ($4 == "ADG") {print gensub (/[^[:blank:]]+/, "ARG", 4)} else {print $0}}' std.pdb > tmp && mv tmp std.pdb
 awk '{ if ($4 == "CYM" && $3 == "HN") {print gensub (/[^[:blank:]]+/, "H\ ", 3)} else {print $0}}' std.pdb > tmp && mv tmp std.pdb
 
 
