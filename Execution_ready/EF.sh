@@ -10,7 +10,7 @@
 ## Residue number in cpptraj stripping command
 ## Names of non-standard amino acid names and their correct standard amino acid names
 
-while getopts n:c:s: flag
+while getopts n:c:s:s2: flag
 do
     case "${flag}" in
         n) nt=${OPTARG};;
