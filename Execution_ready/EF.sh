@@ -597,6 +597,7 @@ ENDOFFILE
 
 titan.py TITAN_QUANTIFICATION_PDB.inp
 
+fi
 elif [ "$step" = "TS" ]; then
 
 mkdir EF
