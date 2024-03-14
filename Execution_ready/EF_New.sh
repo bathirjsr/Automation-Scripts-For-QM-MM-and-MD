@@ -22,8 +22,7 @@ z1=$(awk '$4 == "FE1" && $3 == "FE" {print $8}' "${step,,}".opt.pdb)
 x2=$(awk '$4 == "OY1" && $3 == "O1" {print $6}' "${step,,}".opt.pdb)
 y2=$(awk '$4 == "OY1" && $3 == "O1" {print $7}' "${step,,}".opt.pdb)
 z2=$(awk '$4 == "OY1" && $3 == "O1" {print $8}' "${step,,}".opt.pdb)
-elif 
-if [ "$combo" = "Op-C1" ]; then
+elif [ "$combo" = "Op-C1" ]; then
 mkdir EF_${combo}
 cp "${step,,}".opt.pdb EF_${combo}/.
 cp "${step,,}".prmtop EF_${combo}/.
@@ -59,6 +58,7 @@ z1=$(awk '$4 == "AG1" && $3 == "C1" {print $8}' "${step,,}".opt.pdb)
 x2=$(awk '$4 == "AG1" && $3 == "C2" {print $6}' "${step,,}".opt.pdb)
 y2=$(awk '$4 == "AG1" && $3 == "C2" {print $7}' "${step,,}".opt.pdb)
 z2=$(awk '$4 == "AG1" && $3 == "C2" {print $8}' "${step,,}".opt.pdb)
+
 fi
 cp "${step,,}".opt.pdb "${step,,}".opt.pdb.bk
 
