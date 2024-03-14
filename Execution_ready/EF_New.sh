@@ -51,13 +51,13 @@ elif [ "$combo" = "C1-C2" ]; then
     cp ${step,,}.opt.pdb EF_${combo}/.
     cp ${step,,}.prmtop EF_${combo}/.
     cd EF_${combo} || exit
-    x1=$(awk '$4 == "AG1" && $3 == "C1" {print $6}' ${step,,}.opt.pdb)
-    y1=$(awk '$4 == "AG1" && $3 == "C1" {print $7}' ${step,,}.opt.pdb)
-    z1=$(awk '$4 == "AG1" && $3 == "C1" {print $8}' ${step,,}.opt.pdb)
+    x1=$(awk '$4 == "AG1" && $3 == "C2" {print $6}' ${step,,}.opt.pdb)
+    y1=$(awk '$4 == "AG1" && $3 == "C2" {print $7}' ${step,,}.opt.pdb)
+    z1=$(awk '$4 == "AG1" && $3 == "C2" {print $8}' ${step,,}.opt.pdb)
 
-    x2=$(awk '$4 == "AG1" && $3 == "C2" {print $6}' ${step,,}.opt.pdb)
-    y2=$(awk '$4 == "AG1" && $3 == "C2" {print $7}' ${step,,}.opt.pdb)
-    z2=$(awk '$4 == "AG1" && $3 == "C2" {print $8}' ${step,,}.opt.pdb)
+    x2=$(awk '$4 == "AG1" && $3 == "C1" {print $6}' ${step,,}.opt.pdb)
+    y2=$(awk '$4 == "AG1" && $3 == "C1" {print $7}' ${step,,}.opt.pdb)
+    z2=$(awk '$4 == "AG1" && $3 == "C1" {print $8}' ${step,,}.opt.pdb)
 
 fi
 cp ${step,,}.opt.pdb ${step,,}.opt.pdb.bk
