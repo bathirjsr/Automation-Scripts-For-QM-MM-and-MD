@@ -10,13 +10,13 @@
 ## Residue number in cpptraj stripping command
 ## Names of non-standard amino acid names and their correct standard amino acid names
 
-while getopts n:c:s:s2: flag
+while getopts n:c:s:v: flag
 do
     case "${flag}" in
         n) nt=${OPTARG};;
         c) ct=${OPTARG};;
         s) step=${OPTARG};;
-        s2) combo=${OPTARG};;
+        v) combo=${OPTARG};;
         *) echo "usage: $0 [-n] [-c] [-s]" >&2
        exit 1 ;;
 esac
