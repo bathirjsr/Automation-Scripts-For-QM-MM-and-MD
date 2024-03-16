@@ -10,9 +10,7 @@ do
 esac
 done
 if [ "$step" = "scan" ]; then
-ls -v *.pdb
-read -p "Total number of structures{Remeber should have scan_0.pdb file in the current directory}:" $count
-for i in $(seq 0 ${count}); do
+for i in $(seq 0 40); do
 
 if [ "$combo" = "FE-O" ]; then
     mkdir EF_${combo}_${i}
