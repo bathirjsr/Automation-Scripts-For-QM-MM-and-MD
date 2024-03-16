@@ -235,6 +235,7 @@ ________________________________________________________________________________
 ENDOFFILE
 
 titan.py TITAN_QUANTIFICATION_PDB.inp
+cd ../
 done
 else
 if [ "$combo" = "FE-O" ]; then
