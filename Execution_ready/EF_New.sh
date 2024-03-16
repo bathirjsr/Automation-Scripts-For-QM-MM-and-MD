@@ -235,7 +235,7 @@ ________________________________________________________________________________
 ENDOFFILE
 
 titan.py TITAN_QUANTIFICATION_PDB.inp
-
+done
 else
 if [ "$combo" = "FE-O" ]; then
     mkdir EF_${combo}
