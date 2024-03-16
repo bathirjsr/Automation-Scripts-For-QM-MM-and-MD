@@ -10,6 +10,7 @@ do
 esac
 done
 if [ "$step" = "scan" ]; then
+ls -v *.pdb
 read -p "Total number of structures{Remeber should have scan_0.pdb file in the current directory}" $count
 for i in $(seq 0 $count); do
 
