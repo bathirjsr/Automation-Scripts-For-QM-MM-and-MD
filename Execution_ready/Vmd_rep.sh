@@ -11,7 +11,7 @@ cat > DCCA_Visual_${i}.dat << EOF
 mol new ${prmtop}
 mol addfile ${pdb}
 mol delrep 0 top
-mol selection ${representation}
+mol selection resname ${representation}
 mol representation CPK
 mol addrep top
 mol representation NewCartoon 0.1 20
