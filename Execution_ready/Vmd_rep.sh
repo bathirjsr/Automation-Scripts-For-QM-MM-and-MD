@@ -14,10 +14,6 @@ mol delrep 0 top
 mol selection resname FE1 OY1 HD1 HD2 AP1 AG1 SC1 Cl1 ${substrate}
 mol representation CPK
 mol addrep top
-mol selection all
-mol representation NewCartoon
-mol material Transparent
-mol addrep top
 
 EOF
 vmd -e DCCA_Visual_${i}.dat
