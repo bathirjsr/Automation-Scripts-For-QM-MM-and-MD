@@ -1,4 +1,4 @@
-while getopts c:p:r: flag
+while getopts c:p:s: flag
 do
     case "${flag}" in
 	c) pdb=${OPTARG};;
