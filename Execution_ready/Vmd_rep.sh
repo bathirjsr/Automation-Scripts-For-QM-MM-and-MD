@@ -18,4 +18,4 @@ mol representation NewCartoon 0.1 20
 mol addrep top
 mol modstyle 2 0 0.5
 EOF
-vmd < DCCA_Visual_${i}.dat
+vmd -e DCCA_Visual_${i}.dat
