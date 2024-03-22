@@ -16,7 +16,8 @@ mol representation CPK
 mol addrep top
 mol selection all
 mol representation NewCartoon
+mol material Transparent
 mol addrep top
-mol modstyle 2 0 0.5
+
 EOF
 vmd -e DCCA_Visual_${i}.dat
