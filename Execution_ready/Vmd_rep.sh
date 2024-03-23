@@ -10,8 +10,8 @@ filename="${coordinate##*/}"
 filext="${filename##*.}"
 file="${filename%.*}"
 cat > DCCA_Visual_${i}.dat << EOF
-set file "$file"
-set ext  "$filext"
+set file $file
+set ext  $filext
 if {$ext == ".pdb"} {
     mol new ${prmtop}
     mol load pdb ${coordinate}
