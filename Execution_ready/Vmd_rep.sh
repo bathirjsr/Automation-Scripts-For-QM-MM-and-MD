@@ -9,7 +9,7 @@ done
 filename="${coordinate##*/}"
 filext="${filename##*.}"
 file="${filename%.*}"
-cat > DCCA_Visual_${i}.dat << EOF
+vmd -e << EOF
 set file $file
 set ext  $filext
 if { \$ext == "pdb"} {
@@ -19,8 +19,6 @@ if { \$ext == "pdb"} {
     mol selection resname FE1 OY1 O11 HD1 HD2 AP1 GU1 AG1 SC1 Cl1 ${substrate}
     mol representation CPK
     mol addrep top
-    animate center
-    display set bg_color white
 } elseif { \$ext == "nc"} {
     mol new ${prmtop}
     mol addfile ${coordinate} first 0 last -1 step 1 waitfor all
@@ -32,4 +30,3 @@ if { \$ext == "pdb"} {
     puts "Unsupported file type: $ext"
 }
 EOF
-vmd -e DCCA_Visual_${i}.dat
