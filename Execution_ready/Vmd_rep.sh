@@ -9,7 +9,7 @@ done
 filename="${coordinate##*/}"
 filext="${filename##*.}"
 file="${filename%.*}"
-vmd -dispdev win << EOF 
+vmd -dispdev win -e << EOF 
 set file $file
 set ext  $filext
 if { \$ext == "pdb"} {
