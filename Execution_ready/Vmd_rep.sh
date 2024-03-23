@@ -9,7 +9,7 @@ done
 filename="${coordinate##*/}"
 filext="${filename##*.}"
 file="${filename%.*}"
-vmd -e << EOF
+vmd -e << 
 set file $file
 set ext  $filext
 if { \$ext == "pdb"} {
@@ -29,4 +29,3 @@ if { \$ext == "pdb"} {
     # Handle other file types or show an error/message
     puts "Unsupported file type: $ext"
 }
-EOF
