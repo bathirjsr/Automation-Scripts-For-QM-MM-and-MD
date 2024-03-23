@@ -12,7 +12,7 @@ file="${filename%.*}"
 cat > DCCA_Visual_${i}.dat << EOF
 set file $file
 set ext  $filext
-if {$ext == "pdb"} {
+if { \$ext == "pdb"} {
     mol new ${prmtop}
     mol load pdb ${coordinate}
     mol delrep 0 top
@@ -21,7 +21,7 @@ if {$ext == "pdb"} {
     mol addrep top
     animate center
     display set bg_color white
-} elseif {$ext == "nc"} {
+} elseif { \$ext == "nc"} {
     mol new ${prmtop}
     mol addfile ${coordinate} first 0 last -1 step 1 waitfor all
     mol selection resname FE1 OY1 O11 HD1 HD2 AP1 GU1 AG1 SC1 Cl1 ${substrate}
