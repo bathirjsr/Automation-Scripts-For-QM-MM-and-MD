@@ -14,7 +14,7 @@ set file "$file"
 set ext  "$filext"
 if {$ext == ".pdb"} {
     mol new ${prmtop}
-    mol load pdb ${file}${ext}
+    mol load pdb ${coordinate}
     mol delrep 0 top
     mol selection resname FE1 OY1 O11 HD1 HD2 AP1 GU1 AG1 SC1 Cl1 ${substrate}
     mol representation CPK
@@ -23,7 +23,7 @@ if {$ext == ".pdb"} {
     display set bg_color white
 } elseif {$ext == ".nc"} {
     mol new ${prmtop}
-    mol addfile ${file}${ext} type nc first 0 last -1 step 1 waitfor all
+    mol addfile ${coordinate} first 0 last -1 step 1 waitfor all
     mol selection resname FE1 OY1 O11 HD1 HD2 AP1 GU1 AG1 SC1 Cl1 ${substrate}
     mol representation CPK
     mol addrep top
