@@ -60,6 +60,19 @@ elif [ "$combo" = "C1-C2" ]; then
     x2=$(awk '$4 == "AG1" && $3 == "C2" {print $6}' scan_${i}.pdb)
     y2=$(awk '$4 == "AG1" && $3 == "C2" {print $7}' scan_${i}.pdb)
     z2=$(awk '$4 == "AG1" && $3 == "C2" {print $8}' scan_${i}.pdb)
+elif 
+    [ "$combo" = "C3-O1" ]; then
+    mkdir EF_${combo}_${i}
+    cp scan_${i}.pdb EF_${combo}_${i}/.
+    cp scan.prmtop EF_${combo}_${i}/.
+    cd EF_${combo}_${i} || exit
+    x1=$(awk '$4 == "AG1" && $3 == "C3" {print $6}' scan_${i}.pdb)
+    y1=$(awk '$4 == "AG1" && $3 == "C3" {print $7}' scan_${i}.pdb)
+    z1=$(awk '$4 == "AG1" && $3 == "C3" {print $8}' scan_${i}.pdb)
+
+    x2=$(awk '$4 == "OY1" && $3 == "O1" {print $6}' scan_${i}.pdb)
+    y2=$(awk '$4 == "OY1" && $3 == "O1" {print $7}' scan_${i}.pdb)
+    z2=$(awk '$4 == "OY1" && $3 == "O1" {print $8}' scan_${i}.pdb)
 
 fi
 #cp scan_${i}.pdb scan_${i}.pdb.bk
@@ -286,6 +299,20 @@ elif [ "$combo" = "C1-C2" ]; then
     x2=$(awk '$4 == "AG1" && $3 == "C2" {print $6}' ${step,,}.opt.pdb)
     y2=$(awk '$4 == "AG1" && $3 == "C2" {print $7}' ${step,,}.opt.pdb)
     z2=$(awk '$4 == "AG1" && $3 == "C2" {print $8}' ${step,,}.opt.pdb)
+elif 
+    [ "$combo" = "C3-O1" ]; then
+    mkdir EF_${combo}_${i}
+    cp scan_${i}.pdb EF_${combo}_${i}/.
+    cp scan.prmtop EF_${combo}_${i}/.
+    cd EF_${combo}_${i} || exit
+    x1=$(awk '$4 == "AG1" && $3 == "C3" {print $6}' scan_${i}.pdb)
+    y1=$(awk '$4 == "AG1" && $3 == "C3" {print $7}' scan_${i}.pdb)
+    z1=$(awk '$4 == "AG1" && $3 == "C3" {print $8}' scan_${i}.pdb)
+
+    x2=$(awk '$4 == "OY1" && $3 == "O1" {print $6}' scan_${i}.pdb)
+    y2=$(awk '$4 == "OY1" && $3 == "O1" {print $7}' scan_${i}.pdb)
+    z2=$(awk '$4 == "OY1" && $3 == "O1" {print $8}' scan_${i}.pdb)
+
 
 fi
 cp ${step,,}.opt.pdb ${step,,}.opt.pdb.bk
