@@ -1,71 +1,122 @@
-import tkinter as tk
-from tkinter import filedialog, Toplevel
+#!/usr/bin/env python
+# coding: utf-8
+
+
+# In[4]:
+
+
+import MDAnalysis as mda
+from MDAnalysis.analysis import rms
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import subprocess
-import os
+import readline
 
 
-def browse_file(entry, file_type):
-    """ Open a dialog to choose a file and set the file path in the entry """
-    file_path = filedialog.askopenfilename(
-        filetypes=[(file_type, f"*.{file_type}")])
-    entry.delete(0, tk.END)
-    entry.insert(0, file_path)
+# In[ ]:
 
 
-def create_file_entry(window, row, label_text, file_type):
-    """ Create a file entry with a label, text entry, and browse button """
-    tk.Label(window, text=f"{label_text} (.{file_type}):").grid(
-        row=row, column=0)
-    file_entry = tk.Entry(window, width=50)
-    file_entry.grid(row=row, column=1)
-    tk.Button(window, text="Browse", command=lambda: browse_file(
-        file_entry, file_type)).grid(row=row, column=2)
-    return file_entry
+prmtop_file = input("Enter the path to the prmtop file: ")
+readline.set_completer_delims(' \t\n;')
+readline.parse_and_bind("tab: complete")
+nc_file = input("Enter the path to the .nc file: ")
+readline.set_completer_delims(' \t\n;')
+readline.parse_and_bind("tab: complete")
+u = mda.Universe(prmtop_file, nc_file)
+len(u.trajectory)
 
 
-def autoimage_form():
-    """ Create a form for Autoimage analysis input """
-    window = Toplevel()
-    window.title("Autoimage Analysis")
+# 
 
-    parm_entry = create_file_entry(window, 0, "Parameter file", "prmtop")
-    traj_entry = create_file_entry(window, 1, "Trajectory file", "nc")
-
-    # Submit button
-    tk.Button(window, text="Submit", command=lambda: run_autoimage(
-        parm_entry.get(), traj_entry.get())).grid(row=2, columnspan=3)
+# In[ ]:
 
 
-def run_autoimage(parm_file, traj_file):
-    if parm_file and traj_file:
-        # Create cpptraj input file
-        cpptraj_input = f"parm {parm_file}\ntrajin {traj_file}\ntrajout {os.path.splitext(traj_file)[0]}_auto.nc\nrun"
-        with open('cpptraj_input_file.in', 'w') as file:
-            file.write(cpptraj_input)
+# Calculate RMSD
+rmsd = rms.RMSD(u, u, ref_frame=0, select='backbone')
+rmsd.run()
 
-        # Run cpptraj command
-        subprocess.run(['cpptraj', '-i', 'cpptraj_input_file.in'])
-        print(
-            f"Autoimage analysis completed with parm file: {parm_file} and trajectory file: {traj_file}")
-    else:
-        print("Parameter file and trajectory file are required.")
+# Convert frames to time
+time_step = 0.1  # time step in nanoseconds
+time = np.arange(len(rmsd.rmsd)) * time_step
 
+# Calculate average RMSD
+average_rmsd = np.mean(rmsd.rmsd[:, 2])
 
-def main():
-    root = tk.Tk()
-    root.title("MD Analysis Tool")
-
-    analysis_options = {
-        "Autoimage": autoimage_form,
-        # Add other options here like "RMS": rms_form, "Hbond": hbond_form, etc.
-        "Exit": root.destroy
-    }
-
-    for analysis, command in analysis_options.items():
-        tk.Button(root, text=analysis, command=command).pack()
-
-    root.mainloop()
+# Create a DataFrame with time and RMSD values
+rmsd_df = pd.DataFrame({
+    'Time (ns)': time,
+    'RMSD (Å)': rmsd.rmsd[:, 2]
+})
 
 
-if __name__ == "__main__":
-    main()
+# In[ ]:
+
+
+# Print the DataFrame and average RMSD
+print("RMSD DataFrame:")
+print(rmsd_df)
+print(f"\nAverage RMSD: {average_rmsd:.2f} Å")
+
+
+# In[ ]:
+
+
+# Configure Matplotlib to use Arial font
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = 'Arial'
+
+# Plot RMSD with high quality settings
+plt.figure(figsize=(12, 8), dpi=300)  # Set figure size and resolution
+plt.plot(time, rmsd.rmsd[:, 2], label='Backbone RMSD', linewidth=2)
+plt.xlabel('Time (ns)', fontsize=24)
+plt.ylabel('RMSD (Å)', fontsize=24)
+plt.ylim(0, 10)
+plt.xlim(-10,1010)
+plt.title('RMSD', fontsize=32)
+plt.legend(fontsize=24)
+plt.grid(False)
+plt.xticks(fontsize=24)
+plt.yticks(fontsize=24)
+plt.tight_layout()
+plt.show()
+
+
+# In[ ]:
+
+
+# Calculate RMSF
+rmsf = rms.RMSF(u.select_atoms('name CA')).run()
+rmsf_values = rmsf.rmsf
+
+
+# In[ ]:
+
+
+# Configure Matplotlib to use Arial font
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = 'Arial'
+
+# Plot RMSF with high quality settings
+plt.figure(figsize=(12, 8), dpi=300)  # Set figure size and resolution
+plt.plot(rmsf.resids, rmsf_values, label='RMSF', linewidth=2)
+plt.xlabel('Residue', fontsize=14)
+plt.ylabel('RMSF (Å)', fontsize=14)
+plt.title('RMSF', fontsize=16)
+plt.legend(fontsize=12)
+plt.ylim(0, 10)
+plt.grid(False)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
+plt.tight_layout()
+plt.savefig('rmsf_plot.png', dpi=300)  # Save the plot as a high-quality picture
+plt.show()
+
+
+# In[6]:
+
+
+# Convert the notebook to a .py file
+subprocess.run(["jupyter", "nbconvert", "--to",
+               "script", "MD_Analysis.ipynb"])
+
