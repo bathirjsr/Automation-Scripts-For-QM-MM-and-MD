@@ -1,0 +1,21 @@
+set file 6-md
+set ext  nc
+if { == "pdb"} {
+    mol new ../EFE_A198L_solv.prmtop
+    mol load pdb 6-md.nc
+    mol delrep 0 top
+    mol selection resname FE1 OY1 O11 HD1 HD2 AP1 GU1 AG1 SC1 Cl1 ADG
+    mol representation CPK
+    mol addrep top
+    animate center
+    display set bg_color white
+} elseif { == "nc"} {
+    mol new ../EFE_A198L_solv.prmtop
+    mol addfile 6-md.nc first 0 last -1 step 1 waitfor all
+    mol selection resname FE1 OY1 O11 HD1 HD2 AP1 GU1 AG1 SC1 Cl1 ADG
+    mol representation CPK
+    mol addrep top
+} else {
+    # Handle other file types or show an error/message
+    puts "Unsupported file type: "
+}
