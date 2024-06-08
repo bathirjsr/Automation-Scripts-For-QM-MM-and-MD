@@ -1,40 +1,29 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
+!/usr/bin/env python3
+# %%
 
 import MDAnalysis as mda
-from MDAnalysis.analysis import rms
+from MDAnalysis.analysis import rms,diffusionmap, align
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import tkinter as tk
 
-
-# In[5]:
-
-
-import os
-from IPython.display import display
-import ipywidgets as widgets
-import os
-import readline
+# %%
 prmtop_file = input("Enter the path to the prmtop file: ")
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")
 nc_file = input("Enter the path to the .nc file: ")
-
+readline.set_completer_delims(' \t\n;')
+readline.parse_and_bind("tab: complete")
 u = mda.Universe(prmtop_file, nc_file)
 len(u.trajectory)
 
 
 
+# %% [markdown]
 # 
 
-# In[6]:
-
-
+# %%
 # Calculate RMSD
 rmsd = rms.RMSD(u, u, ref_frame=0, select='backbone')
 rmsd.run()
@@ -52,19 +41,14 @@ rmsd_df = pd.DataFrame({
     'RMSD (Å)': rmsd.rmsd[:, 2]
 })
 
-
-# In[7]:
-
+# %%
 
 # Print the DataFrame and average RMSD
 print("RMSD DataFrame:")
 print(rmsd_df)
 print(f"\nAverage RMSD: {average_rmsd:.2f} Å")
 
-
-# In[13]:
-
-
+# %%
 # Configure Matplotlib to use Arial font
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = 'Arial'
@@ -84,18 +68,12 @@ plt.yticks(fontsize=24)
 plt.tight_layout()
 plt.show()
 
-
-# In[4]:
-
-
+# %%
 # Calculate RMSF
 rmsf = rms.RMSF(u.select_atoms('name CA')).run()
 rmsf_values = rmsf.rmsf
 
-
-# In[1]:
-
-
+# %%
 # Configure Matplotlib to use Arial font
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.sans-serif'] = 'Arial'
@@ -114,4 +92,5 @@ plt.yticks(fontsize=12)
 plt.tight_layout()
 plt.savefig('rmsf_plot.png', dpi=300)  # Save the plot as a high-quality picture
 plt.show()
+
 
