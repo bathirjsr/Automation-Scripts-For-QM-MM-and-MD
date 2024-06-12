@@ -1,10 +1,11 @@
 #!/bin/bash
 # This script is used to generate Natural Orbital and Spin Natural Orbital Occupancy calculations
-while getopts n: flag
+while getopts n:s: flag
 do
      case "${flag}" in
  	    n) n=${OPTARG};;
- 	    *) echo "usage: $0 [-n number of atoms in QM] " >&2
+ 	    s) s=${OPTARG};;
+      *) echo "usage: $0 [-n number of atoms in QM] " >&2
       exit 1 ;;
      esac
 done
