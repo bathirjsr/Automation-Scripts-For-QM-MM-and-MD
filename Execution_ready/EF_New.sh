@@ -324,8 +324,7 @@ elif [ "$combo" = "C1-C2" ]; then
     x2=$(awk '$4 == "AG1" && $3 == "C2" {print $6}' ${step,,}.opt.pdb)
     y2=$(awk '$4 == "AG1" && $3 == "C2" {print $7}' ${step,,}.opt.pdb)
     z2=$(awk '$4 == "AG1" && $3 == "C2" {print $8}' ${step,,}.opt.pdb)
-elif 
-    [ "$combo" = "C3-O1" ]; then
+elif [ "$combo" = "C3-O1" ]; then
     mkdir EF_${combo}
     cp ${step,,}.opt.pdb EF_${combo}/.
     cp ${step,,}.prmtop EF_${combo}/.
@@ -337,8 +336,7 @@ elif
     x2=$(awk '$4 == "OY1" && $3 == "O1" {print $6}' ${step,,}.opt.pdb)
     y2=$(awk '$4 == "OY1" && $3 == "O1" {print $7}' ${step,,}.opt.pdb)
     z2=$(awk '$4 == "OY1" && $3 == "O1" {print $8}' ${step,,}.opt.pdb)
-elif 
-    [ "$combo" = "C4-C5" ]; then
+elif [ "$combo" = "C4-C5" ]; then
     mkdir EF_${combo}
     cp ${step,,}.opt.pdb EF_${combo}/.
     cp ${step,,}.prmtop EF_${combo}/.
@@ -350,8 +348,7 @@ elif
     x2=$(awk '$4 == "AG1" && $3 == "C5" {print $6}' ${step,,}.opt.pdb)
     y2=$(awk '$4 == "AG1" && $3 == "C5" {print $7}' ${step,,}.opt.pdb)
     z2=$(awk '$4 == "AG1" && $3 == "C5" {print $8}' ${step,,}.opt.pdb)
-elif 
-    [ "$combo" = "C3-C4" ]; then
+elif [ "$combo" = "C3-C4" ]; then
     mkdir EF_${combo}
     cp ${step,,}.opt.pdb EF_${combo}/.
     cp ${step,,}.prmtop EF_${combo}/.
@@ -363,8 +360,7 @@ elif
     x2=$(awk '$4 == "AG1" && $3 == "C4" {print $6}' ${step,,}.opt.pdb)
     y2=$(awk '$4 == "AG1" && $3 == "C4" {print $7}' ${step,,}.opt.pdb)
     z2=$(awk '$4 == "AG1" && $3 == "C4" {print $8}' ${step,,}.opt.pdb)
-elif 
-    [ "$combo" = "C2-C3" ]; then
+elif [ "$combo" = "C2-C3" ]; then
     mkdir EF_${combo}
     cp ${step,,}.opt.pdb EF_${combo}/.
     cp ${step,,}.prmtop EF_${combo}/.
@@ -376,7 +372,18 @@ elif
     x2=$(awk '$4 == "AG1" && $3 == "C3" {print $6}' ${step,,}.opt.pdb)
     y2=$(awk '$4 == "AG1" && $3 == "C3" {print $7}' ${step,,}.opt.pdb)
     z2=$(awk '$4 == "AG1" && $3 == "C3" {print $8}' ${step,,}.opt.pdb)
-    
+elif [ "$combo" = "C1-C3" ]; then
+    mkdir EF_${combo}
+    cp ${step,,}.opt.pdb EF_${combo}/.
+    cp ${step,,}.prmtop EF_${combo}/.
+    cd EF_${combo} || exit
+    x1=$(awk '$4 == "AG1" && $3 == "C1" {print $6}' ${step,,}.opt.pdb)
+    y1=$(awk '$4 == "AG1" && $3 == "C1" {print $7}' ${step,,}.opt.pdb)
+    z1=$(awk '$4 == "AG1" && $3 == "C1" {print $8}' ${step,,}.opt.pdb)
+
+    x2=$(awk '$4 == "AG1" && $3 == "C3" {print $6}' ${step,,}.opt.pdb)
+    y2=$(awk '$4 == "AG1" && $3 == "C3" {print $7}' ${step,,}.opt.pdb)
+    z2=$(awk '$4 == "AG1" && $3 == "C3" {print $8}' ${step,,}.opt.pdb)
 fi
 cp ${step,,}.opt.pdb ${step,,}.opt.pdb.bk
 
