@@ -9,7 +9,7 @@ do
       exit 1 ;;
      esac
 done
-if [ "$1" = "RC" ]
+if [ "$s" = "RC" ]
 then
   mkdir NO_SNO
   cd NO_SNO || exit
@@ -45,7 +45,7 @@ EOF
   grep 'Eigenvalues' RC_NO.log |awk '{ if (NF==7) print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==6) print $(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==5) print $(NF-2),$(NF-1),$NF; else if (NF==4) print $(NF-1),$NF; else if (NF==3) print $NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > NO_Occupancy.dat
   grep 'Eigenvalues' RC_SNO.log |awk '{ if (NF==7) print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==6) print $(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==5) print $(NF-2),$(NF-1),$NF; else if (NF==4) print $(NF-1),$NF; else if (NF==3) print $NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > SNO_Occupancy.dat
 
-elif [ "$1" = "TS" ]
+elif [ "$s" = "TS" ]
 then
   mkdir NO_SNO
   cd NO_SNO || exit
@@ -78,7 +78,7 @@ EOF
   grep 'Eigenvalues' TS_NO.log |awk '{ if (NF==7) print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==6) print $(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==5) print $(NF-2),$(NF-1),$NF; else if (NF==4) print $(NF-1),$NF; else if (NF==3) print $NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > NO_Occupancy.dat
   grep 'Eigenvalues' TS_SNO.log |awk '{ if (NF==7) print $(NF-4),$(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==6) print $(NF-3),$(NF-2),$(NF-1),$NF; else if (NF==5) print $(NF-2),$(NF-1),$NF; else if (NF==4) print $(NF-1),$NF; else if (NF==3) print $NF}' | awk '{ for(i=1;i<=NF;i++) print $i; }' | awk '{print NR,$0}' > SNO_Occupancy.dat
 
-elif [ "$1" = "PD" ]
+elif [ "$s" = "PD" ]
 then
   mkdir NO_SNO
   cd NO_SNO || exit
