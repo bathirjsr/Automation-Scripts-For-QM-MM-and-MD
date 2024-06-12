@@ -7,6 +7,7 @@ do
  	    *) echo "usage: $0 [-n number of atoms in QM] " >&2
       exit 1 ;;
      esac
+done
 if [ "$1" = "RC" ]
 then
   mkdir NO_SNO
