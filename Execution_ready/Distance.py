@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+import sys
 import MDAnalysis as mda
 import numpy as np
 # Function to calculate distances
@@ -29,7 +31,7 @@ def calculate_distances(resname1, name1, resname2, name2, prmtop_file, pdb_file,
         
     print(f"Distances calculated and {'appended to' if append else 'written to'} {output_file}")
 # Get the first input (RC or TS)
-input_type = input("Enter the input type (RC or TS): ").strip().upper()
+input_type = input("Enter the input type (RC or TS or PD): ").strip().upper()
 
 # Define file names based on input type
 if input_type == "RC":
@@ -47,11 +49,12 @@ else:
 
 
 # Example usage for multiple distance calculations
-calculate_distances('AG1', 'C2', 'OY1', 'O2',prmtop_file,pdb_file,'Distance{input_type}.txt',input_type, append=False)
-calculate_distances('AG1', 'C2', 'AG1', 'C1',prmtop_file,pdb_file,'Distance{input_type}.txt',input_type, append=True)
-calculate_distances('AG1', 'C1', 'OY1', 'O1',prmtop_file,pdb_file,'Distance{input_type}.txt',input_type, append=True)
-calculate_distances('AG1', 'C2', 'AG1', 'C3',prmtop_file,pdb_file,'Distance{input_type}.txt',input_type, append=True)
-calculate_distances('AG1', 'C3', 'AG1', 'C4',prmtop_file,pdb_file,'Distance{input_type}.txt',input_type, append=True)
-calculate_distances('AG1', 'C4', 'AG1', 'C5',prmtop_file,pdb_file,'Distance{input_type}.txt',input_type, append=True)
-calculate_distances('AG1', 'C3', 'OY1', 'O1',prmtop_file,pdb_file,'Distance{input_type}.txt',input_type, append=True)
+calculate_distances('AG1', 'C2', 'OY1', 'O2', prmtop_file, pdb_file, f'Distance_{input_type}.txt', input_type, append=False)
+calculate_distances('AG1', 'C2', 'AG1', 'C1',prmtop_file,pdb_file,f'Distance_{input_type}.txt',input_type, append=True)
+calculate_distances('AG1', 'C1', 'OY1', 'O1',prmtop_file,pdb_file,f'Distance_{input_type}.txt',input_type, append=True)
+calculate_distances('AG1', 'C2', 'AG1', 'C3',prmtop_file,pdb_file,f'Distance_{input_type}.txt',input_type, append=True)
+calculate_distances('AG1', 'C3', 'AG1', 'C4',prmtop_file,pdb_file,f'Distance_{input_type}.txt',input_type, append=True)
+calculate_distances('AG1', 'C4', 'AG1', 'C5',prmtop_file,pdb_file,f'Distance_{input_type}.txt',input_type, append=True)
+calculate_distances('AG1', 'C3', 'OY1', 'O1',prmtop_file,pdb_file,f'Distance_{input_type}.txt',input_type, append=True)
+calculate_distances('OY1', 'O1', 'OY1', 'O2',prmtop_file,pdb_file,f'Distance_{input_type}.txt',input_type, append=True)
 
