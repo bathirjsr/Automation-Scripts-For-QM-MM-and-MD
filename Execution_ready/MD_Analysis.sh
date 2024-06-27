@@ -283,7 +283,7 @@ exit
 ENDOFFILE
 
 
-nohup mpirun -n 32 cpptraj.MPI -i DCCA-firstframe.in > DCCA-firstframe.out &
+nohup cpptraj.cuda -i DCCA-firstframe.in > DCCA-firstframe.out &
 
 nohup  mpirun -n 96 cpptraj.MPI -i DCCA-traj.in > DCCA-traj.out &
 process=$!
