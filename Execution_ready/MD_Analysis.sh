@@ -283,9 +283,9 @@ exit
 ENDOFFILE
 
 
-nohup cpptraj.cuda -i DCCA-firstframe.in > DCCA-firstframe.out &
+nohup cpptraj -i DCCA-firstframe.in > DCCA-firstframe.out &
 
-nohup  mpirun -n 96 cpptraj.MPI -i DCCA-traj.in > DCCA-traj.out &
+nohup  cpptraj -i DCCA-traj.in > DCCA-traj.out &
 process=$!
 while ps -p $process > /dev/null;do sleep 1;done;
 
@@ -342,8 +342,8 @@ run
 exit
 ENDOFFILE
 
-nohup cpptraj.MPI -i PCA-firstframe.in > PCA-firstframe.out &
-nohup cpptraj.MPI -i PCA-traj.in > PCA-traj.out &
+nohup cpptraj -i PCA-firstframe.in > PCA-firstframe.out &
+nohup cpptraj -i PCA-traj.in > PCA-traj.out &
 process=$!
 while ps -p $process > /dev/null;do sleep 1;done;
 
