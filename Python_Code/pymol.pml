@@ -1,0 +1,156 @@
+set_color oxygen, [1.0,0.4,0.4];
+set_color nitrogen, [0.5,0.5,1.0];
+hide solvent;
+as spheres;
+util.cbaw;
+set light_count,10;
+set spec_count,1;
+set shininess, 10;
+set specular,0.25;
+set ambient,0;
+set direct,0;
+set reflect,1.5;
+set ray_shadow_decay_factor, 0.1;
+set ray_shadow_decay_range, 2;
+set depth_cue, 0.2;
+set ray_shadow, off;
+bg_color white;
+ray;
+hide everything;
+
+
+bond resname FE1, resname AP1 and name O1;
+bond resname FE1, resname OY1 and name O1;
+bond resname FE1, resname AG1 and name O1;
+bond resname FE1, resname AG1 and name O5;
+bond resname FE1, resname HD1 and name NE2;
+bond resname FE1, resname HD2 and name NE2;
+
+# Edit the selection that is named ligand here.;
+select ligand, resname FE1+OY1+HD1+HD2+AP1+AG1+ADG;
+preset.ball_and_stick(selection='ligand');
+util.cbaw ligand;
+set stick_color, white, ligand;
+set valence, off, ligand;
+unset valence;
+# above command is required after using preset;
+set sphere_color, black, elem C and ligand;
+set sphere_color, red, elem O and ligand;
+set sphere_color, blue, elem N and ligand;
+set sphere_color, lightblue, elem F and ligand;
+set stick_radius, 0.05;
+set sphere_quality, 1;
+set cartoon_ring_finder, 4, ligand;
+set cartoon_ring_mode, 3, ligand;
+set cartoon_ring_width, 0.1, ligand;
+set cartoon_ring_transparency, .0, ligand;
+
+
+# Edit the selection that is named ligand here.;
+create triad, resname HD1+HD2 and not backbone;
+preset.ball_and_stick(selection='triad');
+util.cbaw triad;
+set stick_color, white, triad;
+set valence, off, triad;
+unset valence;
+# above command is required after using preset;
+set sphere_color, black, elem C and triad;
+set sphere_color, red, elem O and triad;
+set sphere_color, blue, elem N and triad;
+set sphere_color, lightblue, elem F and triad;
+set stick_radius, 0.05;
+set sphere_quality, 1;
+set cartoon_ring_finder, 4, triad;
+set cartoon_ring_mode, 3, triad;
+set cartoon_ring_width, 0.1, triad;
+set cartoon_ring_transparency, .0, triad;
+show cartoon, triad;
+
+# Edit the selection that is named ligand here.;
+create triad1, resname HD1+HD2;
+preset.ball_and_stick(selection='triad1');
+util.cbaw triad1;
+set stick_color, white, triad1;
+set valence, off, triad1;
+unset valence;
+# above command is required after using preset;
+set sphere_color, black, elem C and triad1;
+set sphere_color, red, elem O and triad1;
+set sphere_color, blue, elem N and triad1;
+set sphere_color, lightblue, elem F and triad1;
+set stick_radius, 0.05;
+set sphere_quality, 1;
+set cartoon_ring_finder, 4, triad1;
+set cartoon_ring_mode, 3, triad1;
+set cartoon_ring_width, 0.1, triad1;
+set cartoon_ring_transparency, .0, triad1;
+hide cartoon, triad1;
+
+select 2OG, resname AG1;
+preset.ball_and_stick(selection='2OG');
+util.cbaw 2OG;
+set stick_color, white, 2OG;
+set valence, off, 2OG;
+unset valence;
+# above command is required after using preset;
+set sphere_color, black, elem C and 2OG;
+set sphere_color, red, elem O and 2OG;
+set sphere_color, blue, elem N and 2OG;
+set sphere_color, lightblue, elem F and 2OG;
+set stick_radius, 0.05;
+set sphere_quality, 1;
+set cartoon_ring_finder, 4, 2OG;
+set cartoon_ring_mode, 3, 2OG;
+set cartoon_ring_width, 0.1, 2OG;
+set cartoon_ring_transparency, .0, 2OG;
+show cartoon, 2OG;
+
+select SCS, byres (resname FE1+OY1+AG1 around 5 and not resname FE1+OY1+AG1+HD1+HD2+ADG+AP1);
+util.cbaw SCS;
+set valence, off, SCS;
+unset valence;
+# above command is required after using preset;
+set sphere_color, green, elem C and SCS;
+set sphere_color, red, elem O and SCS;
+set sphere_color, blue, elem N and SCS;
+set sphere_color, lightblue, elem F and SCS;
+set stick_radius, 0.05, SCS;
+set sphere_quality, 1;
+set cartoon_ring_finder, 4, SCS;
+set cartoon_ring_mode, 3, SCS;
+set cartoon_ring_width, 0.1, SCS;
+set cartoon_ring_transparency, .0, SCS;
+set sphere_scale, 0.1, SCS;
+
+select SCS_FE, byres (resname FE1+OY1 around 5 and not resname FE1+OY1+AG1+HD1+HD2+ADG+AP1);
+util.cbaw SCS_FE;
+set valence, off, SCS_FE;
+unset valence;
+# above command is required after using preset;
+set sphere_color, green, elem C and SCS_FE;
+set sphere_color, red, elem O and SCS_FE;
+set sphere_color, blue, elem N and SCS_FE;
+set sphere_color, lightblue, elem F and SCS_FE;
+set stick_radius, 0.05, SCS_FE;
+set sphere_quality, 1;
+set cartoon_ring_finder, 4, SCS_FE;
+set cartoon_ring_mode, 3, SCS_FE;
+set cartoon_ring_width, 0.1, SCS_FE;
+set cartoon_ring_transparency, .0, SCS_FE;
+set sphere_scale, 0.1, SCS_FE;
+show sticks, 2OG;
+util.performance(0)
+space rgb;
+dist polar, SCS, ligand, mode=2
+set label_size, 18;
+set ray_trace_mode, 1
+
+select A198L, resi 198;
+as sticks, A198L;
+as spheres, A198L;
+set sphere_scale, 0.1, A198L
+set sphere_color, black, elem C and A198L;
+set sphere_color, red, elem O and A198L;
+set sphere_color, blue, elem N and A198L;
+set sphere_color, lightblue, elem F and A198L;
+set label_distance_digits, 2;
