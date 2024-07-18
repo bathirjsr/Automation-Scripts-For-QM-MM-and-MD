@@ -47,7 +47,7 @@ set cartoon_ring_transparency, .0, ligand;
 
 
 # Edit the selection that is named ligand here.;
-create triad, resname HD1+HD2 and not backbone;
+create triad, resname HD1+HD2 and not backbone and not name HA;
 preset.ball_and_stick(selection='triad');
 util.cbaw triad;
 set stick_color, white, triad;
