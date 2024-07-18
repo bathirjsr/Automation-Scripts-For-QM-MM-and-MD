@@ -17,27 +17,27 @@ echo "There are ${#dirs[@]} dirs in the current path"
 
 for((i=1;i<=${#dirs[@]};i++))
 do 
-    cd ${i} || exit	
+    cd ${dirs[i]} || exit	
     proper << EOF
 pop
 log on
 mulliken
 q
 EOF
-    cp population ../../Analysis/population_${i}.txt
-    cp coord ../../Analysis/coord_${i}
+    cp population ../../Analysis/population_${dirs[i]}.txt
+    cp coord ../../Analysis/coord_${dirs[i]}
     cd ../
    
     cd ../Analysis || exit
     a=$(sed '$d' QM.pdb | awk 'END{print $2}')
-    b=$(t2x coord_${i} | awk 'NR==1')
+    b=$(t2x coord_${dirs[i]} | awk 'NR==1')
     sum=$(( b - a ))
-    echo "${i}" > crd_tmp
-    t2x coord_${i} | tail -n ${b} >> crd_tmp
-    awk '{if (NR==1) print $0 ;if (NR !=1) print NR-1,$0}' crd_tmp > CoordData_${i}
+    echo "${dirs[i]}" > crd_tmp
+    t2x coord_${dirs[i]} | tail -n ${b} >> crd_tmp
+    awk '{if (NR==1) print $0 ;if (NR !=1) print NR-1,$0}' crd_tmp > CoordData_${dirs[i]}
     rm crd_tmp
-    t2x coord_${i}| head -n -${sum} > qm_without_link.xyz
-    t2x coord_${i}| tail -n ${sum} > qm_link.xyz
+    t2x coord_${dirs[i]}| head -n -${sum} > qm_without_link.xyz
+    t2x coord_${dirs[i]}| tail -n ${sum} > qm_link.xyz
     awk '{ print $0, NR }' qm_link.xyz > qm_link_nr.xyz
     tail -n+3 qm_without_link.xyz | awk '{ print $0, NR }' > qm_without_link_nr.xyz
 
@@ -75,35 +75,35 @@ for (x in res)
 	if (\$1 == res[x]){sum += \$2} }
 END{printf "%2.5f", sum}
 EOF
-	awk -f calcdist.awk qm_link_nr.xyz qm_without_link_nr.xyz | sort -n -k3 | head -n 6 | awk '{$1+=61}1' | tail -n 4   > link_${i}.txt
-	grep -A 75 "atom      charge" population_${i}.txt | sed '1d' | awk '{print $1,$2}' > ch_${i}.txt
-	grep -A 20 "Unpaired electrons" population_${i}.txt > UNP_${i}.txt
-        sed '1,3d' UNP_${i}.txt | awk '{print $1,$2}' > spin_${i}.txt
+	awk -f calcdist.awk qm_link_nr.xyz qm_without_link_nr.xyz | sort -n -k3 | head -n 6 | awk '{$1+=61}1' | tail -n 4   > link_${dirs[i]}.txt
+	grep -A 75 "atom      charge" population_${dirs[i]}.txt | sed '1d' | awk '{print $1,$2}' > ch_${dirs[i]}.txt
+	grep -A 20 "Unpaired electrons" population_${dirs[i]}.txt > UNP_${dirs[i]}.txt
+        sed '1,3d' UNP_${dirs[i]}.txt | awk '{print $1,$2}' > spin_${dirs[i]}.txt
 		for j in FE1 OY1 AG1 AP1 HD1 HD2 ADG
 		do	
 			if [ "${j}" = "FE1" ]; then
 			res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')	
-			tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${i}.txt)
-			echo  "${i}" > Charge_${i}.txt
-			echo ${j} "${tot}" >> Charge_${i}.txt
-			spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${i}.txt)
-			echo  "${i}" > Spin_Density_${i}.txt
-			echo ${j} "${spin}" >> Spin_Density_${i}.txt
+			tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${dirs[i]}.txt)
+			echo  "${dirs[i]}" > Charge_${dirs[i]}.txt
+			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
+			spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
+			echo  "${dirs[i]}" > Spin_Density_${dirs[i]}.txt
+			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
 
 			elif [ "${j}" = "OY1" ]; then
 			res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')	
-			tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${i}.txt)
-			echo ${j} "${tot}" >> Charge_${i}.txt
-			spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${i}.txt)
-			echo ${j} "${spin}" >> Spin_Density_${i}.txt
+			tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${dirs[i]}.txt)
+			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
+			spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
+			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
 
 			elif [ "${j}" = "AG1" ]; then
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
-			echo ${x} > Residues_${i}_${j}.txt
-			tot=$(awk -f sum.awk Residues_${i}_${j}.txt ch_${i}.txt)
-			echo ${j} "${tot}" >> Charge_${i}.txt
-			spin=$(awk -f sum.awk Residues_${i}_${j}.txt spin_${i}.txt)
-			echo ${j} "${spin}" >> Spin_Density_${i}.txt
+			echo ${x} > Residues_${dirs[i]}_${j}.txt
+			tot=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt ch_${dirs[i]}.txt)
+			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
+			spin=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt spin_${dirs[i]}.txt)
+			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
 			
 			else
 			#rm Residues_${j}.txt
@@ -119,8 +119,8 @@ EOF
 cat > tmp1_"${l}" << EOF
 {if (\$2=="$l") {at = \$2}} END {print at} 
 EOF
-					link=$(awk -f tmp_"${l}" link_${i}.txt)
-					at=$(awk -f tmp1_"${l}" link_${i}.txt)				
+					link=$(awk -f tmp_"${l}" link_${dirs[i]}.txt)
+					at=$(awk -f tmp1_"${l}" link_${dirs[i]}.txt)				
 					echo "${link}"
 					echo "${at}"
 					rm tmp_"${l}"
@@ -131,11 +131,11 @@ EOF
 				done
 			echo ${ch}
 			
-			echo ${ch} > Residues_${i}_${j}.txt
-			tot=$(awk -f sum.awk Residues_${i}_${j}.txt ch_${i}.txt)
-			echo ${j} "${tot}" >> Charge_${i}.txt
-			spin=$(awk -f sum.awk Residues_${i}_${j}.txt spin_${i}.txt)
-			echo ${j} "${spin}" >> Spin_Density_${i}.txt
+			echo ${ch} > Residues_${dirs[i]}_${j}.txt
+			tot=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt ch_${dirs[i]}.txt)
+			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
+			spin=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt spin_${dirs[i]}.txt)
+			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
 			fi
  		done
 	cd - || exit
