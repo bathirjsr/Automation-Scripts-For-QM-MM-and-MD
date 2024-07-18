@@ -62,6 +62,18 @@ EOF
 	gnuplot PES.gnu
 	evince "${plot}".eps
 }
+function Optimization_Status() {
+grep 'QM/MM Energy: ' "$@" | awk '{print $(NF-1)}' > tmp.dat
+gnuplot << EOF
+set encoding iso_8859_1
+set terminal postscript eps enhanced color size 3in,3in 
+set output "tmp.eps";
+plot 'tmp.dat' with linespoints pt 7 lc "black"
+EOF
+evince tmp.eps
+rm tmp.dat tmp.eps
+
+}
 
 function Exit() {
 	echo "Do you want to keep Max and Min data files? y/n"
@@ -98,6 +110,7 @@ Scan Menu
 $(ColorGreen '1)') Activation Energy 
 $(ColorGreen '2)') Reaction Energy
 $(ColorGreen '3)') Plot
+$(ColorGreen '4)') Optimization Status
 $(ColorGreen '0)') Exit
 $(ColorBlue 'Choose an option:') "
         read -r a
@@ -107,7 +120,8 @@ $(ColorBlue 'Choose an option:') "
 	        1) ActivationEnergy ; menu ;;
 	        2) ReactionEnergy ; menu ;;
 	        3) Plot ; menu ;;
-		0) Exit ;;
+			4) Optimization_Status ; menu ;;
+			0) Exit ;;
 		*) echo -e "$red""Wrong option.""$clear";;
         esac
 }

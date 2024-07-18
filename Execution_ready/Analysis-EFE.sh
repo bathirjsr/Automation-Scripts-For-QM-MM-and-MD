@@ -79,7 +79,7 @@ EOF
 	grep -A 75 "atom      charge" population_${dirs[i]}.txt | sed '1d' | awk '{print $1,$2}' > ch_${dirs[i]}.txt
 	grep -A 20 "Unpaired electrons" population_${dirs[i]}.txt > UNP_${dirs[i]}.txt
         sed '1,3d' UNP_${dirs[i]}.txt | awk '{print $1,$2}' > spin_${dirs[i]}.txt
-		for j in FE1 OY1 AG1 AP1 HD1 HD2 ADG
+		for j in FE1 OY1 AG1 AP1 HD1 HD2 ADG WAT
 		do	
 			if [ "${j}" = "FE1" ]; then
 			res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')	
@@ -110,6 +110,14 @@ EOF
 
 			elif [ "${j}" = "ADG" ]; then
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
+			echo ${x} > Residues_${dirs[i]}_${j}.txt
+			tot=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt ch_${dirs[i]}.txt)
+			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
+			spin=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt spin_${dirs[i]}.txt)
+			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
+
+			elif [ "${j}" = "WAT" ]; then
+			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($11)}') 
 			echo ${x} > Residues_${dirs[i]}_${j}.txt
 			tot=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt ch_${dirs[i]}.txt)
 			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
