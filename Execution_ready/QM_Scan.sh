@@ -127,5 +127,6 @@ $(ColorBlue 'Choose an option:') "
         esac
 }
 echo -ne "$(ColorGreen 'Last Energy:')" "$lastenergy"
+echo -ne "$(ColorGreen 'Last Step:')" "$last"
 # Call the menu function
 menu
