@@ -63,13 +63,14 @@ EOF
 	evince "${plot}".eps
 }
 function Optimization_Status() {
-grep 'QM/MM Energy: ' "$@" | awk '{print $(NF-1)}' > tmp.dat
-gnuplot << EOF
+	grep 'QM/MM Energy: ' "$@" | awk '{print $(NF-1)}' > tmp.dat
+cat > Opt.gnu << EOF
 set encoding iso_8859_1
 set terminal postscript eps enhanced color size 3in,3in 
 set output "tmp.eps";
 plot 'tmp.dat' with linespoints pt 7 lc "black"
 EOF
+gnuplot Opt.gnu
 evince tmp.eps
 
 }
