@@ -6,6 +6,7 @@ last=$(awk 'END{print NR}' PES.dat)
 lastenergy=$(awk 'END{print $NF}' PES.dat)
 highenergy=$(awk 'NR == 1 {line = $0; max = $2}; NR > 1 && $2 > max {line = $0; max = $2}; END{print max}' PES.dat)
 lowenergy=$(awk 'NR == 1 {line = $0; min = $2}; NR > 1 && $2 < min {line = $0; min = $2}; END{print min}' PES.dat)
+grep 'QM/MM Energy: ' "$@" | awk '{print $(NF-1)}' > tmp.dat
 
 function ActivationEnergy() {
     echo ""
@@ -63,7 +64,7 @@ EOF
 	evince "${plot}".eps
 }
 function Optimization_Status() {
-	grep 'QM/MM Energy: ' "$@" | awk '{print $(NF-1)}' > tmp.dat
+
 cat > Opt.gnu << EOF
 set encoding iso_8859_1
 set terminal postscript eps enhanced color size 3in,3in 
