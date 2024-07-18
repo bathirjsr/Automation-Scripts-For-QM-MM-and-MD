@@ -126,7 +126,7 @@ $(ColorBlue 'Choose an option:') "
 		*) echo -e "$red""Wrong option.""$clear";;
         esac
 }
-echo -ne "$(ColorGreen 'Last Energy:')" "$lastenergy"
+echo -ne "$(ColorGreen 'Last Energy:')" "$lastenergy\n"
 echo -ne "$(ColorGreen 'Last Step:')" "$last"
 # Call the menu function
 menu
