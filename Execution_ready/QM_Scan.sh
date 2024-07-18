@@ -43,12 +43,10 @@ function ReactionEnergy() {
 }
 
 function Plot() {
-	echo "Give the filename for Potential Energy Surface Plot?  Note: Will be saved as .eps file"
-	read -re plot
 cat > PES.gnu << EOF
 set encoding iso_8859_1
 set term post enhanced eps solid color lw 2.0 "Arial" 24
-set output "${plot}.eps";
+set output PES.eps;
 set key left top
 set xlabel "Reaction Coordinate"
 set ylabel "Energy(Kcal/mol)"
@@ -61,7 +59,7 @@ plot "PES.dat" u 1:2 t "Energy" w lp pt 7 ps 2 lc rgb "black",\
      "max.dat" u 1:2:(sprintf("(%d)", \$1)) with labels point  pt 7 offset char 1.5,0 notitle,
 EOF
 	gnuplot PES.gnu
-	evince "${plot}".eps
+	evince PES.eps
 }
 function Optimization_Status() {
 
