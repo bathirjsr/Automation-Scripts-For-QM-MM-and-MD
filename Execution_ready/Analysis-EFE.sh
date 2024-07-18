@@ -107,7 +107,14 @@ EOF
 			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
 			spin=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt spin_${dirs[i]}.txt)
 			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
-			
+
+			elif [ "${j}" = "ADG" ]; then
+			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
+			echo ${x} > Residues_${dirs[i]}_${j}.txt
+			tot=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt ch_${dirs[i]}.txt)
+			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
+			spin=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt spin_${dirs[i]}.txt)
+			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
 			else
 			#rm Residues_${j}.txt
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
