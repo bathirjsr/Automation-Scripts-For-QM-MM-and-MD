@@ -141,24 +141,3 @@ EOF
 	cd - || exit
 done
    cd ../Analysis || exit
-########################################COMBINING FILES########################################################################
-   paste Spin_Density_*| awk '{printf ("%5-s\t%10s\t%10s\t%10s\n", $1,$2,$4,$6)}' > SpinDensity_.txt 
-   paste Charge_* | awk '{printf ("%5-s\t%10s\t%10s\t%10s\n", $1,$2,$4,$6)}' > ChargeDistribution_.txt
-########################################COMBINING FILES########################################################################
-########################################REMOVING TMP UNWANTED FILES########################################################
-   rm Charge_*  ch_* 
-   rm Spin_Density_* spin_*
-   rm Residues_*
-########################################REMOVING TMP UNWANTED FILES########################################################
-   cd - || exit
-########################################COMBINING FILES########################################################################
-cd ../Analysis || exit
-for f in SpinDensity_* ; do sed -e '$s/$/\n/' $f ; done > SpinDensity.dat
-for f in ChargeDistribution_* ; do sed -e '$s/$/\n/' $f ; done > ChargeDistribution.dat
-for f in CoordData_* ; do sed -e '$s/$/\n/' $f ; done > Coordinates.dat
-########################################COMBINING FILES########################################################################
-
-########################################REMOVING TMP UNWANTED FILES########################################################
-rm SpinDensity_* ChargeDistribution_* link_* CoordData_*
-########################################REMOVING TMP UNWANTED FILES########################################################
-cd - || exit
