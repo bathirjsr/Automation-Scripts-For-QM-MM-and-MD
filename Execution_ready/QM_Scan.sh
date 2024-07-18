@@ -71,7 +71,6 @@ set output "tmp.eps";
 plot 'tmp.dat' with linespoints pt 7 lc "black"
 EOF
 evince tmp.eps
-rm tmp.dat tmp.eps
 
 }
 
@@ -79,7 +78,7 @@ function Exit() {
 	echo "Do you want to keep Max and Min data files? y/n"
 	read -r tmp
 if [ "$tmp" = "n" ]; then
-	rm PES.dat min.dat max.dat
+	rm PES.dat min.dat max.dat tmp.dat tmp.eps 
 	exit 0
 else
 	exit 0
