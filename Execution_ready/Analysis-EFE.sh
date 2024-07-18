@@ -91,12 +91,15 @@ EOF
 			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
 
 			elif [ "${j}" = "OY1" ]; then
-			res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')	
-			tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${dirs[i]}.txt)
-			echo ${j} "${tot}" >> Charge_${dirs[i]}.txt
-			spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
-			echo ${j} "${spin}" >> Spin_Density_${dirs[i]}.txt
-
+			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
+			mapfile -t x_array <<< "$x"
+				for x in "${x_array[@]}"
+				do
+					tot=$(awk -v i="${x}" '$1==i {print $2}' ch_"${dirnumber}"_${step}.txt)
+					echo ${x} "${tot}" >> Charge_"${dirnumber}"_${step}.txt
+					spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_"${dirnumber}"_${step}.txt)
+					echo ${x} "${spin}" >> Spin_Density_"${dirnumber}"_${step}.txt
+				done
 			elif [ "${j}" = "AG1" ]; then
 			x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}') 
 			echo ${x} > Residues_${dirs[i]}_${j}.txt
