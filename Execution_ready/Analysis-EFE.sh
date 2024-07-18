@@ -97,7 +97,7 @@ EOF
 				do
 					tot=$(awk -v i="${x}" '$1==i {print $2}' ch_${dirs[i]}.txt)
 					echo ${x} "${tot}" >> Charge_${dirs[i]}.txt
-					spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
+					spin=$(awk -v i="${x}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
 					echo ${x} "${spin}" >> Spin_Density_${dirs[i]}.txt
 				done
 			elif [ "${j}" = "AG1" ]; then
