@@ -46,7 +46,7 @@ function Plot() {
 cat > PES.gnu << EOF
 set encoding iso_8859_1
 set term post enhanced eps solid color lw 2.0 "Arial" 24
-set output PES.eps;
+set output "PES.eps";
 set key left top
 set xlabel "Reaction Coordinate"
 set ylabel "Energy(Kcal/mol)"
