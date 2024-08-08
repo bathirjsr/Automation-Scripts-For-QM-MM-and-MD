@@ -28,5 +28,11 @@ show sticks, ligand;
 show spheres, ligand;
 set label_size, 18;
 set ray_trace_mode, 1
+set label_distance_digits, 2;
 
+# Edit the name for the ditance, the selection criteria for atom 1, and the selection criteria for atom 2.;
+distance Op-Od, resname OY1 and name O1, resname OY1 and name O2;
+distance Od-C1, resname OY1 and name O1, resname AG1 and name C1;
+distance Od-C2, resname OY1 and name O2, resname AG1 and name C2;
+distance C1-C2, resname AG1 and name C1, resname AG1 and name C2;
 # /GIT/Bathir-s-PHD/Python_Code/EFE_Pub.pml
