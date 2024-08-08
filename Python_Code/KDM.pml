@@ -27,6 +27,19 @@ bond resname FE1, resname HD2 and name NE2;
 
 # Edit the selection that is named ligand here.;
 select ligand, resname FE1+OY1+HD1+HD2+GU1+SC1+M3L;
+set sphere_scale, 0.2, ligand;
+set stick_radius, 0.1, ligand;
+show sticks, ligand;    
+show spheres, ligand;
+set_view (\
+-0.579122961,   -0.089535519,   -0.810308814,\
+-0.011795565,    0.994765699,   -0.101487994,\
+0.815155208,   -0.049215086,   -0.577149034,\
+0.000058178,   -0.000036100,  -53.194267273,\
+44.856254578,   46.444644928,   46.921108246,\
+-9.833756447,  116.210792542,  -20.000000000 )
+set ray_trace_mode, 1
+
 preset.ball_and_stick(selection='ligand');
 util.cbaw ligand;
 set stick_color, white, ligand;
