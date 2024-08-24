@@ -49,7 +49,7 @@ TOTAB <- "${PWD}/TS-RC_${k}_tot_avg.dat"
 X_val <- "${k}"
 #----------------------------------------------------------------------#
 #---------Behind the Curtain: No Need to Modify Past This Line---------#
-#----------------------------------------------------------------------#
+#---------------------------------------------------------------------#
 ## Use the data tables package to read in data frames
 ## Remove comment to install locally
 #install.packages("data.table")
@@ -285,7 +285,7 @@ set key right top
 #set xrange [0:552]
 #set title "EDA"
 set output "EDA.eps";
-plot "gnu.dat" u (\$1):(\$2) with impulses t "$sysname"
+plot "gnu.dat" u (\$1):(\$2) with impulses t "EDA"
 ENDOFFILE
 for j in ${residues}
 
