@@ -17,18 +17,16 @@ echo "There are ${#dirs[@]} dirs in the current path"
 
 for((i=1;i<=${#dirs[@]};i++))
 do 
-    cd ${dirs[i]} || exit	
+    cd ${dirs[i]}/SP || exit	
     proper << EOF
 pop
 log on
 mulliken
 q
 EOF
-    cp population ../../Analysis/population_${dirs[i]}.txt
-    cp coord ../../Analysis/coord_${dirs[i]}
-    cd ../
-   
-    cd ../Analysis || exit
+    cp population ../../../Analysis/population_${dirs[i]}.txt
+    cp coord ../../../Analysis/coord_${dirs[i]}
+    cd ../../../Analysis || exit
     a=$(sed '$d' QM.pdb | awk 'END{print $2}')
     b=$(t2x coord_${dirs[i]} | awk 'NR==1')
     sum=$(( b - a ))
