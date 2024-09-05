@@ -5,7 +5,7 @@ B1=$(grep 'Final converged energy' ${1}_dlfind.log|awk '{printf "%5.12f", $NF}')
 elif [ "$1" = "TS" ]
 then
 B1=$(grep 'Final converged energy' ${1}_Opt.log|awk '{printf "%5.12f", $NF}')
-grep 'frequencies' Frequency/TS_Freq.log | head -n 4
+grep 'frequencies' Frequency/*.log | head -n 4
 else
 B1=$(grep 'Final converged energy' ${1}_Opt.log|awk '{printf "%5.12f", $NF}')
 fi
