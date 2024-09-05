@@ -14,67 +14,64 @@ set stick_radius, 0.1;
 bg_color white;
 ray;
 hide everything;
-set_color color1, [214, 206, 147]
-set_color color2, [239, 235, 206]
-set_color color3, [216, 164, 143]
-set_color color4, [187, 133, 136]
-set_color SCS, [29, 43, 35]
-bond resname FE1, resname AP1 and name O1;
+
+bond resname FE1, resname AP1 and name OD2;
 bond resname FE1, resname OY1 and name O1;
 bond resname FE1, resname AG1 and name O1;
-# bond resname FE1, resname AG1 and name O5;
 bond resname FE1, resname HD1 and name NE2;
 bond resname FE1, resname HD2 and name NE2;
 
 # Edit the selection that is named ligand here.;
-select ligand, resname FE1+OY1+HD1+HD2+AP1+AG1+ADG;
+select ligand, (resname FE1+OY1+HD1+HD2+AP1+AG1+ADG) or (resname WAT and resid 2446);
 set sphere_scale, 0.2, ligand;
 set stick_radius, 0.1, ligand;
 show sticks, ligand;    
 show spheres, ligand;
-color color4, ligand
-hide everything, (elem H and not (neighbor elem N+O+F))
+hide everything, (elem H and not (neighbor elem N+O+F) )
 select substrate, resname AG1;
 set sphere_scale, 0.2, substrate;
 set stick_radius, 0.1, substrate;
 show sticks, substrate;    
 show spheres, substrate;
-color color4, substrate
-select mutant,resid 198+173+186+277;
-set sphere_scale, 0.1, mutant;
-set stick_radius, 0.05, mutant;
-show sticks, mutant;    
-show spheres, mutant;
-color SCS, mutant
-
 cmd.set('ray_trace_mode', 1)
 cmd.set('label_size', 18);
 cmd.set('label_distance_digits', 2);
 set label_size, 18;
 set ray_trace_mode, 1
 set label_distance_digits, 2;
-# util.cba(20,"all",_self=cmd)
+util.cba(5271,"all",_self=cmd)
 # Edit the name for the ditance, the selection criteria for atom 1, and the selection criteria for atom 2.;
 # distance Op-Od, resname OY1 and name O1, resname OY1 and name O2;
 # distance Od-C1, resname OY1 and name O1, resname AG1 and name C1;
 # distance Od-C2, resname OY1 and name O2, resname AG1 and name C2;
 # distance C1-C2, resname AG1 and name C1, resname AG1 and name C2;
 
-set_view (\
-     0.881057441,   -0.377248317,    0.285336554,\
-     0.140230864,    0.784443974,    0.604129970,\
-    -0.451738268,   -0.492262661,    0.744042575,\
-     0.000026004,   -0.000045376,  -58.860935211,\
-    36.605026245,   33.335952759,   28.217453003,\
-    12.095874786,  105.597991943,  -20.000000000 )
-
+# set_color color1, [214, 206, 147]
+# set_color color2, [239, 235, 206]
+# set_color color3, [216, 164, 143]
+# set_color color4, [187, 133, 136]
+# color color1, pd.opt    
+# color color2, 5039_pd
+# color color3, 8386_pd
+# color color4, mutant
 # set_view (\
-#     -0.564175487,   -0.667428851,    0.486046940,\
-#      0.331022352,    0.356451452,    0.873704135,\
-#     -0.756388843,    0.653814793,    0.019832276,\
-#      0.000042114,   -0.000192702,  -45.779201508,\
-#     37.403354645,   31.536628723,   29.700807571,\
-#     -0.976287842,   92.525848389,  -20.000000000 )
+#     -0.153048858,    0.974280059,    0.165386051,\
+#     -0.254223377,    0.122906312,   -0.959300160,\
+#     -0.954955697,   -0.188865423,    0.228872821,\
+#      0.000300374,   -0.000132024,  -50.095298767,\
+#     33.487796783,   46.329124451,   39.412361145,\
+#      3.241513014,   96.954513550,  -20.000000000 )
+# ### cut above here and paste into script ###
+
+set_view (\
+     0.837318718,    0.531110346,    0.129679412,\
+    -0.026537690,    0.276400328,   -0.960671306,\
+    -0.546067894,    0.800948262,    0.245527729,\
+     0.000026099,   -0.000360886,  -50.095233917,\
+    33.954673767,   34.942344666,   38.790073395,\
+     3.241513014,   96.954513550,  -20.000000000 )
+### cut above here and paste into script ###
+
 # /GIT/Bathir-s-PHD/Python_Code/EFE_Pub.pml
 util.cnc("all",_self=cmd)
 wizard measurement;

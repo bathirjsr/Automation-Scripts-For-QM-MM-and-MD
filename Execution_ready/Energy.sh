@@ -15,8 +15,8 @@ ZPE=$(grep 'total ZPE' Frequency/${1}_Freq.log|awk '{printf "%7.5f", $(NF-1)}'| 
 B3=$(awk -v t="$B2" -v r="$ZPE" 'BEGIN{printf "%5.12f", (t + r)}')
 
 echo ${1}
-echo "B1 = ${B1}"
-echo "B2 = ${B2}"
+echo "QM(B1)/MM Energy = ${B1} a.u."
+echo "QM(B2)/MM Energy = ${B2} a.u."
+echo "QM(B3)/MM Energy = ${B3} a.u."
 echo "ZPE_KJ = ${ZPE_KJ}"
-echo "ZPE = ${ZPE}"
-echo "B3 = ${B3}"
+echo "ZPE(B1) = ${ZPE}"
