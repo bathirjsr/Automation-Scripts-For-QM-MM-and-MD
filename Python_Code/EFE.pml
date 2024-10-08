@@ -154,3 +154,26 @@ set sphere_color, red, elem O and A198L;
 set sphere_color, blue, elem N and A198L;
 set sphere_color, lightblue, elem F and A198L;
 set label_distance_digits, 2;
+
+# Note: requires the gscale() function from pymolshortcuts.py.
+# Download this script from http://GitHub.com/MooersLab/pymolshortcuts.
+# Load the functions from this script with the command 'run pymolshortcuts.py'
+set_color oxygen, [1.0,0.4,0.4];
+set_color nitrogen, [0.5,0.5,1.0];
+remove solvent;
+as spheres;
+util.cbaw;
+bg white;
+gscale();
+set light_count,10;
+set spec_count,1;
+set shininess, 10;
+set specular,0.25;
+set ambient,0;
+set direct,0;
+set reflect,1.5;
+set ray_shadow_decay_factor, 0.1;
+set ray_shadow_decay_range, 2;
+set depth_cue, 0;
+ray;
+
