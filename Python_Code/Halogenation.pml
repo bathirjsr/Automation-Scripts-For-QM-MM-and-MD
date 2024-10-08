@@ -29,7 +29,7 @@ bond resname FE1, resname HD1 and name NE2;
 bond resname FE1, resname HD2 and name NE2;
 
 # Edit the selection that is named ligand here.;
-select ligand, resname FE1+OY1+HD1+HD2+SC1+Cl1+ADG;
+select ligand, resname FE1+OY1+HD1+HD2+SC1+Cl1+D5M;
 preset.ball_and_stick(selection='ligand');
 util.cbaw ligand;
 set stick_color, white, ligand;
