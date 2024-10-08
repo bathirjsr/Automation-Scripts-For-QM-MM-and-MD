@@ -29,24 +29,24 @@ bond resname FE1, resname HD1 and name NE2;
 bond resname FE1, resname HD2 and name NE2;
 
 # Edit the selection that is named ligand here.;
-select ligand, resname FE1+OY1+HD1+HD2+SC1+Cl1+D5M;
-preset.ball_and_stick(selection='ligand');
-util.cbaw ligand;
-set stick_color, white, ligand;
-set valence, off, ligand;
-unset valence;
-# above command is required after using preset;
-set sphere_color, black, elem C and ligand;
-set sphere_color, red, elem O and ligand;
-set sphere_color, blue, elem N and ligand;
-set sphere_color, lightblue, elem F and ligand;
-set stick_radius, 0.05;
-set sphere_quality, 1;
-set sphere_scale, 0.15;
-set cartoon_ring_finder, 4, ligand;
-set cartoon_ring_mode, 3, ligand;
-set cartoon_ring_width, 0.1, ligand;
-set cartoon_ring_transparency, .0, ligand;
+select ligand, resname FE1+OY1+HD1+HD2+SC1+Cl1;
+set sphere_scale, 0.15, ligand;
+set stick_radius, 0.05, ligand;
+show sticks, ligand;    
+show spheres, ligand;
+color color4, ligand
+hide everything, (elem H and not (neighbor elem N+O+F))
+select substrate, resname D5M;
+set sphere_scale, 0.15, substrate;
+set stick_radius, 0.05, substrate;
+show sticks, substrate;    
+show spheres, substrate;
+cmd.set('ray_trace_mode', 1)
+cmd.set('label_size', 18);
+cmd.set('label_distance_digits', 2);
+set label_size, 18;
+set ray_trace_mode, 1
+set label_distance_digits, 2;
 
 
 
