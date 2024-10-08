@@ -11,7 +11,6 @@ set ambient,0.5;
 set direct,0.4;
 set spec_power, 100;
 set reflect,1.5;
-set ambient_occlusion_scale, 10;
 set antialias, 2;
 set ray_shadow_decay_factor, 0.1;
 set ray_shadow_decay_range, 2;
