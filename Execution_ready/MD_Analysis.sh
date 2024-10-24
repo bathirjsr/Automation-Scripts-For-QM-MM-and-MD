@@ -189,7 +189,7 @@ set encoding iso_8859_1
 set term post enhanced eps solid color lw 2.0 "Arial" 24
 
 set xlabel "Time (ns)"
-set ylabel "ROG ({\305}^2)"
+set ylabel "ROG ({\305})"
 set key right top Left reverse
 #set yrange [0:10]
 #set xrange [0:${residlast}]
