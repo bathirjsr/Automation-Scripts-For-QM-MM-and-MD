@@ -2,7 +2,6 @@
 if [ "$1" = "RC" ]
 then
 B1=$(grep 'Final converged energy' ${1}_dlfind.log|awk '{printf "%5.12f", $NF}')
-elif [ "$1" = "TS" || $1 = "RB_TS"]
 elif [ "$1" = "TS" ] || [ "$1" = "RB_TS" ]
 then
 B1=$(grep 'Final converged energy' ${1}_Opt.log|awk '{printf "%5.12f", $NF}')
