@@ -1,21 +1,26 @@
-set_color oxygen, [1.0,0.4,0.4];
-set_color nitrogen, [0.5,0.5,1.0];
-hide solvent;
-as spheres;
-util.cbaw;
-set light_count,3;
-set spec_count,1;
-set shininess, 10;
-set specular,0.25;
-set ambient,0.5;
-set direct,0.4;
-set spec_power, 100;
-set reflect,1.5;
-set antialias, 2;
-set ray_shadow_decay_factor, 0.1;
-set ray_shadow_decay_range, 2;
-set depth_cue, 0.2;
-set ray_shadow, off;
+set ray_trace_mode, 1
+set ray_trace_shadow, 1
+set ray_shadows, 1
+set ray_shadow_fudge, 0.2
+
+# Adjust ambient light and specular reflections
+set ambient, 0.5
+set spec_direct, 0.4
+set spec_power, 100
+set shininess, 10
+
+# Enable antialiasing
+set antialias, 2
+
+# Adjust light sources
+set light_count, 3
+set light2, 0.2
+set light3, 0.2
+
+# Optional silhouette edges for enhanced depth
+set cartoon_silhouette, 1
+set cartoon_silhouette_width, 1.5
+set cartoon_silhouette_color, black
 bg_color white;
 ray;
 hide everything;
@@ -47,5 +52,4 @@ set label_size, 18;
 set ray_trace_mode, 1
 set label_distance_digits, 2;
 
-
-
+set stick_radius, 0.05
