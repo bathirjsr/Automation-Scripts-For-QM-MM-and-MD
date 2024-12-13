@@ -88,60 +88,50 @@ if [ "$step" = "0" ]; then
 source "${inp}"
 if [ -z "$inp" ]; then 
 
-parm=$(zenity --file-selection --file-filter=*solv.prmtop --title="Select Parameter File")
-[[ "$?" != "0" ]] && exit 1
-trajin=$(zenity --file-selection --file-filter=*.nc --title="Select Trajectory File")
-[[ "$?" != "0" ]] && exit 1
-resname=$(zenity --entry --title="Active Site except Substrate (Eg. HD1,OY1 )")
-[[ "$?" != "0" ]] && exit 1
-substrate=$(zenity --entry --title="Substrate Residues (Eg. M3L or LAR )")
-[[ "$?" != "0" ]] && exit 1
-tleapinput=$(zenity --file-selection --file-filter=*tleap.in --title="Tleap Input file (Eg. 3avr_tleap.in )")
-[[ "$?" != "0" ]] && exit 1
-parsefile=$(zenity --file-selection --file-filter=*.tcl --title="Parse_amber File")
-[[ "$?" != "0" ]] && exit 1
-numberofres=$(zenity --entry --title="Range of residues (Eg. 1-552)")
-[[ "$?" != "0" ]] && exit 1
-frame=$(zenity --entry --title="Frame Number")
-[[ "$?" != "0" ]] && exit 1
-basis=$(zenity --entry --title="Basis Set (Eg. def2-SVP)")
-[[ "$?" != "0" ]] && exit 1
-charge=$(zenity --entry --title="Total charge of the QM region")
-[[ "$?" != "0" ]] && exit 1
-unp=$(zenity --entry --title="Number of Unpaired electrons")
-[[ "$?" != "0" ]] && exit 1
-nodes=$(zenity --entry --title="Number of CPUs")
-[[ "$?" != "0" ]] && exit 1
-source "${inp}"
-{ 
-date
-echo "parm=""${parm}"
-echo "trajin=""${trajin}"
-echo "resname=""${resname}"
-echo "substrate=""${substrate}"
-echo "tleapinput=""${tleapinput}"
-echo "parsefile=""${parsefile}"
-echo "numberofres=""${numberofres}"
-echo "frame=""${frame}"
-echo "basis=""${basis}"
-echo "charge=""${charge}"
-echo "unp=""${unp}"
-echo "nodes=""${nodes}"
-} >> QMMM_EFE.log
+# Function to prompt user for input using Zenity
+get_input() {
+    local input=$(zenity --$1 --title="$2" $3)
+    [[ "$?" != "0" ]] && exit 1
+    echo "$input"
+}
+
+# Collect inputs
+parm=$(get_input "file-selection" "Select Parameter File" "--file-filter=*solv.prmtop")
+trajin=$(get_input "file-selection" "Select Trajectory File" "--file-filter=*.nc")
+resname=$(get_input "entry" "Active Site except Substrate (Eg. HD1,OY1 )")
+substrate=$(get_input "entry" "Substrate Residues (Eg. M3L or LAR )")
+tleapinput=$(get_input "file-selection" "Tleap Input file (Eg. 3avr_tleap.in )" "--file-filter=*tleap.in")
+parsefile=$(get_input "file-selection" "Parse_amber File" "--file-filter=*.tcl")
+numberofres=$(get_input "entry" "Range of residues (Eg. 1-552)")
+frame=$(get_input "entry" "Frame Number")
+basis=$(get_input "entry" "Basis Set (Eg. def2-SVP)")
+charge=$(get_input "entry" "Total charge of the QM region")
+unp=$(get_input "entry" "Number of Unpaired electrons")
+nodes=$(get_input "entry" "Number of CPUs")
+work=$(get_input "entry" "Project Name")
+
+# Create log and input files
+log_file="QMMM_EFE.log"
+input_file="input.in"
+
+# Log data
 {
-echo "parm=""${parm}"
-echo "trajin=""${trajin}"
-echo "resname=""\"${resname}\""
-echo "substrate=""${substrate}"
-echo "tleapinput=""${tleapinput}"
-echo "parsefile=$(pwd)/parse_amber.tcl"
-echo "numberofres=""${numberofres}"
-echo "frame=""${frame}"
-echo "basis=""${basis}"
-echo "charge=""${charge}"
-echo "unp=""${unp}"
-echo "nodes=""${nodes}"
-} > input.in
+    echo "$(date)"
+    echo "parm=${parm}"
+    echo "trajin=${trajin}"
+    echo "resname=${resname}"
+    echo "substrate=${substrate}"
+    echo "tleapinput=${tleapinput}"
+    echo "parsefile=$(pwd)/parse_amber.tcl"
+    echo "numberofres=${numberofres}"
+    echo "frame=${frame}"
+    echo "basis=${basis}"
+    echo "charge=${charge}"
+    echo "unp=${unp}"
+    echo "nodes=${nodes}"
+    echo "work=${work}"
+} | tee -a "$log_file" > "$input_file"
+
 
 cp "$parsefile" .
 gedit parse_amber.tcl "$tleapinput"							#Check for correct path of parse_amber.tcl
@@ -168,6 +158,7 @@ echo "basis=""${basis}"
 echo "charge=""${charge}"
 echo "unp=""${unp}"
 echo "nodes=""${nodes}"
+echo "work=""${work}"
 } >> QMMM_EFE.log
 
 parmname=$(basename -- "$parm")

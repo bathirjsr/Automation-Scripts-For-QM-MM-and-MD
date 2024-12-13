@@ -17,4 +17,13 @@ for dir in $(pwdx $(pidof chemsh.x) | awk '{print $NF}'); do
     fi
 done
 echo "Total CPUs used by $1: $sum"
+if [ "$(hostname)" = "gold.sabu.mtu.edu" ]; then
+    total=208
+else
+    total=96
+fi
+
+remaining=$(($total - sum))
+echo "Remaining CPUs: $remaining"
+
 fi
