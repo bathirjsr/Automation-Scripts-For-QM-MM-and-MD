@@ -19,8 +19,8 @@ export TCLROOT=/usr/local/tcl8.5.11
 export LIBTCL=/usr/local/tcl8.5.11/lib/libtcl8.5.so 
 export PATH=/usr/local/chemsh-3.7.0/bin/:/usr/local/ChemShell/chemsh-3.7.0/scripts/:$PATH
 export CC=cc
-export F77=gfortran
-export F90=gfortran
+export F77=gfortran or F77=mpiifort
+export F90=gfortran or F90=mpiifort
 cd chemsh-3.7.0/src/config/
 ./configure 
 cd ..
@@ -28,4 +28,13 @@ make
 cd ../examples/
 ./run_validation.tcsh 
 
+#AMBER_INSTALLATION
+
+add DPYTHON_EXECUTABLE DPYTHON_INCLUDE_DIR DPYTHON_LIBRARY in run_cmake file in amber_xx_src/build/ folder
+  cmake $AMBER_PREFIX/amber20_src \
+    -DCMAKE_INSTALL_PREFIX=$AMBER_PREFIX/amber20 \
+    -DCOMPILER=GNU  \
+    -DMPI=TRUE -DCUDA=FALSE -DINSTALL_TESTS=TRUE \
+    -DDOWNLOAD_MINICONDA=FALSE -DMINICONDA_USE_PY3=TRUE -DPYTHON_EXECUTABLE=/usr/bin/python3 -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m/ -DPYTHON_LIBRARY=/usr/lib64/ \
+    2>&1 | tee  cmake.log
 
