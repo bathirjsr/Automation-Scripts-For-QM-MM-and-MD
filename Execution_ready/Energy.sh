@@ -21,4 +21,4 @@ echo "QM(B3)/MM Energy = ${B3} a.u."
 echo "ZPE_KJ = ${ZPE_KJ}"
 echo "ZPE(B1) = ${ZPE}"
 
-echo "Excel copy: ${B1} ${B2} ${ZPE_KJ}" 
+echo -e "Excel copy: ${B1}\t${B2}\t${ZPE_KJ}" 
