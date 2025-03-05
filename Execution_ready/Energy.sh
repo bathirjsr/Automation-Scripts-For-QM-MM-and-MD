@@ -23,3 +23,4 @@ echo "ZPE(B1) = ${ZPE}"
 
 echo -e "Excel copy: ${B1}\t${B2}\t${ZPE_KJ}" > $1_energy.csv
 cat $1_energy.csv
+gedit $1_energy.csv
