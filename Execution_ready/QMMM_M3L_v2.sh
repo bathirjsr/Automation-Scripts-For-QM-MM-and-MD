@@ -22,7 +22,7 @@ do
 	s) step=${OPTARG};;
 	a) A=${OPTARG};;
 	b) B=${OPTARG};;
-        c) C=${OPTARG};;
+    c) C=${OPTARG};;
 	d) D=${OPTARG};;
 	t) transition=${OPTARG};;
 	p) product=${OPTARG};;	
