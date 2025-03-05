@@ -21,6 +21,6 @@ echo "QM(B3)/MM Energy = ${B3} a.u."
 echo "ZPE_KJ = ${ZPE_KJ}"
 echo "ZPE(B1) = ${ZPE}"
 
-echo -e "${B1}\t${B2}\t${ZPE_KJ}" > $1_energy.csv
+printf "%s\t%s\t%s\n" "${B1}" "${B2}" "${ZPE_KJ}" > $1_energy.csv
 cat $1_energy.csv 
 xclip -selection clipboard < RC_energy.csv
