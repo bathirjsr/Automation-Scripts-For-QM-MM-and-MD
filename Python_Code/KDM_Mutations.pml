@@ -1,23 +1,33 @@
-<<<<<<< HEAD
-set light_count,10;
-set spec_count,1;
-set shininess, 10;
-set specular,0.25;
-set ambient,0;
-set direct,0;
-set reflect,1.5;
-set ray_shadow_decay_factor, 0.1;
-set ray_shadow_decay_range, 2;
-set depth_cue, 0.2;
-set ray_shadow, off;
-bg_color white;
-ray;
-hide everything;
-util.cba(6,"all",_self=cmd)
-=======
-
+set ambient 0.5;
+set reflect 0.5;
+set direct 0.45;
+set spec_direct 0;
+set spec_direct_power 55;
+set light_count, 2;
+set edit_light, 1;
+set spec_count, -1;
+set shininess, 0;
+set spec_reflect, -0.01;
+set specular, 0;
+set specular_intensity, 0;  
+set ambient_occlusion_mode, 0;
+set ambient_occlusion_scale, 25;
+set ambient_occlusion_smooth, 10;
+set power, 1;
+set reflect_power, 1;
+set ray_trace_mode, 1;
+hide everything; 
+bond resname FE1, resname OY1 and name O1;
+bond resname FE1, resname SC1 and name O1;
+bond resname FE1, resname HD1 and name NE2;
+bond resname FE1, resname HD2 and name NE2;
+# Edit the selection that is named ligand here.;
+select ligand, resname FE1+OY1+HD1+HD2+SC1+GU1+MEL;
+set sphere_scale, 0.15, ligand;
+set stick_radius, 0.05, ligand;
+show sticks, ligand;    
+show spheres, ligand;
 util.cba(9,"all",_self=cmd)
->>>>>>> 2ab8d5d89fc39a5bc35093d0754e1905e04af2d8
 
 bond resname FE1, resname SC1 and name O1;
 bond resname FE1, resname OY1 and name O1;
@@ -32,23 +42,12 @@ set stick_radius, 0.1, ligand;
 show sticks, ligand;    
 show spheres, ligand;
 hide everything, (elem H and not (neighbor elem N+O+F))
-<<<<<<< HEAD
-select substrate, resname MEL;
-=======
 select substrate, resname DEL;
->>>>>>> 2ab8d5d89fc39a5bc35093d0754e1905e04af2d8
 set sphere_scale, 0.2, substrate;
 set stick_radius, 0.1, substrate;
 show sticks, substrate;    
 show spheres, substrate;
 
-<<<<<<< HEAD
-distance Op-Od, resname OY1 and name O1, resname MEL and name H12;
-
-set ray_trace_mode, 1
-set label_size, 18;
-set label_distance_digits, 2;
-=======
 
 set ray_trace_mode, 1
 set label_size, 18;
@@ -63,4 +62,3 @@ set_view (\
    -28.421421051,  146.211990356,  -20.000000000 )
 ### cut above here and paste into script ###
 wizard measurement
->>>>>>> 2ab8d5d89fc39a5bc35093d0754e1905e04af2d8

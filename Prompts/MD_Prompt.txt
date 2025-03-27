@@ -1,0 +1,24 @@
+"Write a Python script that reads a .dat file from the command line. The file contains time in the first column and multiple distance values in the remaining columns. The script should generate two plots:
+ Remember the first column of the data file has time in ns. No conversion needed
+Ignore the title row(first row)
+    Histogram of distances
+        Exclude the first column (time).
+        Use different colors for each distance.
+        The colors should follow the sequence: blue, red, green, yellow, purple, orange, pink, brown, cyan, magenta.
+        Ensure that both plots use the same color for a particular distance.
+        The y-axis should represent the percentage of the trajectory
+        Save this plot as "Distance_Histogram.png".
+
+    Time evolution of distances
+        The x-axis should represent time in nanoseconds (ns) (convert from picoseconds if needed).
+        The y-axis should represent distance in angstroms (Å).
+        Ask the user for the upper limits of x-axis (time in ns) and y-axis (distance in Å) before plotting.
+        Use the same colors as in the histogram for each distance.
+        Do not include a title or legend in this plot.
+        Save this plot as "Distance_Time_Evolution.png".
+
+Ensure that the script:
+
+    Accepts the filename from the command line.
+    Handles any number of distance columns dynamically.
+    Defaults to the maximum values of time and distance if the user enters an invalid limit."*

@@ -1,0 +1,77 @@
+# %%
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from Bio import PDB
+from Bio.PDB.Polypeptide import three_to_one
+
+# %%
+# Function to parse PDB file and map residue numbers to one-letter codes
+def parse_pdb_residues(pdb_file):
+    parser = PDB.PDBParser(QUIET=True)
+    structure = parser.get_structure('protein', pdb_file)
+    residue_map = {}
+    
+    for model in structure:
+        for chain in model:
+            for residue in chain:
+                res_id = residue.get_id()[1]  # Residue number
+                res_name = residue.get_resname()  # Three-letter residue code
+                try:
+                    res_letter = three_to_one(res_name)  # Convert to one-letter code
+                except KeyError:
+                    res_letter = 'X'  # Use 'X' if the conversion fails
+                residue_map[res_id] = res_letter
+    
+    return residue_map
+
+# Function to plot the graph
+def plot_eda_graph(eda_file, pdb_file, output_svg):
+    # Read EDA data
+    data = pd.read_csv(eda_file, delim_whitespace=True)
+    residues = data['Residue']
+    eda = data['TotalDiffE']
+    
+    # Parse PDB file to get residue names
+    residue_map = parse_pdb_residues(pdb_file)
+    
+    # Determine the top 3 and bottom 3 EDA values
+    top_3_indices = np.argsort(eda)[-3:]
+    bottom_3_indices = np.argsort(eda)[:3]
+    
+    # Create a block plot (step plot) with Residue on the x-axis and EDA on the y-axis
+    plt.figure()
+    plt.step(residues, eda, where='mid', linewidth=2, color='blue')
+    plt.scatter(residues, eda, color='red')
+    
+    # Label only the top 3 and bottom 3 EDA values with residue numbers and names
+    for i in top_3_indices:
+        res_num = residues[i]
+        res_name = residue_map.get(res_num, 'X')  # Use 'X' if not found
+        plt.text(res_num, eda[i] + 0.02, f'{res_name}{res_num}: {eda[i]:.2f}', ha='center', color='black', fontsize=10, family='Arial')
+    
+    for i in bottom_3_indices:
+        res_num = residues[i]
+        res_name = residue_map.get(res_num, 'X')  # Use 'X' if not found
+        plt.text(res_num, eda[i] + 0.02, f'{res_name}{res_num}: {eda[i]:.2f}', ha='center', color='black', fontsize=10, family='Arial')
+    
+    # Adding labels and title
+    plt.xlabel('Residues', fontsize=12, family='Arial')
+    plt.ylabel('EDA (\u0394E)(kcal/mol)',
+               fontsize=12, family='Arial')
+    
+    # Save the plot as an SVG file
+    plt.grid(False)
+    plt.savefig(output_svg, format='svg')
+    plt.close()
+
+# %%
+# Example usage:
+eda_file = '/mnt/research/bathir/EFE/EFE_WT/EFE-Mechanism/EFE-offline/WT/QMMM/Frame8386/Final/EDA-8TS-6IM/gnu.dat'  # Path to your EDA.dat file
+# Path to your PDB file
+pdb_file = '/mnt/research/bathir/EFE/EFE_WT/EFE-Mechanism/EFE-offline/WT/QMMM/Frame8386/Final/EDA-8TS-6IM/EFE_dry.pdb'
+output_svg = '/mnt/research/bathir/EFE/EFE_WT/EFE-Mechanism/EFE-offline/WT/QMMM/Frame8386/Final/EDA-8TS-6IM/EDA_plot.svg'  # Output SVG file
+
+plot_eda_graph(eda_file, pdb_file, output_svg)
+
+
