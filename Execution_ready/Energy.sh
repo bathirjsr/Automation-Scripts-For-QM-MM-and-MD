@@ -4,10 +4,10 @@ then
 B1=$(grep 'Final converged energy' "${1}"_dlfind.log|awk '{printf "%5.12f", $NF}')
 elif [ "$1" = "TS" ] 
 then
-B1=$(grep 'Final converged energy' *_Opt.log|awk '{printf "%5.12f", $NF}')
+B1=$(grep 'Final converged energy' ./*_Opt.log|awk '{printf "%5.12f", $NF}')
 grep 'frequencies' Frequency/*.log | head -n 4
 else
-B1=$(grep 'Final converged energy' *_Opt.log|awk '{printf "%5.12f", $NF}')
+B1=$(grep 'Final converged energy' ./*_Opt.log|awk '{printf "%5.12f", $NF}')
 fi
 B2=$(grep 'Energy (     hybrid):' SP/*_SP.log|awk '{printf "%5.12f", $(NF-1)}')
 ZPE_KJ=$(grep 'total ZPE' Frequency/*_Freq.log|awk '{printf "%7.5f", $(NF-1)}')
