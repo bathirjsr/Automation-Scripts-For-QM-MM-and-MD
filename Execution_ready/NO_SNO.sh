@@ -19,14 +19,14 @@ do
     cd "${dirs[i]}" || exit 
     mkdir NO_SNO
     cd NO_SNO || exit
-    cp ../SP/alpha .
+    cp ../alpha .
     sed '1,3d' alpha | sed '$d' > tmp_alpha
     echo "" >> tmp_alpha
     printf '%s\n' "(4d20.14)" | cat - tmp_alpha > alpha_edit
-    cp ../SP/beta .
+    cp ../beta .
     sed '1,3d' beta | sed '$d' > beta_edit
     echo "" >> beta_edit
-    cp ../SP/hybrid.turbomole.coords .
+    cp ../hybrid.turbomole.coords .
     #######################Change sed number here to total number of atoms###############
     sed '1,4d' hybrid.turbomole.coords | sed -n "1,${n} p" | awk '{printf "%2s%16f%14f%14f\n", $1,$2*0.529177249,$3*0.529177249,$4*0.529177249}' > inpcrd
     echo "" >> inpcrd
@@ -36,7 +36,7 @@ cat > Gauss_code.txt << EOF
 %nproc=12
 %mem=2gb
 %chk=NO
-#ub3lyp/def2tzvp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
+#ub3lyp/def2svp guess=(only,cards) gfinput gfoldprint pop=NaturalOrbitals iop(2/11=1)
 
 MOs
 

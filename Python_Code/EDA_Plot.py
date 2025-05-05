@@ -67,10 +67,14 @@ def plot_eda_graph(eda_file, pdb_file, output_svg):
 
 # %%
 # Example usage:
-eda_file = '/mnt/research/bathir/EFE/EFE_WT/EFE-Mechanism/EFE-offline/WT/QMMM/Frame8386/Final/EDA-8TS-6IM/gnu.dat'  # Path to your EDA.dat file
-# Path to your PDB file
-pdb_file = '/mnt/research/bathir/EFE/EFE_WT/EFE-Mechanism/EFE-offline/WT/QMMM/Frame8386/Final/EDA-8TS-6IM/EFE_dry.pdb'
-output_svg = '/mnt/research/bathir/EFE/EFE_WT/EFE-Mechanism/EFE-offline/WT/QMMM/Frame8386/Final/EDA-8TS-6IM/EDA_plot.svg'  # Output SVG file
+# Ask user for the path to the EDA.dat file
+eda_file = input("Enter the path to the EDA.dat file: ").strip()
+
+# Ask user for the path to the PDB file
+pdb_file = input("Enter the path to the PDB file: ").strip()
+
+# Ask user for the output SVG file path
+output_svg = input("Enter the path to save the output SVG file: ").strip()
 
 plot_eda_graph(eda_file, pdb_file, output_svg)
 
