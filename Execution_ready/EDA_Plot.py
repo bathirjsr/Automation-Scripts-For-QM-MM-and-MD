@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from Bio import PDB
 from Bio.PDB.Polypeptide import three_to_one
+import sys
+
 
 # %%
 # Function to parse PDB file and map residue numbers to one-letter codes
@@ -58,7 +60,7 @@ def plot_eda_graph(eda_file, pdb_file, output_svg):
     
     # Adding labels and title
     plt.xlabel('Residues', fontsize=12, family='Arial')
-    plt.ylabel('EDA (\u0394E)(kcal/mol)',
+    plt.ylabel('EDA (\u0394E)(kcal mol$^{-1}$)',
                fontsize=12, family='Arial')
     
     # Save the plot as an SVG file
@@ -69,14 +71,13 @@ def plot_eda_graph(eda_file, pdb_file, output_svg):
 # %%
 # Example usage:
 # Ask user for the path to the EDA.dat file
-eda_file = input("Enter the path to the EDA.dat file: ").strip()
-
-# Ask user for the path to the PDB file
-pdb_file = input("Enter the path to the PDB file: ").strip()
+# Take inputs from command line arguments
+eda_file = sys.argv[1]  # First command line argument
+pdb_file = sys.argv[2]  # Second command line argument
 
 # Ask user for the output SVG file path
-output_svg = input("Enter the path to save the output SVG file: ").strip()
+#output_svg = input("Enter the path to save the output SVG file: ").strip()
 
-plot_eda_graph(eda_file, pdb_file, output_svg)
+plot_eda_graph(eda_file, pdb_file, "EDA_Plot.svg")
 
 
