@@ -1,5 +1,5 @@
 #! /bin/bash
-#Execution Syntax: QMMM.sh -i input.in -s <stepnumber> -a <atomnumber1> -b <atomnumber2> -t <transitionstate> -p <product state>  
+#Execution Syntax: QMMM.sh -i input.in -s <stepnumber> -a <atomnumber1> -b <atomnumber2> -t <transitionstate> -p <product state>
 #(input -a and -b only for Scan calculation and -t for TS optimization and -p for Product Optimization)
 #Edit the script for changing the path for parse_amber.tcl file
 #Change the vmd atomselect tcl script according to your substrate and system(QM region and MM region)
@@ -15,32 +15,32 @@
 #s 4 PD Optimization
 #s 4f PD Frequency
 #s 4s PD Single Point Calculation
-while getopts i:s:a:b:c:d:t:p: flag
-do
+while getopts i:s:a:b:c:d:t:p: flag; do
     case "${flag}" in
-	i) inp=${OPTARG};;
-	s) step=${OPTARG};;
-	a) A=${OPTARG};;
-	b) B=${OPTARG};;
-        c) C=${OPTARG};;
-	d) D=${OPTARG};;
-	t) transition=${OPTARG};;
-	p) product=${OPTARG};;	
-    *) echo "usage: $0 [-i] [-s] [-a] [-b] [-t] [-p]" >&2
-       exit 1 ;;
-esac
+    i) inp=${OPTARG} ;;
+    s) step=${OPTARG} ;;
+    a) A=${OPTARG} ;;
+    b) B=${OPTARG} ;;
+    c) C=${OPTARG} ;;
+    d) D=${OPTARG} ;;
+    t) transition=${OPTARG} ;;
+    p) product=${OPTARG} ;;
+    *)
+        echo "usage: $0 [-i] [-s] [-a] [-b] [-t] [-p]" >&2
+        exit 1
+        ;;
+    esac
 done
 send_email_notification() {
     local subject="$1"
     local message="$2"
-    local recipient="simahjsr@gmail.com"  # Replace with the actual email address
+    local recipient="simahjsr@gmail.com" # Replace with the actual email address
 
     echo "$message" | mail -s "$subject" "$recipient"
 }
 
-if [ "$1" = "help" ];
-then
-echo " 
+if [ "$1" = "help" ]; then
+    echo " 
 !!!!Follow the Guidelines properly !!!!!
 Execution Syntax: QMMM.sh -i input.in -s <stepnumber> -a <atomnumber1> -b <atomnumber2> -t <transitionstate> -p <product state>  
 (input -a and -b only for Scan calculation and -t for TS optimization and -p for Product Optimization)
@@ -78,95 +78,94 @@ Steps of QMMM Calculations (Execution Folder given in Brackets)
 -s 4f PD Frequency (4-PD Folder)
 -s 4s PD Single Point Calculation (4-PD Folder)
 "
-exit
+    exit
 fi
 
 user=$USER
 host=$(hostname)
 
 if [ "$step" = "0" ]; then
-source "${inp}"
-if [ -z "$inp" ]; then 
+    source "${inp}"
+    if [ -z "$inp" ]; then
 
-# Function to prompt user for input using Zenity
-get_input() {
-    local input=$(zenity --$1 --title="$2" $3)
-    [[ "$?" != "0" ]] && exit 1
-    echo "$input"
-}
+        # Function to prompt user for input using Zenity
+        get_input() {
+            local input=$(zenity --$1 --title="$2" $3)
+            [[ "$?" != "0" ]] && exit 1
+            echo "$input"
+        }
 
-# Collect inputs
-parm=$(get_input "file-selection" "Select Parameter File" "--file-filter=*solv.prmtop")
-trajin=$(get_input "file-selection" "Select Trajectory File" "--file-filter=*.nc")
-resname=$(get_input "entry" "Active Site except Substrate (Eg. HD1,OY1 )")
-substrate=$(get_input "entry" "Substrate Residues (Eg. M3L or LAR )")
-tleapinput=$(get_input "file-selection" "Tleap Input file (Eg. 3avr_tleap.in )" "--file-filter=*tleap.in")
-parsefile=$(get_input "file-selection" "Parse_amber File" "--file-filter=*.tcl")
-numberofres=$(get_input "entry" "Range of residues (Eg. 1-552)")
-frame=$(get_input "entry" "Frame Number")
-basis=$(get_input "entry" "Basis Set (Eg. def2-SVP)")
-charge=$(get_input "entry" "Total charge of the QM region")
-unp=$(get_input "entry" "Number of Unpaired electrons")
-nodes=$(get_input "entry" "Number of CPUs")
-work=$(get_input "entry" "Project Name")
+        # Collect inputs
+        parm=$(get_input "file-selection" "Select Parameter File" "--file-filter=*solv.prmtop")
+        trajin=$(get_input "file-selection" "Select Trajectory File" "--file-filter=*.nc")
+        resname=$(get_input "entry" "Active Site except Substrate (Eg. HD1,OY1 )")
+        substrate=$(get_input "entry" "Substrate Residues (Eg. M3L or LAR )")
+        tleapinput=$(get_input "file-selection" "Tleap Input file (Eg. 3avr_tleap.in )" "--file-filter=*tleap.in")
+        parsefile=$(get_input "file-selection" "Parse_amber File" "--file-filter=*.tcl")
+        numberofres=$(get_input "entry" "Range of residues (Eg. 1-552)")
+        frame=$(get_input "entry" "Frame Number")
+        basis=$(get_input "entry" "Basis Set (Eg. def2-SVP)")
+        charge=$(get_input "entry" "Total charge of the QM region")
+        unp=$(get_input "entry" "Number of Unpaired electrons")
+        nodes=$(get_input "entry" "Number of CPUs")
+        work=$(get_input "entry" "Project Name")
 
-# Create log and input files
-log_file="QMMM_EFE.log"
-input_file="input.in"
+        # Create log and input files
+        log_file="QMMM_EFE.log"
+        input_file="input.in"
 
-# Log data
-{
-    echo "$(date)"
-    echo "parm=${parm}"
-    echo "trajin=${trajin}"
-    echo "resname=${resname}"
-    echo "substrate=${substrate}"
-    echo "tleapinput=${tleapinput}"
-    echo "parsefile=$(pwd)/parse_amber.tcl"
-    echo "numberofres=${numberofres}"
-    echo "frame=${frame}"
-    echo "basis=${basis}"
-    echo "charge=${charge}"
-    echo "unp=${unp}"
-    echo "nodes=${nodes}"
-    echo "work=${work}"
-} | tee -a "$log_file" > "$input_file"
+        # Log data
+        {
+            echo "$(date)"
+            echo "parm=${parm}"
+            echo "trajin=${trajin}"
+            echo "resname=${resname}"
+            echo "substrate=${substrate}"
+            echo "tleapinput=${tleapinput}"
+            echo "parsefile=$(pwd)/parse_amber.tcl"
+            echo "numberofres=${numberofres}"
+            echo "frame=${frame}"
+            echo "basis=${basis}"
+            echo "charge=${charge}"
+            echo "unp=${unp}"
+            echo "nodes=${nodes}"
+            echo "work=${work}"
+        } | tee -a "$log_file" >"$input_file"
 
+        cp "$parsefile" .
+        gedit parse_amber.tcl "$tleapinput" #Check for correct path of parse_amber.tcl
+        echo "Did you check parse_amber.tcl and made sure atoms are grouped correctly as such in tleap input?"
+        read -r parse_amber
+        if [ "$parse_amber" = "yes" ]; then
+            echo "Modelling proceeds"
+        else
+            exit
+        fi
 
-cp "$parsefile" .
-gedit parse_amber.tcl "$tleapinput"							#Check for correct path of parse_amber.tcl
-echo "Did you check parse_amber.tcl and made sure atoms are grouped correctly as such in tleap input?"
-read -r parse_amber
-if [ "$parse_amber" = "yes" ]; then
-echo "Modelling proceeds"
-else
-exit
-fi
+    fi
+    {
+        date
+        echo "parm=""${parm}"
+        echo "trajin=""${trajin}"
+        echo "resname=""${resname}"
+        echo "substrate=""${substrate}"
+        echo "tleapinput=""${tleapinput}"
+        echo "parsefile=""${parsefile}"
+        echo "numberofres=""${numberofres}"
+        echo "frame=""${frame}"
+        echo "basis=""${basis}"
+        echo "charge=""${charge}"
+        echo "unp=""${unp}"
+        echo "nodes=""${nodes}"
+        echo "work=""${work}"
+    } >>QMMM_EFE.log
 
-fi
-{ 
-date
-echo "parm=""${parm}"
-echo "trajin=""${trajin}"
-echo "resname=""${resname}"
-echo "substrate=""${substrate}"
-echo "tleapinput=""${tleapinput}"
-echo "parsefile=""${parsefile}"
-echo "numberofres=""${numberofres}"
-echo "frame=""${frame}"
-echo "basis=""${basis}"
-echo "charge=""${charge}"
-echo "unp=""${unp}"
-echo "nodes=""${nodes}"
-echo "work=""${work}"
-} >> QMMM_EFE.log
+    parmname=$(basename -- "$parm")
+    #parmext="${parmname##*.}"
+    system="${parmname%.*}"
 
-parmname=$(basename -- "$parm")
-#parmext="${parmname##*.}"
-system="${parmname%.*}"
-
-#CREATING INPUT FILES FOR CPPTRAJ FOR PREPARING RC COMPLEX FILES
-cat > ReactionComplex_"${frame}".in << ENDOFFILE
+    #CREATING INPUT FILES FOR CPPTRAJ FOR PREPARING RC COMPLEX FILES
+    cat >ReactionComplex_"${frame}".in <<ENDOFFILE
 parm ${parm}
 trajin ${trajin} ${frame} ${frame}
 autoimage
@@ -188,25 +187,25 @@ trajout rc_${frame}.rst restart
 run
 exit
 ENDOFFILE
-cat ReactionComplex_"${frame}".in
+    cat ReactionComplex_"${frame}".in
 
-#CREATING RC COMPLEX FILES
-nohup cpptraj -i ReactionComplex_"${frame}".in > ReactionComplex_"${frame}".out &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Error" ReactionComplex_"${frame}".out)" -ge 1 ]; then
-                echo "Cpptraj Error"
-                exit
-        else
-                echo "Generated Frame PDB"
-fi
+    #CREATING RC COMPLEX FILES
+    nohup cpptraj -i ReactionComplex_"${frame}".in >ReactionComplex_"${frame}".out &
+    process=$!
+    while ps -p ${process} >/dev/null; do sleep 1; done
+    if [ "$(grep -c "Error" ReactionComplex_"${frame}".out)" -ge 1 ]; then
+        echo "Cpptraj Error"
+        exit
+    else
+        echo "Generated Frame PDB"
+    fi
 
-cp stripped12."${system}".prmtop rc_"${frame}".prmtop
-sed -i "9s/1/0/" rc_"${frame}".prmtop
+    cp stripped12."${system}".prmtop rc_"${frame}".prmtop
+    sed -i "9s/1/0/" rc_"${frame}".prmtop
 
-#MAKING QMMM MODEL
-echo "Creating QMMM Model"
-cat > QM_MM_"${frame}".tcl <<ENDOFFILE
+    #MAKING QMMM MODEL
+    echo "Creating QMMM Model"
+    cat >QM_MM_"${frame}".tcl <<ENDOFFILE
 mol load pdb rc_${frame}.pdb
 atomselect top "same residue as (within 8 of (resname $resname $substrate))"
 atomselect0 num
@@ -224,39 +223,38 @@ close \$myfile1
 exit
 ENDOFFILE
 
-echo "Using rc.pdb"
-echo "Using Residues:${resname}"
-echo "Using Substrate:${substrate}"
+    echo "Using rc.pdb"
+    echo "Using Residues:${resname}"
+    echo "Using Substrate:${substrate}"
 
-vmd -dispdev text -e QM_MM_"${frame}".tcl
+    vmd -dispdev text -e QM_MM_"${frame}".tcl
 
-vmd QM_"${frame}".pdb
-echo "Does QM Model looks correct?"
-read -r decision_QM
-if [ "$decision_QM" = "yes" ]; then
-echo "QM Modelling Success"
-else
-exit
-fi
+    vmd QM_"${frame}".pdb
+    echo "Does QM Model looks correct?"
+    read -r decision_QM
+    if [ "$decision_QM" = "yes" ]; then
+        echo "QM Modelling Success"
+    else
+        exit
+    fi
 
-vmd MM_"${frame}".pdb
-echo "Does MM Model looks correct?"
-read -r decision_MM
-if [ "$decision_MM" = "yes" ]; then
-echo "MM Modelling Success"
-else
-exit
-fi
-cat > residues_"${frame}".dat <<EOF
+    vmd MM_"${frame}".pdb
+    echo "Does MM Model looks correct?"
+    read -r decision_MM
+    if [ "$decision_MM" = "yes" ]; then
+        echo "MM Modelling Success"
+    else
+        exit
+    fi
+    cat >residues_"${frame}".dat <<EOF
 EOF
-for x in ${resname} ${substrate} ;
-do
-awk -v i="${x}" '$4==i {resname=$4;resid=$5} END{print resname resid}' rc_"${frame}".pdb >> residues_"${frame}".dat
-done
-myresidues=$(awk 'BEGIN { ORS = " " } { print }' residues_"${frame}".dat )
-echo "myresidues=""\"${myresidues}\"" >> input.in
+    for x in ${resname} ${substrate}; do
+        awk -v i="${x}" '$4==i {resname=$4;resid=$5} END{print resname resid}' rc_"${frame}".pdb >>residues_"${frame}".dat
+    done
+    myresidues=$(awk 'BEGIN { ORS = " " } { print }' residues_"${frame}".dat)
+    echo "myresidues=""\"${myresidues}\"" >>input.in
 
-cat > addone-awk <<ENDOFFILE
+    cat >addone-awk <<ENDOFFILE
 
 BEGIN{
    RS = " "
@@ -269,43 +267,43 @@ printf( "%d " , a )
 }
 
 ENDOFFILE
-awk -f addone-awk mm_"${frame}".txt > MM_"${frame}".dat
-sed -i '1s/^/set active {/' MM_"${frame}".dat
-echo "}" >> MM_"${frame}".dat
-awk -f addone-awk qm_"${frame}".txt > QM_"${frame}".dat
-sed -i '1s/^/set qm_atoms {/' QM_"${frame}".dat
-echo "}" >> QM_"${frame}".dat
+    awk -f addone-awk mm_"${frame}".txt >MM_"${frame}".dat
+    sed -i '1s/^/set active {/' MM_"${frame}".dat
+    echo "}" >>MM_"${frame}".dat
+    awk -f addone-awk qm_"${frame}".txt >QM_"${frame}".dat
+    sed -i '1s/^/set qm_atoms {/' QM_"${frame}".dat
+    echo "}" >>QM_"${frame}".dat
 
-#MAKING DIRECTORIES
-if [[ ! -e ../../QMMM ]]; then
-    mkdir ../../QMMM
-elif [[ ! -d ../../QMMM ]]; then
-    echo "QMMM already exists but is not a directory" 1>&2
-fi
+    #MAKING DIRECTORIES
+    if [[ ! -e ../../QMMM ]]; then
+        mkdir ../../QMMM
+    elif [[ ! -d ../../QMMM ]]; then
+        echo "QMMM already exists but is not a directory" 1>&2
+    fi
 
-if [[ ! -e ../../QMMM/Frame"${frame}" ]]; then
-    mkdir ../../QMMM/Frame"${frame}"
-elif [[ ! -d ../../QMMM/Frame"${frame}" ]]; then
-    echo "QMMM already exists but is not a directory" 1>&2
-fi
+    if [[ ! -e ../../QMMM/Frame"${frame}" ]]; then
+        mkdir ../../QMMM/Frame"${frame}"
+    elif [[ ! -d ../../QMMM/Frame"${frame}" ]]; then
+        echo "QMMM already exists but is not a directory" 1>&2
+    fi
 
-if [[ ! -e ../../QMMM/Frame"${frame}"/1-RC_Opt ]]; then
-    mkdir ../../QMMM/Frame"${frame}"/1-RC_Opt
-elif [[ ! -d ../../QMMM/Frame"${frame}"/1-RC_Opt ]]; then
-    echo "1-RC_Opt already exists but is not a directory" 1>&2
-fi
+    if [[ ! -e ../../QMMM/Frame"${frame}"/1-RC_Opt ]]; then
+        mkdir ../../QMMM/Frame"${frame}"/1-RC_Opt
+    elif [[ ! -d ../../QMMM/Frame"${frame}"/1-RC_Opt ]]; then
+        echo "1-RC_Opt already exists but is not a directory" 1>&2
+    fi
 
-#COPYING FILES TO THE RC_Opt DIRECTORIES
-cp rc_"${frame}".pdb ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.pdb
-cp rc_"${frame}".rst ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.rst
-cp rc_"${frame}".prmtop ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.prmtop
-cp QM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/QM.dat
-cp MM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/MM.dat
-cp parse_amber.tcl ../../QMMM/Frame"${frame}"/1-RC_Opt/.
-cp input.in ../../QMMM/Frame"${frame}"/1-RC_Opt/.
-cd ../../QMMM/Frame"${frame}"/1-RC_Opt || exit
+    #COPYING FILES TO THE RC_Opt DIRECTORIES
+    cp rc_"${frame}".pdb ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.pdb
+    cp rc_"${frame}".rst ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.rst
+    cp rc_"${frame}".prmtop ../../QMMM/Frame"${frame}"/1-RC_Opt/rc.prmtop
+    cp QM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/QM.dat
+    cp MM_"${frame}".dat ../../QMMM/Frame"${frame}"/1-RC_Opt/MM.dat
+    cp parse_amber.tcl ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+    cp input.in ../../QMMM/Frame"${frame}"/1-RC_Opt/.
+    cd ../../QMMM/Frame"${frame}"/1-RC_Opt || exit
 
-cat > RC_dlfind.chm <<ENDOFFILE
+    cat >RC_dlfind.chm <<ENDOFFILE
 # adenine - Amber example with polarisation turned off
 # hybrid with electrostaic embedding
 global sys_name_id
@@ -366,22 +364,21 @@ write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 
 ENDOFFILE
 
-
 elif [ "$step" = "1" ]; then
-source "${inp}"
-job=$(pwd)
-jobname="RC-Optimization"
-nohup chemsh RC_dlfind.chm > RC_dlfind.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Terminated" RC_dlfind.log)" -ge 1 ]; then
-		echo "RC Terminated by User"
-		exit
-	else
-		echo "RC Terminated normally"
-	fi
-echo "RC Terminated.Now Running Define"
-define <<EOF
+    source "${inp}"
+    job=$(pwd)
+    jobname="RC-Optimization"
+    nohup chemsh RC_dlfind.chm >RC_dlfind.log &
+    process=$!
+    while ps -p ${process} >/dev/null; do sleep 1; done
+    if [ "$(grep -c "Terminated" RC_dlfind.log)" -ge 1 ]; then
+        echo "RC Terminated by User"
+        exit
+    else
+        echo "RC Terminated normally"
+    fi
+    echo "RC Terminated.Now Running Define"
+    define <<EOF
 
 
 a coord
@@ -406,61 +403,59 @@ func b3-lyp
 
 *
 EOF
-echo "Executing RC Optimization"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_dlfind.chm >& RC_dlfind.log &"
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Energy evaluation failed" RC_dlfind.log)" -ge 1 ]; then
+    echo "Executing RC Optimization"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_dlfind.chm >& RC_dlfind.log &"
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    if [ "$(grep -c "Energy evaluation failed" RC_dlfind.log)" -ge 1 ]; then
         echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
         sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
         omit=$(pidof chemsh.x)
-	string="${omit//${IFS:0:1}/,}"
+        string="${omit//${IFS:0:1}/,}"
         tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_dlfind.chm >& RC_dlfind.log &"
-	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
-	sleep 5
-	if [ -z "$string" ]
-	then
-	calc=$(pidof chemsh.x)
-	else
-	calc=$(pidof -o "${string}" chemsh.x)    
-	fi
-	sleep 5
-	while ps -p "${calc}" > /dev/null;do sleep 1;done;
-	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-else
+        echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+        sleep 5
+        if [ -z "$string" ]; then
+            calc=$(pidof chemsh.x)
+        else
+            calc=$(pidof -o "${string}" chemsh.x)
+        fi
+        sleep 5
+        while ps -p "${calc}" >/dev/null; do sleep 1; done
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+    else
         echo "RC Completed"
         echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-fi
+    fi
 
 elif [ "$step" = "1f" ]; then
-source "${inp}"
-jobname="RC-Frequency"
-echo "Starting Frequency calculation"
-mkdir Frequency
-cp QM.dat Frequency/.
-cp MM.dat Frequency/.
-cp rc.opt.pdb Frequency/.
-cp rc.opt.c Frequency/.
-cp alpha Frequency/.
-cp beta Frequency/.
-cp control Frequency/.
-cp parse_amber.tcl Frequency/.
-cp rc.prmtop Frequency/.
-cp input.in Frequency/.
+    source "${inp}"
+    jobname="RC-Frequency"
+    echo "Starting Frequency calculation"
+    mkdir Frequency
+    cp QM.dat Frequency/.
+    cp MM.dat Frequency/.
+    cp rc.opt.pdb Frequency/.
+    cp rc.opt.c Frequency/.
+    cp alpha Frequency/.
+    cp beta Frequency/.
+    cp control Frequency/.
+    cp parse_amber.tcl Frequency/.
+    cp rc.prmtop Frequency/.
+    cp input.in Frequency/.
 
-cd Frequency/ || exit
-sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > RC_Freq.chm <<ENDOFFILE
+    cd Frequency/ || exit
+    sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >RC_Freq.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -511,40 +506,39 @@ list_option=none ]]
  exit
 ENDOFFILE
 
-echo "Executing Frequency calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_Freq.chm >& RC_Freq.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    echo "Executing Frequency calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_Freq.chm >& RC_Freq.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "1s" ]; then
-source "${inp}"
-jobname="RC-Single Point Energy"
-echo "Starting Single Point Calculation"
-mkdir SP
-cp QM.dat SP/.
-cp MM.dat SP/.
-cp rc.opt.pdb SP/.
-cp rc.opt.c SP/.
-cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
-cp rc.prmtop SP/.
-cp input.in SP/.
+    source "${inp}"
+    jobname="RC-Single Point Energy"
+    echo "Starting Single Point Calculation"
+    mkdir SP
+    cp QM.dat SP/.
+    cp MM.dat SP/.
+    cp rc.opt.pdb SP/.
+    cp rc.opt.c SP/.
+    cp parse_amber.tcl SP/.
+    cp myresidues.dat SP/.
+    cp rc.prmtop SP/.
+    cp input.in SP/.
 
-cd SP/ || exit
-sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > RC_SP.chm <<ENDOFFILE
+    cd SP/ || exit
+    sed -i "1s/rc.pdb/rc.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >RC_SP.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -596,17 +590,17 @@ list_option=none ]]
 ####
 exit
 ENDOFFILE
-nohup chemsh RC_SP.chm > RC_SP.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Terminated" RC_SP.log)" -ge 1 ]; then
-		echo "RC Terminated by User"
-		exit
-	else
-		echo "SP Terminated normally"
-	fi
-echo "SP Terminated.Now Running Define"
-define <<EOF
+    nohup chemsh RC_SP.chm >RC_SP.log &
+    process=$!
+    while ps -p ${process} >/dev/null; do sleep 1; done
+    if [ "$(grep -c "Terminated" RC_SP.log)" -ge 1 ]; then
+        echo "RC Terminated by User"
+        exit
+    else
+        echo "SP Terminated normally"
+    fi
+    echo "SP Terminated.Now Running Define"
+    define <<EOF
 
 
 a coord
@@ -632,72 +626,70 @@ func b3-lyp
 *
 EOF
 
-echo "Executing Single Point Energy Calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_SP.chm >& RC_SP.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" RC_SP.log)" -ge 1 ]; then
-    echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
-    sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+    echo "Executing Single Point Energy Calculation"
     omit=$(pidof chemsh.x)
-	string="${omit//${IFS:0:1}/,}"
+    string="${omit//${IFS:0:1}/,}"
+
     tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_SP.chm >& RC_SP.log &"
-	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
-	sleep 5
-	if [ -z "$string" ]
-	    then
-	    calc=$(pidof chemsh.x)
-	    else
-	    calc=$(pidof -o "${string}" chemsh.x)    
-	fi
-	sleep 5
-	while ps -p "${calc}" > /dev/null;do sleep 1;done;
-	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-else
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" RC_SP.log)" -ge 1 ]; then
+        echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
+        sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+        omit=$(pidof chemsh.x)
+        string="${omit//${IFS:0:1}/,}"
+        tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_SP.chm >& RC_SP.log &"
+        echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+        sleep 5
+        if [ -z "$string" ]; then
+            calc=$(pidof chemsh.x)
+        else
+            calc=$(pidof -o "${string}" chemsh.x)
+        fi
+        sleep 5
+        while ps -p "${calc}" >/dev/null; do sleep 1; done
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+    else
         echo "RC SP Completed"
         echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-fi
+    fi
 
 elif [ "$step" = "2" ]; then
-source "${inp}"
-jobname="Scan Calculation"
-if [[ ! -e ../2-Scan ]]; then
-    mkdir ../2-Scan
-elif [[ ! -d ../2-Scan ]]; then
-    echo "2-Scan already exists but is not a directory" 1>&2
-fi
+    source "${inp}"
+    jobname="Scan Calculation"
+    if [[ ! -e ../2-Scan ]]; then
+        mkdir ../2-Scan
+    elif [[ ! -d ../2-Scan ]]; then
+        echo "2-Scan already exists but is not a directory" 1>&2
+    fi
 
-cp rc.opt.c ../2-Scan/.
-cp rc.opt.pdb ../2-Scan/.
-cp rc.prmtop ../2-Scan/.
-cp alpha ../2-Scan/.
-cp beta ../2-Scan/.
-cp control ../2-Scan/.
-cp parse_amber.tcl ../2-Scan/.
-cp QM.dat ../2-Scan/.
-cp MM.dat ../2-Scan/.
-cp myresidues.dat ../2-Scan/.
-cp input.in ../2-Scan/.
+    cp rc.opt.c ../2-Scan/.
+    cp rc.opt.pdb ../2-Scan/.
+    cp rc.prmtop ../2-Scan/.
+    cp alpha ../2-Scan/.
+    cp beta ../2-Scan/.
+    cp control ../2-Scan/.
+    cp parse_amber.tcl ../2-Scan/.
+    cp QM.dat ../2-Scan/.
+    cp MM.dat ../2-Scan/.
+    cp myresidues.dat ../2-Scan/.
+    cp input.in ../2-Scan/.
 
-cd ../2-Scan/ || exit
-sed -i "1s/rc.pdb/scan_0.pdb/" myresidues.dat
-sed -i "2s/target=QM/target=fatone/" myresidues.dat
-cp rc.opt.c scan_0.c
-cp rc.opt.pdb scan_0.pdb
-cp rc.prmtop scan.prmtop
-job=$(pwd)
-cat > RC_Scan.chm <<ENDOFFILE
+    cd ../2-Scan/ || exit
+    sed -i "1s/rc.pdb/scan_0.pdb/" myresidues.dat
+    sed -i "2s/target=QM/target=fatone/" myresidues.dat
+    cp rc.opt.c scan_0.c
+    cp rc.opt.pdb scan_0.pdb
+    cp rc.prmtop scan.prmtop
+    job=$(pwd)
+    cat >RC_Scan.chm <<ENDOFFILE
 global sys_name_id
 set control_input_settings [ open SUMMARY.txt  a]
 puts \$control_input_settings "Summary of scan."
@@ -815,56 +807,211 @@ close \$control_input_settings
 exit
 ENDOFFILE
 
-echo "Executing Scan calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_Scan.chm >& RC_Scan.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
+    echo "Executing Scan calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_Scan.chm >& RC_Scan.log &"
 
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+
+elif [ "$step" = "2t" ]; then
+    source "${inp}"
+    jobname="Scan Calculation"
+    if [[ ! -e ../2-Scan_torsion ]]; then
+        mkdir ../2-Scan_torsion
+    elif [[ ! -d ../2-Scan_torsion ]]; then
+        echo "2-Scan_torsion already exists but is not a directory" 1>&2
+    fi
+
+    cp rc.opt.c ../2-Scan_torsion/.
+    cp rc.opt.pdb ../2-Scan_torsion/.
+    cp rc.prmtop ../2-Scan_torsion/.
+    cp alpha ../2-Scan_torsion/.
+    cp beta ../2-Scan_torsion/.
+    cp control ../2-Scan_torsion/.
+    cp parse_amber.tcl ../2-Scan_torsion/.
+    cp QM.dat ../2-Scan_torsion/.
+    cp MM.dat ../2-Scan_torsion/.
+    cp myresidues.dat ../2-Scan_torsion/.
+    cp input.in ../2-Scan_torsion/.
+
+    cd ../2-Scan_torsion/ || exit
+    cp rc.opt.c scan_0.c
+    cp rc.opt.pdb scan_0.pdb
+    cp rc.prmtop scan.prmtop
+    job=$(pwd)
+    cat >RC_Scan.chm <<ENDOFFILE
+global sys_name_id
+set control_input_settings [ open SUMMARY.txt  a]
+puts \$control_input_settings "Summary of scan."
+source parse_amber.tcl
+source MM.dat
+source QM.dat
+set sys_name_id scan
+set res [ pdb_to_res "\${sys_name_id}_0.pdb"]
+set myresidues  [ inlist function=combine residues= \$res sets= {${myresidues}} target=fatone ]
+set prmtop scan.prmtop
+
+# for the time being we have to calculate an energy to be able to call list_amber_atom_charges
+# define QM/MM settings:
+energy energy=e coords=scan_0.c theory=dl_poly  : [ list \\
+amber_prmtop_file=\$prmtop \\
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ] \\
+mxexcl=2000  \\
+mxlist=40000 \\
+cutoff=1000 \\
+use_pairlist = no \\
+save_dl_poly_files = yes \\
+exact_srf=yes \\
+list_option=none ]
+
+set atom_charges [ list_amber_atom_charges ]
+
+#-------------------------------------------------------------
+# optimize geometry
+
+#reduce
+set A $A
+set B $B
+set C $C
+set D $D
+
+set stepnum 100
+set incr -1
+
+set t0 [dihedral coords=scan_0.c i=\$A j=\$B k=\$C l=\$D]
+
+
+for {set i 0} { \$i < \$stepnum} {incr i} {
+
+set ReactionCoordinate [expr (\$t0 + \$incr * \$i) ]
+
+#-------------------------------------------------------------
+# optimize geometry with distance A-B fixed
+dl-find maxcycle=900 coords= scan_\${i}.c  \\
+result= scan_[expr (\$i+1)].c \\
+tolerance= 0.0012 \\
+restraints= [ list [ list torsion \$A \$B \$C \$D \$ReactionCoordinate 3.0 ] ] \\
+active_atoms= \$active \\
+theory= hybrid : [ list \\
+coupling= shift \\
+qm_region= \$qm_atoms \\
+atom_charges= \$atom_charges \\
+qm_theory= turbomole : [list   \\
+read_control= yes \\
+scratchdir=/data/$user/temp \\
+hamiltonian= b3lyp \\
+scftype= uhf  ]  \\
+mm_theory= dl_poly  : [ list \\
+amber_prmtop_file= \$prmtop \\
+exact_srf=yes \\
+use_pairlist=no \\
+mxlist=40000 \\
+cutoff=1000 \\
+mxexcl=2000  \\
+debug_memory=no \\
+scale14 = [ list [ expr 1 / 1.2 ] 0.5  ]  \\
+               conn= scan_0.c \\
+                save_dl_poly_files = yes \\
+         list_option=none ]]
+
+# save structure and orbitals of this step
+exec cp scan_[expr (\$i+1)].c scan_[expr (\$i+1)].c_save
+exec gzip  scan_[expr (\$i+1)].c_save
+exec cp alpha alpha_[expr (\$i+1)]
+exec cp beta beta_[expr (\$i+1)]
+exec gzip alpha_[expr (\$i+1)]
+exec gzip beta_[expr (\$i+1)]
+read_pdb  file= scan_0.pdb  coords=dummy.coords
+write_pdb file= scan_[expr (\$i+1)].pdb coords=scan_[expr (\$i+1)].c
+exec gzip scan_[expr (\$i+1)].pdb
+
+
+# write summary to file
+puts \$control_input_settings "======================================"
+puts \$control_input_settings "structure [expr (\$i+1)]"
+
+set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
+puts \$control_input_settings [format "Energy:%14.6f" \$energy]
+
+set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$A j=\$B unit=angstrom ]
+set r2 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$C j=\$D unit=angstrom ]
+puts \$control_input_settings [format "Distance R1(A-B) R2(C-D) :%4.3f %4.3f" \$r1 \$r2]
+
+flush \$control_input_settings
+
+#---------------------------------------------------------------------------
+
+}
+
+
+# cleanup
+catch {delete_object hybrid.turbomole.coords}
+catch {file delete dummy.coords}
+flush \$control_input_settings
+close \$control_input_settings
+
+exit
+ENDOFFILE
+
+    echo "Executing Scan calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RC_Scan.chm >& RC_Scan.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "3" ]; then
-source "${inp}"
-jobname="TS-Optimization"
-if [[ ! -e ../${transition}-TS_Opt ]]; then
-    mkdir ../${transition}-TS_Opt
-elif [[ ! -d ../${transition}-TS_Opt ]]; then
-    echo "${transition}-TS_Opt already exists but is not a directory" 1>&2
-fi
+    source "${inp}"
+    jobname="TS-Optimization"
+    if [[ ! -e ../${transition}-TS_Opt ]]; then
+        mkdir ../${transition}-TS_Opt
+    elif [[ ! -d ../${transition}-TS_Opt ]]; then
+        echo "${transition}-TS_Opt already exists but is not a directory" 1>&2
+    fi
 
-cp scan_"${transition}".c ../${transition}-TS_Opt/.
-cp scan_"${transition}".pdb.gz ../${transition}-TS_Opt/.
-cp scan_"${transition}".pdb ../${transition}-TS_Opt/.
-cp scan.prmtop ../${transition}-TS_Opt/.
-cp alpha_"${transition}".gz ../${transition}-TS_Opt/.
-cp beta_"${transition}".gz ../${transition}-TS_Opt/.
-cp control ../${transition}-TS_Opt/.
-cp parse_amber.tcl ../${transition}-TS_Opt/.
-cp QM.dat ../${transition}-TS_Opt/.
-cp MM.dat ../${transition}-TS_Opt/.
-cp myresidues.dat ../${transition}-TS_Opt/.
-cp input.in ../${transition}-TS_Opt/.
+    cp scan_"${transition}".c ../${transition}-TS_Opt/.
+    cp scan_"${transition}".pdb.gz ../${transition}-TS_Opt/.
+    cp scan_"${transition}".pdb ../${transition}-TS_Opt/.
+    cp scan.prmtop ../${transition}-TS_Opt/.
+    cp alpha_"${transition}".gz ../${transition}-TS_Opt/.
+    cp beta_"${transition}".gz ../${transition}-TS_Opt/.
+    cp control ../${transition}-TS_Opt/.
+    cp parse_amber.tcl ../${transition}-TS_Opt/.
+    cp QM.dat ../${transition}-TS_Opt/.
+    cp MM.dat ../${transition}-TS_Opt/.
+    cp myresidues.dat ../${transition}-TS_Opt/.
+    cp input.in ../${transition}-TS_Opt/.
 
-cd ../${transition}-TS_Opt/ || exit
-sed -i "1s/scan_0.pdb/ts.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip ./*.gz
-cp alpha_"${transition}" alpha
-cp beta_"${transition}" beta
-cp scan_"${transition}".c ts.c
-cp scan_"${transition}".pdb ts.pdb
-cp scan.prmtop ts.prmtop
-job=$(pwd)
-cat > TS_Opt.chm <<ENDOFFILE
+    cd ../${transition}-TS_Opt/ || exit
+    sed -i "1s/scan_0.pdb/ts.pdb/" myresidues.dat
+    sed -i "2s/target=fatone/target=QM/" myresidues.dat
+    gunzip ./*.gz
+    cp alpha_"${transition}" alpha
+    cp beta_"${transition}" beta
+    cp scan_"${transition}".c ts.c
+    cp scan_"${transition}".pdb ts.pdb
+    cp scan.prmtop ts.prmtop
+    job=$(pwd)
+    cat >TS_Opt.chm <<ENDOFFILE
 
 global sys_name_id
 source parse_amber.tcl
@@ -924,42 +1071,41 @@ exit
 
 ENDOFFILE
 
-echo "Executing TS Optimization calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_Opt.chm >& TS_Opt.log &"
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
+    echo "Executing TS Optimization calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_Opt.chm >& TS_Opt.log &"
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com
 
 elif [ "$step" = "3f" ]; then
-source "${inp}"
-jobname="TS-Frequency"
-echo "Starting TS Frequency calculation"
-mkdir Frequency
-cp QM.dat Frequency/.
-cp MM.dat Frequency/.
-cp ts.opt.pdb Frequency/.
-cp ts.opt.c Frequency/.
-cp alpha Frequency/.
-cp beta Frequency/.
-cp control Frequency/.
-cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
-cp ts.prmtop Frequency/.
-cp input.in Frequency/.
+    source "${inp}"
+    jobname="TS-Frequency"
+    echo "Starting TS Frequency calculation"
+    mkdir Frequency
+    cp QM.dat Frequency/.
+    cp MM.dat Frequency/.
+    cp ts.opt.pdb Frequency/.
+    cp ts.opt.c Frequency/.
+    cp alpha Frequency/.
+    cp beta Frequency/.
+    cp control Frequency/.
+    cp parse_amber.tcl Frequency/.
+    cp myresidues.dat Frequency/.
+    cp ts.prmtop Frequency/.
+    cp input.in Frequency/.
 
-cd Frequency/ || exit
-sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > TS_Freq.chm <<ENDOFFILE
+    cd Frequency/ || exit
+    sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >TS_Freq.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -1010,41 +1156,40 @@ list_option=none ]]
  exit
 ENDOFFILE
 
-echo "Executing TS Frequency calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
+    echo "Executing TS Frequency calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
 
-tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_Freq.chm >& TS_Freq.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_Freq.chm >& TS_Freq.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "3s" ]; then
-source "${inp}"
-jobname="TS-Single Point Energy"
-echo "Starting Single Point Calculation"
-mkdir SP
-cp QM.dat SP/.
-cp MM.dat SP/.
-cp ts.opt.pdb SP/.
-cp ts.opt.c SP/.
-cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
-cp ts.prmtop SP/.
-cp input.in SP/.
+    source "${inp}"
+    jobname="TS-Single Point Energy"
+    echo "Starting Single Point Calculation"
+    mkdir SP
+    cp QM.dat SP/.
+    cp MM.dat SP/.
+    cp ts.opt.pdb SP/.
+    cp ts.opt.c SP/.
+    cp parse_amber.tcl SP/.
+    cp myresidues.dat SP/.
+    cp ts.prmtop SP/.
+    cp input.in SP/.
 
-cd SP/ || exit
-sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > TS_SP.chm <<ENDOFFILE
+    cd SP/ || exit
+    sed -i "1s/ts.pdb/ts.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >TS_SP.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -1095,17 +1240,17 @@ list_option=none ]]
 ####
 exit
 ENDOFFILE
-nohup chemsh TS_SP.chm > TS_SP.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Terminated" TS_SP.log)" -ge 1 ]; then
-		echo "TS_SP Terminated by User"
-		exit
-	else
-		echo "TS_SP Terminated normally"
-	fi
-echo "SP Terminated.Now Running Define"
-define <<EOF
+    nohup chemsh TS_SP.chm >TS_SP.log &
+    process=$!
+    while ps -p ${process} >/dev/null; do sleep 1; done
+    if [ "$(grep -c "Terminated" TS_SP.log)" -ge 1 ]; then
+        echo "TS_SP Terminated by User"
+        exit
+    else
+        echo "TS_SP Terminated normally"
+    fi
+    echo "SP Terminated.Now Running Define"
+    define <<EOF
 
 
 a coord
@@ -1131,78 +1276,76 @@ func b3-lyp
 *
 EOF
 
-echo "Executing TS Single Point Energy Calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_SP.chm >& TS_SP.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" TS_SP.log)" -ge 1 ]; then
-    echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
-    sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+    echo "Executing TS Single Point Energy Calculation"
     omit=$(pidof chemsh.x)
-	string="${omit//${IFS:0:1}/,}"
+    string="${omit//${IFS:0:1}/,}"
     tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_SP.chm >& TS_SP.log &"
-	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
-	sleep 5
-	if [ -z "$string" ]
-	    then
-	    calc=$(pidof chemsh.x)
-	    else
-	    calc=$(pidof -o "${string}" chemsh.x)    
-	fi
-	sleep 5
-	while ps -p "${calc}" > /dev/null;do sleep 1;done;
-	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-else
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" TS_SP.log)" -ge 1 ]; then
+        echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
+        sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+        omit=$(pidof chemsh.x)
+        string="${omit//${IFS:0:1}/,}"
+        tcsh -c "setenv PARNODES $nodes;nohup chemsh TS_SP.chm >& TS_SP.log &"
+        echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+        sleep 5
+        if [ -z "$string" ]; then
+            calc=$(pidof chemsh.x)
+        else
+            calc=$(pidof -o "${string}" chemsh.x)
+        fi
+        sleep 5
+        while ps -p "${calc}" >/dev/null; do sleep 1; done
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+    else
         echo "TS SP Completed"
         echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-fi
+    fi
 
 elif [ "$step" = "4" ]; then
-source "${inp}"
-jobname="PD-Optimization"
-if [[ ! -e ../${product}-IM_Opt ]]; then
-    mkdir ../${product}-IM_Opt
-elif [[ ! -d ../${product}-IM_Opt ]]; then
-    echo "${product}-IM_Opt already exists but is not a directory" 1>&2
-fi
+    source "${inp}"
+    jobname="PD-Optimization"
+    if [[ ! -e ../${product}-IM_Opt ]]; then
+        mkdir ../${product}-IM_Opt
+    elif [[ ! -d ../${product}-IM_Opt ]]; then
+        echo "${product}-IM_Opt already exists but is not a directory" 1>&2
+    fi
 
-echo "Starting PD Optimization"
-cp scan_"${product}".c ../${product}-IM_Opt/.
-cp scan_"${product}".pdb.gz ../${product}-IM_Opt/.
-cp scan_"${product}".pdb ../${product}-IM_Opt/.
-cp scan.prmtop ../${product}-IM_Opt/.
-cp alpha_"${product}".gz ../${product}-IM_Opt/.
-cp alpha_"${product}" ../${product}-IM_Opt/.
-cp beta_"${product}".gz ../${product}-IM_Opt/.
-cp beta_"${product}" ../${product}-IM_Opt/.
-cp control ../${product}-IM_Opt/.
-cp parse_amber.tcl ../${product}-IM_Opt/.
-cp QM.dat ../${product}-IM_Opt/.
-cp MM.dat ../${product}-IM_Opt/.
-cp myresidues.dat ../${product}-IM_Opt/.
-cp input.in ../${product}-IM_Opt/.
+    echo "Starting PD Optimization"
+    cp scan_"${product}".c ../${product}-IM_Opt/.
+    cp scan_"${product}".pdb.gz ../${product}-IM_Opt/.
+    cp scan_"${product}".pdb ../${product}-IM_Opt/.
+    cp scan.prmtop ../${product}-IM_Opt/.
+    cp alpha_"${product}".gz ../${product}-IM_Opt/.
+    cp alpha_"${product}" ../${product}-IM_Opt/.
+    cp beta_"${product}".gz ../${product}-IM_Opt/.
+    cp beta_"${product}" ../${product}-IM_Opt/.
+    cp control ../${product}-IM_Opt/.
+    cp parse_amber.tcl ../${product}-IM_Opt/.
+    cp QM.dat ../${product}-IM_Opt/.
+    cp MM.dat ../${product}-IM_Opt/.
+    cp myresidues.dat ../${product}-IM_Opt/.
+    cp input.in ../${product}-IM_Opt/.
 
-cd ../${product}-IM_Opt/ || exit
-sed -i "1s/scan_0.pdb/pd.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip ./*.gz
-cp alpha_"${product}" alpha
-cp beta_"${product}" beta
-cp scan_"${product}".c pd.c
-cp scan_"${product}".pdb pd.pdb
-cp scan.prmtop pd.prmtop
-job=$(pwd)
-cat > PD_Opt.chm <<ENDOFFILE
+    cd ../${product}-IM_Opt/ || exit
+    sed -i "1s/scan_0.pdb/pd.pdb/" myresidues.dat
+    sed -i "2s/target=fatone/target=QM/" myresidues.dat
+    gunzip ./*.gz
+    cp alpha_"${product}" alpha
+    cp beta_"${product}" beta
+    cp scan_"${product}".c pd.c
+    cp scan_"${product}".pdb pd.pdb
+    cp scan.prmtop pd.prmtop
+    job=$(pwd)
+    cat >PD_Opt.chm <<ENDOFFILE
 
 global sys_name_id
 source parse_amber.tcl
@@ -1262,42 +1405,41 @@ write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 exit
 
 ENDOFFILE
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_Opt.chm >& PD_Opt.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_Opt.chm >& PD_Opt.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "4f" ]; then
-source "${inp}"
-jobname="PD-Frequency"
-echo "Starting PD Frequency calculation"
-mkdir Frequency
-cp QM.dat Frequency/.
-cp MM.dat Frequency/.
-cp pd.opt.pdb Frequency/.
-cp pd.opt.c Frequency/.
-cp alpha Frequency/.
-cp beta Frequency/.
-cp control Frequency/.
-cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
-cp pd.prmtop Frequency/.
-cp input.in Frequency/.
+    source "${inp}"
+    jobname="PD-Frequency"
+    echo "Starting PD Frequency calculation"
+    mkdir Frequency
+    cp QM.dat Frequency/.
+    cp MM.dat Frequency/.
+    cp pd.opt.pdb Frequency/.
+    cp pd.opt.c Frequency/.
+    cp alpha Frequency/.
+    cp beta Frequency/.
+    cp control Frequency/.
+    cp parse_amber.tcl Frequency/.
+    cp myresidues.dat Frequency/.
+    cp pd.prmtop Frequency/.
+    cp input.in Frequency/.
 
-cd Frequency/ || exit
-sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > PD_Freq.chm <<ENDOFFILE
+    cd Frequency/ || exit
+    sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >PD_Freq.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -1348,40 +1490,39 @@ list_option=none ]]
  exit
 ENDOFFILE
 
-echo "Executing PD Frequency calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_Freq.chm >& PD_Freq.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    echo "Executing PD Frequency calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_Freq.chm >& PD_Freq.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "4s" ]; then
-source "${inp}"
-jobname="PD-Single Point Energy"
-echo "Starting PD Single Point Calculation"
-mkdir SP
-cp QM.dat SP/.
-cp MM.dat SP/.
-cp pd.opt.pdb SP/.
-cp pd.opt.c SP/.
-cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
-cp pd.prmtop SP/.
-cp input.in SP/.
+    source "${inp}"
+    jobname="PD-Single Point Energy"
+    echo "Starting PD Single Point Calculation"
+    mkdir SP
+    cp QM.dat SP/.
+    cp MM.dat SP/.
+    cp pd.opt.pdb SP/.
+    cp pd.opt.c SP/.
+    cp parse_amber.tcl SP/.
+    cp myresidues.dat SP/.
+    cp pd.prmtop SP/.
+    cp input.in SP/.
 
-cd SP/ || exit
-sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > PD_SP.chm <<ENDOFFILE
+    cd SP/ || exit
+    sed -i "1s/pd.pdb/pd.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >PD_SP.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -1430,19 +1571,19 @@ list_option=none ]]
 ####
 exit
 ENDOFFILE
-nohup chemsh PD_SP.chm > PD_SP.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
+    nohup chemsh PD_SP.chm >PD_SP.log &
+    process=$!
+    while ps -p ${process} >/dev/null; do sleep 1; done
 
-if [ "$(grep -c "Terminated" PD_SP.log)" -ge 1 ]; then
-		echo "PD_SP Terminated by User"
-		exit
-	else
-		echo "PD_SP Terminated normally"
-	fi
+    if [ "$(grep -c "Terminated" PD_SP.log)" -ge 1 ]; then
+        echo "PD_SP Terminated by User"
+        exit
+    else
+        echo "PD_SP Terminated normally"
+    fi
 
-echo "SP Terminated.Now Running Define"
-define <<EOF
+    echo "SP Terminated.Now Running Define"
+    define <<EOF
 
 
 a coord
@@ -1468,85 +1609,78 @@ func b3-lyp
 *
 EOF
 
-echo "Executing PD Single Point Energy Calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-
-tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_SP.chm >& PD_SP.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-
-if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" PD_SP.log)" -ge 1 ]; then
-    echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
-    sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+    echo "Executing PD Single Point Energy Calculation"
     omit=$(pidof chemsh.x)
-	string="${omit//${IFS:0:1}/,}"
+    string="${omit//${IFS:0:1}/,}"
+
     tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_SP.chm >& PD_SP.log &"
-	echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
-	sleep 5
-	if [ -z "$string" ]
-	    then
-	    calc=$(pidof chemsh.x)
-	    else
-	    calc=$(pidof -o "${string}" chemsh.x)    
-	fi
-	sleep 5
-	while ps -p "${calc}" > /dev/null;do sleep 1;done;
-	echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-else
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+
+    if [ "$(grep -c "SCF convergence criteria cannot be satisfied in dscf" PD_SP.log)" -ge 1 ]; then
+        echo "DSCF Failed. Now changing SCF iterlimit and Restarting"
+        sed -i "s/$scfiterlimit      100/$scfiterlimit      900/" control
+        omit=$(pidof chemsh.x)
+        string="${omit//${IFS:0:1}/,}"
+        tcsh -c "setenv PARNODES $nodes;nohup chemsh PD_SP.chm >& PD_SP.log &"
+        echo "$job $system $frame JOB SCF Error and Restarted" | mail -s "Job Restarted" simahjsr@gmail.com
+        sleep 5
+        if [ -z "$string" ]; then
+            calc=$(pidof chemsh.x)
+        else
+            calc=$(pidof -o "${string}" chemsh.x)
+        fi
+        sleep 5
+        while ps -p "${calc}" >/dev/null; do sleep 1; done
+        echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
+    else
         echo "PD SP Completed"
         echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job} " | mail -s "Job Completed ${system}" simahjsr@gmail.com
-fi
+    fi
+
+    ###############################################################################################################################################################
+
+    #REBOUND
 
 ###############################################################################################################################################################
-
-
-								#REBOUND
-
-
-
-###############################################################################################################################################################
-
-
 
 elif [ "$step" = "RB" ]; then
-source "${inp}"
-jobname="RB-Scan"
-if [[ ! -e ../Rebound ]]; then
-    mkdir ../Rebound
-elif [[ ! -d ../Rebound ]]; then
-    echo "Rebound already exists but is not a directory" 1>&2
-fi
+    source "${inp}"
+    jobname="RB-Scan"
+    if [[ ! -e ../Rebound ]]; then
+        mkdir ../Rebound
+    elif [[ ! -d ../Rebound ]]; then
+        echo "Rebound already exists but is not a directory" 1>&2
+    fi
 
-echo "Starting RB Scan"
-cp pd.opt.c ../Rebound/.
-cp pd.opt.pdb ../Rebound/.
-cp pd.prmtop ../Rebound/.
-cp alpha ../Rebound/.
-cp beta ../Rebound/.
-cp control ../Rebound/.
-cp parse_amber.tcl ../Rebound/.
-cp QM.dat ../Rebound/.
-cp MM.dat ../Rebound/.
-cp myresidues.dat ../Rebound/.
-cp input.in ../Rebound/.
+    echo "Starting RB Scan"
+    cp pd.opt.c ../Rebound/.
+    cp pd.opt.pdb ../Rebound/.
+    cp pd.prmtop ../Rebound/.
+    cp alpha ../Rebound/.
+    cp beta ../Rebound/.
+    cp control ../Rebound/.
+    cp parse_amber.tcl ../Rebound/.
+    cp QM.dat ../Rebound/.
+    cp MM.dat ../Rebound/.
+    cp myresidues.dat ../Rebound/.
+    cp input.in ../Rebound/.
 
-cd ../Rebound/ || exit
-sed -i "1s/pd.pdb/rebound_0.pdb/" myresidues.dat
-sed -i "2s/target=QM/target=fatone/" myresidues.dat
-cp pd.opt.c rebound_0.c
-cp pd.opt.pdb rebound_0.pdb
-cp pd.prmtop rebound.prmtop
-job=$(pwd)
-cat > RB_Scan.chm <<ENDOFFILE
+    cd ../Rebound/ || exit
+    sed -i "1s/pd.pdb/rebound_0.pdb/" myresidues.dat
+    sed -i "2s/target=QM/target=fatone/" myresidues.dat
+    cp pd.opt.c rebound_0.c
+    cp pd.opt.pdb rebound_0.pdb
+    cp pd.prmtop rebound.prmtop
+    job=$(pwd)
+    cat >RB_Scan.chm <<ENDOFFILE
 
 global sys_name_id
 set control_input_settings [ open SUMMARY.txt  a]
@@ -1655,55 +1789,53 @@ close \$control_input_settings
 
 exit
 ENDOFFILE
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_Scan.chm >& RB_Scan.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_Scan.chm >& RB_Scan.log &"
 
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_TS" ]; then
-source "${inp}"
-jobname="RB_TS-Optimization"
-if [[ ! -e RB_TS ]]; then
-    mkdir RB_TS
-elif [[ ! -d RB_TS ]]; then
-    echo "RB_TS already exists but is not a directory" 1>&2
-fi
+    source "${inp}"
+    jobname="RB_TS-Optimization"
+    if [[ ! -e RB_TS ]]; then
+        mkdir RB_TS
+    elif [[ ! -d RB_TS ]]; then
+        echo "RB_TS already exists but is not a directory" 1>&2
+    fi
 
-cp rebound_"${transition}".c RB_TS/.
-cp rebound_"${transition}".pdb.gz RB_TS/.
-cp rebound_"${transition}".pdb RB_TS/.
-cp rebound.prmtop RB_TS/.
-cp alpha_"${transition}".gz RB_TS/.
-cp beta_"${transition}".gz RB_TS/.
-cp control RB_TS/.
-cp parse_amber.tcl RB_TS/.
-cp QM.dat RB_TS/.
-cp MM.dat RB_TS/.
-cp myresidues.dat RB_TS/.
-cp input.in RB_TS/.
+    cp rebound_"${transition}".c RB_TS/.
+    cp rebound_"${transition}".pdb.gz RB_TS/.
+    cp rebound_"${transition}".pdb RB_TS/.
+    cp rebound.prmtop RB_TS/.
+    cp alpha_"${transition}".gz RB_TS/.
+    cp beta_"${transition}".gz RB_TS/.
+    cp control RB_TS/.
+    cp parse_amber.tcl RB_TS/.
+    cp QM.dat RB_TS/.
+    cp MM.dat RB_TS/.
+    cp myresidues.dat RB_TS/.
+    cp input.in RB_TS/.
 
-cd RB_TS/ || exit
-sed -i "1s/rebound_0.pdb/rb_ts.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip ./*.gz
-cp alpha_"${transition}" alpha
-cp beta_"${transition}" beta
-cp rebound_"${transition}".c rb_ts.c
-cp rebound_"${transition}".pdb rb_ts.pdb
-cp rebound.prmtop rb_ts.prmtop
-job=$(pwd)
-cat > RB_TS_Opt.chm <<ENDOFFILE
+    cd RB_TS/ || exit
+    sed -i "1s/rebound_0.pdb/rb_ts.pdb/" myresidues.dat
+    sed -i "2s/target=fatone/target=QM/" myresidues.dat
+    gunzip ./*.gz
+    cp alpha_"${transition}" alpha
+    cp beta_"${transition}" beta
+    cp rebound_"${transition}".c rb_ts.c
+    cp rebound_"${transition}".pdb rb_ts.pdb
+    cp rebound.prmtop rb_ts.prmtop
+    job=$(pwd)
+    cat >RB_TS_Opt.chm <<ENDOFFILE
 
 global sys_name_id
 source parse_amber.tcl
@@ -1763,76 +1895,74 @@ exit
 
 ENDOFFILE
 
-# nohup chemsh RB_TS_Opt.chm > RB_TS_Opt.log &
-# process=$!
-# while ps -p ${process} > /dev/null;do sleep 1;done;
-# if [ "$(grep -c "Terminated" TS_Opt.log)" -ge 1 ]; then
-# 		echo "TS Terminated by User"
-# 		exit
-# 	else
-# 		echo "TS Terminated normally"
-# 	fi
-# define <<EOF
+    # nohup chemsh RB_TS_Opt.chm > RB_TS_Opt.log &
+    # process=$!
+    # while ps -p ${process} > /dev/null;do sleep 1;done;
+    # if [ "$(grep -c "Terminated" TS_Opt.log)" -ge 1 ]; then
+    # 		echo "TS Terminated by User"
+    # 		exit
+    # 	else
+    # 		echo "TS Terminated normally"
+    # 	fi
+    # define <<EOF
 
+    # a coord
+    # *
+    # no
+    # b all def2-SVP
+    # *
+    # eht
+    # y
+    # $charge
+    # n
+    # u $unp
+    # *
+    # n
+    # scf
+    # iter
+    # 900
 
-# a coord
-# *
-# no
-# b all def2-SVP
-# *
-# eht
-# y
-# $charge
-# n
-# u $unp
-# *
-# n
-# scf
-# iter
-# 900
+    # dft
+    # on
+    # func b3-lyp
 
-# dft
-# on
-# func b3-lyp
+    # *
+    # EOF
 
-# *
-# EOF
-
-echo "Executing TS Optimization calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_TS_Opt.chm >& RB_TS_Opt.log &"
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com 
+    echo "Executing TS Optimization calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_TS_Opt.chm >& RB_TS_Opt.log &"
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed" simahjsr@gmail.com
 
 elif [ "$step" = "RB_TS_Freq" ]; then
-source "${inp}"
-jobname="RB_TS-Frequency"
-echo "Starting TS Frequency calculation"
-mkdir Frequency
-cp QM.dat Frequency/.
-cp MM.dat Frequency/.
-cp rb_ts.opt.pdb Frequency/.
-cp rb_ts.opt.c Frequency/.
-cp alpha Frequency/.
-cp beta Frequency/.
-cp control Frequency/.
-cp parse_amber.tcl Frequency/.
-cp rb_ts.prmtop Frequency/.
-cp input.in Frequency/.
+    source "${inp}"
+    jobname="RB_TS-Frequency"
+    echo "Starting TS Frequency calculation"
+    mkdir Frequency
+    cp QM.dat Frequency/.
+    cp MM.dat Frequency/.
+    cp rb_ts.opt.pdb Frequency/.
+    cp rb_ts.opt.c Frequency/.
+    cp alpha Frequency/.
+    cp beta Frequency/.
+    cp control Frequency/.
+    cp parse_amber.tcl Frequency/.
+    cp rb_ts.prmtop Frequency/.
+    cp input.in Frequency/.
 
-cd Frequency/ || exit
-sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > RB_TS_Freq.chm <<ENDOFFILE
+    cd Frequency/ || exit
+    sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >RB_TS_Freq.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -1883,41 +2013,40 @@ list_option=none ]]
  exit
 ENDOFFILE
 
-echo "Executing TS Frequency calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
+    echo "Executing TS Frequency calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
 
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_TS_Freq.chm >& RB_TS_Freq.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_TS_Freq.chm >& RB_TS_Freq.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_TS_SP" ]; then
-source "${inp}"
-jobname="RB_TS-Single Point Energy"
-echo "Starting Single Point Calculation"
-mkdir SP
-cp QM.dat SP/.
-cp MM.dat SP/.
-cp rb_ts.opt.pdb SP/.
-cp rb_ts.opt.c SP/.
-cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
-cp rb_ts.prmtop SP/.
-cp input.in SP/.
+    source "${inp}"
+    jobname="RB_TS-Single Point Energy"
+    echo "Starting Single Point Calculation"
+    mkdir SP
+    cp QM.dat SP/.
+    cp MM.dat SP/.
+    cp rb_ts.opt.pdb SP/.
+    cp rb_ts.opt.c SP/.
+    cp parse_amber.tcl SP/.
+    cp myresidues.dat SP/.
+    cp rb_ts.prmtop SP/.
+    cp input.in SP/.
 
-cd SP/ || exit
-sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > RB_TS_SP.chm <<ENDOFFILE
+    cd SP/ || exit
+    sed -i "1s/rb_ts.pdb/rb_ts.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >RB_TS_SP.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -1968,17 +2097,17 @@ list_option=none ]]
 ####
 exit
 ENDOFFILE
-nohup chemsh RB_TS_SP.chm > RB_TS_SP.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
-if [ "$(grep -c "Terminated" TS_SP.log)" -ge 1 ]; then
-		echo "TS_SP Terminated by User"
-		exit
-	else
-		echo "TS_SP Terminated normally"
-	fi
-echo "SP Terminated.Now Running Define"
-define <<EOF
+    nohup chemsh RB_TS_SP.chm >RB_TS_SP.log &
+    process=$!
+    while ps -p ${process} >/dev/null; do sleep 1; done
+    if [ "$(grep -c "Terminated" TS_SP.log)" -ge 1 ]; then
+        echo "TS_SP Terminated by User"
+        exit
+    else
+        echo "TS_SP Terminated normally"
+    fi
+    echo "SP Terminated.Now Running Define"
+    define <<EOF
 
 
 a coord
@@ -2004,59 +2133,57 @@ func b3-lyp
 *
 EOF
 
-echo "Executing TS Single Point Energy Calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_TS_SP.chm >& RB_TS_SP.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    echo "Executing TS Single Point Energy Calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_TS_SP.chm >& RB_TS_SP.log &"
 
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_PD" ]; then
-source "${inp}"
-jobname="RB_PD-Optimization"
-if [[ ! -e RB_PD ]]; then
-    mkdir RB_PD
-elif [[ ! -d RB_PD ]]; then
-    echo "${product}-IM_Opt already exists but is not a directory" 1>&2
-fi
+    source "${inp}"
+    jobname="RB_PD-Optimization"
+    if [[ ! -e RB_PD ]]; then
+        mkdir RB_PD
+    elif [[ ! -d RB_PD ]]; then
+        echo "${product}-IM_Opt already exists but is not a directory" 1>&2
+    fi
 
-echo "Starting PD Optimization"
-cp rebound_"${product}".c RB_PD/.
-cp rebound_"${product}".pdb.gz RB_PD/.
-cp rebound_"${product}".pdb RB_PD/.
-cp rebound.prmtop RB_PD/.
-cp alpha_"${product}".gz RB_PD/.
-cp alpha_"${product}" RB_PD/.
-cp beta_"${product}".gz RB_PD/.
-cp beta_"${product}" RB_PD/.
-cp control RB_PD/.
-cp parse_amber.tcl RB_PD/.
-cp QM.dat RB_PD/.
-cp MM.dat RB_PD/.
-cp myresidues.dat RB_PD/.
-cp input.in RB_PD/.
+    echo "Starting PD Optimization"
+    cp rebound_"${product}".c RB_PD/.
+    cp rebound_"${product}".pdb.gz RB_PD/.
+    cp rebound_"${product}".pdb RB_PD/.
+    cp rebound.prmtop RB_PD/.
+    cp alpha_"${product}".gz RB_PD/.
+    cp alpha_"${product}" RB_PD/.
+    cp beta_"${product}".gz RB_PD/.
+    cp beta_"${product}" RB_PD/.
+    cp control RB_PD/.
+    cp parse_amber.tcl RB_PD/.
+    cp QM.dat RB_PD/.
+    cp MM.dat RB_PD/.
+    cp myresidues.dat RB_PD/.
+    cp input.in RB_PD/.
 
-cd RB_PD/ || exit
-sed -i "1s/rebound_0.pdb/rb_pd.pdb/" myresidues.dat
-sed -i "2s/target=fatone/target=QM/" myresidues.dat
-gunzip ./*.gz
-cp alpha_"${product}" alpha
-cp beta_"${product}" beta
-cp rebound_"${product}".c rb_pd.c
-cp rebound_"${product}".pdb rb_pd.pdb
-cp rebound.prmtop rb_pd.prmtop
-job=$(pwd)
-cat > RB_PD_Opt.chm <<ENDOFFILE
+    cd RB_PD/ || exit
+    sed -i "1s/rebound_0.pdb/rb_pd.pdb/" myresidues.dat
+    sed -i "2s/target=fatone/target=QM/" myresidues.dat
+    gunzip ./*.gz
+    cp alpha_"${product}" alpha
+    cp beta_"${product}" beta
+    cp rebound_"${product}".c rb_pd.c
+    cp rebound_"${product}".pdb rb_pd.pdb
+    cp rebound.prmtop rb_pd.prmtop
+    job=$(pwd)
+    cat >RB_PD_Opt.chm <<ENDOFFILE
 
 global sys_name_id
 source parse_amber.tcl
@@ -2112,42 +2239,41 @@ write_xyz file= \${sys_name_id}.QMregion.opt.xyz coords=hybrid.turbomole.coords
 exit
 
 ENDOFFILE
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_PD_Opt.chm >& RB_PD_Opt.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_PD_Opt.chm >& RB_PD_Opt.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_PD_Freq" ]; then
-source "${inp}"
-jobname="RB_PD-Frequency"
-echo "Starting RB_PD Frequency calculation"
-mkdir Frequency
-cp QM.dat Frequency/.
-cp MM.dat Frequency/.
-cp rb_pd.opt.pdb Frequency/.
-cp rb_pd.opt.c Frequency/.
-cp alpha Frequency/.
-cp beta Frequency/.
-cp control Frequency/.
-cp parse_amber.tcl Frequency/.
-cp myresidues.dat Frequency/.
-cp rb_pd.prmtop Frequency/.
-cp input.in Frequency/.
+    source "${inp}"
+    jobname="RB_PD-Frequency"
+    echo "Starting RB_PD Frequency calculation"
+    mkdir Frequency
+    cp QM.dat Frequency/.
+    cp MM.dat Frequency/.
+    cp rb_pd.opt.pdb Frequency/.
+    cp rb_pd.opt.c Frequency/.
+    cp alpha Frequency/.
+    cp beta Frequency/.
+    cp control Frequency/.
+    cp parse_amber.tcl Frequency/.
+    cp myresidues.dat Frequency/.
+    cp rb_pd.prmtop Frequency/.
+    cp input.in Frequency/.
 
-cd Frequency/ || exit
-sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > RB_PD_Freq.chm <<ENDOFFILE
+    cd Frequency/ || exit
+    sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >RB_PD_Freq.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -2198,40 +2324,39 @@ list_option=none ]]
  exit
 ENDOFFILE
 
-echo "Executing RB_PD Frequency calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_PD_Freq.chm >& RB_PD_Freq.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    echo "Executing RB_PD Frequency calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_PD_Freq.chm >& RB_PD_Freq.log &"
+
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 elif [ "$step" = "RB_PD_SP" ]; then
-source "${inp}"
-jobname="RB_PD-Single Point Energy"
-echo "Starting PD Single Point Calculation"
-mkdir SP
-cp QM.dat SP/.
-cp MM.dat SP/.
-cp rb_pd.opt.pdb SP/.
-cp rb_pd.opt.c SP/.
-cp parse_amber.tcl SP/.
-cp myresidues.dat SP/.
-cp rb_pd.prmtop SP/.
-cp input.in SP/.
+    source "${inp}"
+    jobname="RB_PD-Single Point Energy"
+    echo "Starting PD Single Point Calculation"
+    mkdir SP
+    cp QM.dat SP/.
+    cp MM.dat SP/.
+    cp rb_pd.opt.pdb SP/.
+    cp rb_pd.opt.c SP/.
+    cp parse_amber.tcl SP/.
+    cp myresidues.dat SP/.
+    cp rb_pd.prmtop SP/.
+    cp input.in SP/.
 
-cd SP/ || exit
-sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
-job=$(pwd)
-cat > RB_PD_SP.chm <<ENDOFFILE
+    cd SP/ || exit
+    sed -i "1s/rb_pd.pdb/rb_pd.opt.pdb/" myresidues.dat
+    job=$(pwd)
+    cat >RB_PD_SP.chm <<ENDOFFILE
 global sys_name_id
 source parse_amber.tcl
 source QM.dat
@@ -2282,19 +2407,19 @@ list_option=none ]]
 ####
 exit
 ENDOFFILE
-nohup chemsh RB_PD_SP.chm > RB_PD_SP.log &
-process=$!
-while ps -p ${process} > /dev/null;do sleep 1;done;
+    nohup chemsh RB_PD_SP.chm >RB_PD_SP.log &
+    process=$!
+    while ps -p ${process} >/dev/null; do sleep 1; done
 
-if [ "$(grep -c "Terminated" PD_SP.log)" -ge 1 ]; then
-		echo "RB_PD_SP Terminated by User"
-		exit
-	else
-		echo "RB_PD_SP Terminated normally"
-	fi
+    if [ "$(grep -c "Terminated" PD_SP.log)" -ge 1 ]; then
+        echo "RB_PD_SP Terminated by User"
+        exit
+    else
+        echo "RB_PD_SP Terminated normally"
+    fi
 
-echo "RB_TS SP Terminated.Now Running Define"
-define <<EOF
+    echo "RB_TS SP Terminated.Now Running Define"
+    define <<EOF
 
 
 a coord
@@ -2320,23 +2445,20 @@ func b3-lyp
 *
 EOF
 
-echo "Executing RB_PD Single Point Energy Calculation"
-omit=$(pidof chemsh.x)
-string="${omit//${IFS:0:1}/,}"
+    echo "Executing RB_PD Single Point Energy Calculation"
+    omit=$(pidof chemsh.x)
+    string="${omit//${IFS:0:1}/,}"
 
-tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_PD_SP.chm >& RB_PD_SP.log &"
- 
-sleep 5
-if [ -z "$string" ]
-then
-calc=$(pidof chemsh.x)
-else
-calc=$(pidof -o "${string}" chemsh.x)    
-fi
-sleep 5
-while ps -p "${calc}" > /dev/null;do sleep 1;done;
-echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
+    tcsh -c "setenv PARNODES $nodes;nohup chemsh RB_PD_SP.chm >& RB_PD_SP.log &"
 
-
+    sleep 5
+    if [ -z "$string" ]; then
+        calc=$(pidof chemsh.x)
+    else
+        calc=$(pidof -o "${string}" chemsh.x)
+    fi
+    sleep 5
+    while ps -p "${calc}" >/dev/null; do sleep 1; done
+    echo "Job Completed in ${host} on $(date) for ${system} ${jobname} at ${job}" | mail -s "Job Completed ${system} ${host}" simahjsr@gmail.com
 
 fi
