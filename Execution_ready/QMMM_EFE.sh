@@ -944,7 +944,7 @@ set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
 puts \$control_input_settings [format "Energy:%14.6f" \$energy]
 
 set torsion [dihedral coords=scan_[expr (\$i+1)].c i=\$A j=\$B k=\$C l=\$D ]
-puts \$control_input_settings [format "Distance R1($A-$B) R2($C-$D) :%4.3f" \$torsion]
+puts \$control_input_settings [format "Dihedral R1($A-$B-$C-$D) :%4.3f" \$torsion]
 
 flush \$control_input_settings
 
