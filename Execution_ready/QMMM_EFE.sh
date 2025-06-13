@@ -943,9 +943,8 @@ puts \$control_input_settings "structure [expr (\$i+1)]"
 set energy [ get_matrix_element matrix= dl-find.energy indices= { 0 0 } ]
 puts \$control_input_settings [format "Energy:%14.6f" \$energy]
 
-set r1 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$A j=\$B unit=angstrom ]
-set r2 [interatomic_distance coords=scan_[expr (\$i+1)].c i=\$C j=\$D unit=angstrom ]
-puts \$control_input_settings [format "Distance R1(A-B) R2(C-D) :%4.3f %4.3f" \$r1 \$r2]
+set torsion [dihedral coords=scan_[expr (\$i+1)].c i=\$A j=\$B k=\$C l=\$D ]
+puts \$control_input_settings [format "Distance R1($A-$B) R2($C-$D) :%4.3f" \$torsion]
 
 flush \$control_input_settings
 
