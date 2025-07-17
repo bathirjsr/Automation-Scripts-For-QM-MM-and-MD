@@ -384,7 +384,7 @@ elif [ "$step" = "1" ]; then
 a coord
 *
 no
-b all def2-SVP
+b all $basis
 *
 eht
 y
@@ -1032,7 +1032,7 @@ energy energy=e coords=ts.c theory=dl_poly  : [ list \\
 set atom_charges [ list_amber_atom_charges ]
 
 ##change: add "basis= {6-31G* all}"
-set qmflags { hamiltonian=b3lyp scftype= uhf basis= {def2-SVP all} read_control= yes }
+set qmflags { hamiltonian=b3lyp scftype= uhf basis= {${basis} all} read_control= yes }
 set qm_theory turbomole
 
 matrix dl-find.energy new volatile
@@ -1856,7 +1856,7 @@ energy energy=e coords=rb_ts.c theory=dl_poly  : [ list \\
 set atom_charges [ list_amber_atom_charges ]
 
 ##change: add "basis= {6-31G* all}"
-set qmflags { hamiltonian=b3lyp scftype= uhf basis= {def2-SVP all} read_control= yes }
+set qmflags { hamiltonian=b3lyp scftype= uhf basis= {${basis} all} read_control= yes }
 set qm_theory turbomole
 
 matrix dl-find.energy new volatile
