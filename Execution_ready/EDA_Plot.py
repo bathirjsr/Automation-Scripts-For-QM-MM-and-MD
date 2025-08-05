@@ -23,7 +23,7 @@ def parse_pdb_residues(pdb_file):
                 try:
                     res_letter = three_to_one(res_name)  # Convert to one-letter code
                 except KeyError:
-                    res_letter = 'X'  # Use 'X' if the conversion fails
+                    res_letter = 'H'  # Use 'X' if the conversion fails
                 residue_map[res_id] = res_letter
     
     return residue_map
@@ -50,12 +50,12 @@ def plot_eda_graph(eda_file, pdb_file, output_svg):
     # Label only the top 3 and bottom 3 EDA values with residue numbers and names
     for i in top_3_indices:
         res_num = residues[i]
-        res_name = residue_map.get(res_num, 'X')  # Use 'X' if not found
+        res_name = residue_map.get(res_num, 'H')  # Use 'X' if not found
         plt.text(res_num, eda[i] + 0.02, f'{res_name}{res_num}: {eda[i]:.2f}', ha='center', color='black', fontsize=10, family='Arial')
     
     for i in bottom_3_indices:
         res_num = residues[i]
-        res_name = residue_map.get(res_num, 'X')  # Use 'X' if not found
+        res_name = residue_map.get(res_num, 'H')  # Use 'X' if not found
         plt.text(res_num, eda[i] + 0.02, f'{res_name}{res_num}: {eda[i]:.2f}', ha='center', color='black', fontsize=10, family='Arial')
     
     # Adding labels and title
