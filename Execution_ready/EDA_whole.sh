@@ -362,6 +362,10 @@ for dir in *_Opt; do
         echo "Found directory: $dir"
         if  [[ $dir == *"RC"* ]] ; then
           eda rc
+        elif [[ $dir == *Cl* && $dir == *PD* ]]; then
+          eda rb_pd
+        elif [[ $dir == *Cl* && $dir == *TS* ]]; then
+          eda rb_ts
         elif  [[ $dir == *"TS"* ]] ; then
           eda ts
         elif [[ $dir == *"IM"* ]] || [[ $dir == *"PD"* ]]; then

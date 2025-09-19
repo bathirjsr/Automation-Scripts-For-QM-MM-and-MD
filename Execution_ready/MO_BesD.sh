@@ -47,15 +47,18 @@ hide everything;
 
 load QM.xyz ;
 hide everything;
+bond /QM///UNK\`24/Fe, /QM///UNK\`4/N ;
+bond /QM///UNK\`24/Fe, /QM///UNK\`15/N ;
+bond /QM///UNK\`24/Fe, /QM///UNK\`23/Cl ;
+bond /QM///UNK\`24/Fe, /QM///UNK\`25/O ;
+bond /QM///UNK\`24/Fe, /QM///UNK\`28/0 ;
+
 show lines, QM ;
 load ${basename}.cub ;
 isosurface alpha, ${basename}, 0.1 ;
 isosurface beta, ${basename}, -0.1 ;
 
 
-bond /QM///UNK\`32/Fe, /QM///UNK\`4/N ;
-bond /QM///UNK\`32/Fe, /QM///UNK\`24/N ;
-bond /QM///UNK\`32/Fe, /QM///UNK\`35/O ;
 
 
 color grey, alpha ;

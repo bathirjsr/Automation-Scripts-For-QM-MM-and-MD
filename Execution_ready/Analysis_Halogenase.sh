@@ -1,13 +1,14 @@
-#! /bin/bash
 #!/bin/bash
-
-steps=(
-"1-RC_Opt" "3-metaTS_Opt" "4-metaIM_Opt" "3-TS_Opt" 
-"4-PD_Opt" "6-Cl_TS_Opt" "7-Cl-PD_Opt" "6-OH_TS_Opt" "7-OH-PD_Opt"
-)
-
-for step in "${steps[@]}"; do
-    cd "${step}" || exit
+i=1
+for d in *_Opt
+do
+    dirs[i++]="${d%/}"
+done
+echo "There are ${#dirs[@]} dirs in the current path"
+home=$(pwd)
+for((i=1;i<=${#dirs[@]};i++))
+do
+    cd "${dirs[i]}" || exit
 
     proper << EOF
 pop
@@ -16,21 +17,21 @@ mulliken
 q
 EOF
 
-    cp population ../population_"${step}".txt
-    cp coord ../coord_"${step}"
-    cd ../
+    cp population ../population_"${dirs[i]}".txt
+    cp coord ../coord_"${dirs[i]}".txt
+    cd $home || exit
 
     a=$(sed '$d' QM.pdb | awk 'END{print $2}')
-    b=$(t2x coord_"${step}" | awk 'NR==1')
+    b=$(t2x coord_"${dirs[i]}".txt | awk 'NR==1')
     sum=$(( b - a ))
 
-    echo "${step}" > crd_tmp
-    t2x coord_"${step}" | tail -n ${b} >> crd_tmp
-    awk '{if (NR==1) print $0; else print NR-1,$0}' crd_tmp > CoordData_"${step}"
+    echo "${dirs[i]}" > crd_tmp
+    t2x coord_"${dirs[i]}".txt | tail -n ${b} >> crd_tmp
+    awk '{if (NR==1) print $0; else print NR-1,$0}' crd_tmp > CoordData_"${dirs[i]}".txt
     rm crd_tmp
 
-    t2x coord_${step} | head -n -${sum} > qm_without_link.xyz
-    t2x coord_${step} | tail -n ${sum} > qm_link.xyz
+    t2x coord_"${dirs[i]}".txt | head -n -${sum} > qm_without_link.xyz
+    t2x coord_"${dirs[i]}".txt | tail -n ${sum} > qm_link.xyz
 
     awk '{ print $0, NR }' qm_link.xyz > qm_link_nr.xyz
     tail -n+3 qm_without_link.xyz | awk '{ print $0, NR }' > qm_without_link_nr.xyz
@@ -66,40 +67,43 @@ BEGIN{sum=0}
 END{printf "%2.5f", sum}
 EOF
 
-    awk -f calcdist.awk qm_link_nr.xyz qm_without_link_nr.xyz | sort -n -k3 | head -n 6 | awk '{$1+=71}1' | tail -n 4 > link_${step}.txt
-    grep -A 75 "atom      charge" population_${step}.txt | sed '1d' | awk '{print $1,$2}' > ch_${step}.txt
-    grep -A 20 "Unpaired electrons" population_${step}.txt | sed '1,3d' | awk '{print $1,$2}' > spin_${step}.txt
+    awk -f calcdist.awk qm_link_nr.xyz qm_without_link_nr.xyz | sort -n -k3 | head -n 6 | awk '{$1+=71}1' | tail -n 4 > link_${dirs[i]}.txt
+    grep -A ${b} "atom      charge" population_${dirs[i]}.txt | sed '1d' | awk '{print $1,$2}' > ch_${dirs[i]}.txt
+    grep -A 20 "Unpaired electrons" population_${dirs[i]}.txt | sed '1,3d' | awk '{print $1,$2}' > spin_${dirs[i]}.txt
 
-    for j in FE1 OY1 SC1 Cl1 HD1 HD2 D5M; do
+    for j in FE1 OY1 SC1 Cl1 HD1 HD2 LIS; do
         res=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')
         if [[ "${j}" == "FE1" ]]; then
-            tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${step}.txt)
-            spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${step}.txt)
-            echo "${step}" > Charge_${step}.txt
-            echo "${j} ${tot}" >> Charge_${step}.txt
-            echo " ${step}" > Spin_Density_${step}.txt
-            echo "${j} ${spin}" >> Spin_Density_${step}.txt
-        elif [[ "${j}" == "OY1" ]] ; then
-            tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${step}.txt)
-            spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${step}.txt)
-            #echo "${step}" > Charge_${step}.txt
-            echo "${j} ${tot}" >> Charge_${step}.txt
-            #echo " ${step}" > Spin_Density_${step}.txt
-            echo "${j} ${spin}" >> Spin_Density_${step}.txt
-
+            tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${dirs[i]}.txt)
+            spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
+            echo "${dirs[i]}" > Charge_${dirs[i]}.txt
+            echo "${j} ${tot}" >> Charge_${dirs[i]}.txt
+            echo " ${dirs[i]}" > Spin_Density_${dirs[i]}.txt
+            echo "${j} ${spin}" >> Spin_Density_${dirs[i]}.txt
+         elif [[ "${j}" == "OY1" ]] ; then
+             tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${dirs[i]}.txt)
+             spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
+             #echo "${dirs[i]}" > Charge_${dirs[i]}.txt
+             echo "${j} ${tot}" >> Charge_${dirs[i]}.txt
+             #echo " ${dirs[i]}" > Spin_Density_${dirs[i]}.txt
+             echo "${j} ${spin}" >> Spin_Density_${dirs[i]}.txt
+        elif [[ "${j}" == "Cl1" ]] ; then
+            tot=$(awk -v i="${res}" '$1==i {print $2}' ch_${dirs[i]}.txt)
+            spin=$(awk -v i="${res}" '$1==i {printf "%2.5f", $2}' spin_${dirs[i]}.txt)
+            #echo "${dirs[i]}" > Charge_${dirs[i]}.txt
+            echo "${j} ${tot}" >> Charge_${dirs[i]}.txt
+            #echo " ${dirs[i]}" > Spin_Density_${dirs[i]}.txt
+            echo "${j} ${spin}" >> Spin_Density_${dirs[i]}.txt
         else
-            x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {print $2 tolower($12)}')
-            echo "${x}" > Residues_${step}_${j}.txt
-            tot=$(awk -f sum.awk Residues_${step}_${j}.txt ch_${step}.txt)
-            spin=$(awk -f sum.awk Residues_${step}_${j}.txt spin_${step}.txt)
-            echo "${j} ${tot}" >> Charge_${step}.txt
-            echo "${j} ${spin}" >> Spin_Density_${step}.txt
+            x=$(sed '1d' QM.pdb | awk -v i="${j}" '$4==i {printf "%s%s", $2 tolower($12), (NR==NR ? " " : "")} END{print ""}')
+            echo "${x}" > Residues_${dirs[i]}_${j}.txt
+            tot=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt ch_${dirs[i]}.txt)
+            spin=$(awk -f sum.awk Residues_${dirs[i]}_${j}.txt spin_${dirs[i]}.txt)
+            echo "${j} ${tot}" >> Charge_${dirs[i]}.txt
+            echo "${j} ${spin}" >> Spin_Density_${dirs[i]}.txt
         fi
     done
 done
 
-# Combine & clean up
-paste Spin_Density_* | awk '{printf("%s\t%s\t%s\t%s\n",$1,$2,$4,$6)}' > SpinDensity_.txt
-paste Charge_* | awk '{printf("%s\t%s\t%s\t%s\n",$1,$2,$4,$6)}' > ChargeDistribution_.txt
 
 
